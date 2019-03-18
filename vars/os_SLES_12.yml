@@ -1,0 +1,14 @@
+---
+docker_unit_after: "network.target docker.socket"
+docker_storage_driver: overlay
+bootloader_update_command: update-bootloader
+
+# Docker version mapping
+docker_version_map:
+  18.09:
+    package: docker-18.09.1_ce
+    repo: https://download.opensuse.org/repositories/Virtualization:containers/SLE_12_SP3/
+    name: Virtualization:containers
+    keys:
+      server: http://download.opensuse.org/repositories/Virtualization:/containers/SLE_12_SP3/repodata/repomd.xml.key
+      id:

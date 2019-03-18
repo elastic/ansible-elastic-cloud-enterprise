@@ -1,0 +1,27 @@
+---
+- name: Set default ece role if not defined
+  set_fact:
+    ece_roles: [director, coordinator, proxy, allocator]
+  when: ece_roles is undefined
+
+- name: Get the roles token
+  uri: 
+    url: "https://{{primary_hostname}}:12443/api/v1/platform/configuration/security/enrollment-tokens"
+    method: POST
+    user: admin
+    password: "{{ adminconsole_root_password }}"
+    force_basic_auth: yes
+    return_content: yes
+    validate_certs: no
+    headers:
+      Content-Type: "application/json"
+    body_format: json
+    body: '{ "persistent": false, "roles": {{ ece_roles }} }'
+  register: roles_token
+
+- name: Execute the elastic-cloud-enterprise.sh (director,coordinator,proxy,allocator)
+  shell: /home/elastic/elastic-cloud-enterprise.sh --coordinator-host {{ primary_hostname }} --roles-token '{{ roles_token.json.token }}' --roles '{{ ece_roles | join(',') }}' --availability-zone {{ availability_zone }} --cloud-enterprise-version {{ ece_version }}  --docker-registry {{ ece_docker_registry }} --ece-docker-repository {{ ece_docker_repository }}
+  become: yes
+  become_method: sudo
+  become_user: elastic
+  register: installation

@@ -1,0 +1,41 @@
+---
+- name: Include OS specific vars
+  include_vars: "{{ item }}"
+  with_first_found:
+  - os_{{ ansible_distribution }}_{{ ansible_distribution_major_version }}.yml
+  - unsupported.yml
+
+- name: Assert docker version is supported
+  assert:
+    that: "docker_version in docker_version_map.keys()"
+    msg: "Docker version must be one of {{ docker_version_map.keys() }}"
+
+- name: execute os specific tasks
+  include_tasks: "{{ item }}"
+  with_first_found:
+  - "{{ ansible_distribution }}-{{ ansible_distribution_major_version}}/main.yml"
+  - unsupported.yml
+
+- include_tasks: general/make_user.yml
+- include_tasks: general/set_limits.yml
+- include_tasks: general/setup_xfs.yml
+  tags: [setup_filesystem]
+- include_tasks: general/update_grub_docker.yml
+  tags: [setup_filesystem]
+- include_tasks: general/configure_docker.yml
+- include_tasks: general/sysctl_scripts.yml
+
+- name: Reboot the machine with all defaults
+  shell: sleep 2 && shutdown -r now "Reboot for changes to take effect"
+  async: 1
+  poll: 0
+  ignore_errors: true
+
+- name: Wait for the reboot to complete
+  wait_for_connection:
+    connect_timeout: 20
+    sleep: 5
+    delay: 5
+    timeout: 600
+
+- include_tasks: general/setup_mount_permissions.yml

@@ -1,0 +1,15 @@
+---
+galaxy_info:
+  author: Vincent Barth
+  description: Elastic Cloud Enterprise Reference preparation and installation 
+  company: "Elastic.co"
+  license: "license (Apache)"
+  min_ansible_version: 2.4
+  platforms:
+  - name: Ubuntu
+    versions:
+    - 16.04
+  - name: SLES
+    versions:
+
+dependencies: []

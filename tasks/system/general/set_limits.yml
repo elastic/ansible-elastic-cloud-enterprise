@@ -1,0 +1,19 @@
+---
+- name: Modify pam limits
+  pam_limits:
+    domain: "{{ item.domain }}"
+    limit_type: "{{ item.limit_type }}"
+    limit_item: "{{ item.limit_item }}"
+    value: "{{ item.value }}"
+  with_items:
+  - { domain: '*', limit_type: 'soft', limit_item: 'nofile', value: '1024000' }
+  - { domain: '*', limit_type: 'hard', limit_item: 'nofile', value: '1024000' }
+  - { domain: '*', limit_type: 'soft', limit_item: 'memlock', value: 'unlimited' }
+  - { domain: '*', limit_type: 'hard', limit_item: 'memlock', value: 'unlimited' }
+  - { domain: 'elastic', limit_type: 'soft', limit_item: 'nofile', value: '1024000' }
+  - { domain: 'elastic', limit_type: 'hard', limit_item: 'nofile', value: '1024000' }
+  - { domain: 'elastic', limit_type: 'soft', limit_item: 'memlock', value: 'unlimited' }
+  - { domain: 'elastic', limit_type: 'hard', limit_item: 'memlock', value: 'unlimited' }
+  - { domain: 'root', limit_type: 'soft', limit_item: 'nofile', value: '1024000' }
+  - { domain: 'root', limit_type: 'hard', limit_item: 'nofile', value: '1024000' }
+  - { domain: 'root', limit_type: 'soft', limit_item: 'memlock', value: 'unlimited' }

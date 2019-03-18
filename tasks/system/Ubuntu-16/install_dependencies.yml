@@ -1,0 +1,10 @@
+---
+- name: Install base dependencies
+  apt:
+    name: "{{ packages }}"
+    update_cache: yes
+    state: present
+  vars:
+    packages:
+    - linux-generic-lts-xenial
+    - xfsprogs

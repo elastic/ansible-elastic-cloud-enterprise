@@ -1,0 +1,11 @@
+---
+- name: Create 70-cloudenterprise.conf
+  template:
+    src: 70-cloudenterprise.conf
+    dest: /etc/sysctl.d/70-cloudenterprise.conf
+
+- name: Ensure settings in /etc/sysctl.d/*.conf are applied on boot
+  template:
+    src: 00-load-sysctl-settings
+    dest: /var/lib/cloud/scripts/per-boot/00-load-sysctl-settings
+    mode: 0755

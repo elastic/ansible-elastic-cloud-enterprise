@@ -1,0 +1,6 @@
+---
+- include_tasks: system/main.yml
+  tags: [system]
+
+- include_tasks: bootstrap/main.yml
+  tags: [ece]

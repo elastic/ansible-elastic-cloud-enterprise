@@ -1,0 +1,27 @@
+---
+- name: Stop the docker service
+  systemd:
+    name: docker
+    state: stopped
+
+- name: Ensures /etc/systemd/system/docker.service.d dir exists
+  file:
+    path: /etc/systemd/system/docker.service.d
+    state: directory
+
+- name: Create service.d docker.conf
+  template:
+    src: docker{{ docker_version }}.conf
+    dest: /etc/systemd/system/docker.service.d/docker.conf
+
+- name: Remove var/lib/docker
+  file:
+    path: /var/lib/docker
+    state: absent
+
+- name: Reload systemd docker daemon
+  systemd:
+    name: docker
+    enabled: yes
+    daemon_reload: yes
+    state: restarted

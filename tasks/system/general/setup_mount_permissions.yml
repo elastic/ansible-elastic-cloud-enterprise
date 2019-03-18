@@ -1,0 +1,24 @@
+---
+- name: Change owner of /mnt/data
+  file:
+    path: /mnt/data
+    owner: elastic
+    group: elastic
+    mode: 0700
+    state: directory
+
+- name: Change owner and permissions of /mnt/data/elastic
+  file:
+    path: /mnt/data/elastic
+    state: directory
+    owner: elastic
+    group: elastic
+    mode: 0700
+
+- name: Change owner and permissions of /mnt/data/docker
+  file:
+    path: /mnt/data/docker
+    state: directory
+    owner: elastic
+    group: elastic
+    mode: 0700

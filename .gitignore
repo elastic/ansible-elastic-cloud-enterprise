@@ -1,0 +1,6 @@
+*.retry
+*.local.yml
+*.local.sh
+*.local.json
+.vscode
+.DS_Store

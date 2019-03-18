@@ -1,0 +1,28 @@
+---
+- name: Add group elastic
+  group:
+    name: elastic
+    state: present
+
+- name: Add user elastic
+  user:
+    name: elastic
+    uid: 1001
+    group: elastic
+    groups: docker
+    append: yes
+    state: present
+    generate_ssh_key: true
+
+- name: Copy keys from default user to elastic user
+  copy:
+    src: "~{{ ansible_ssh_user }}/.ssh/authorized_keys"
+    dest: ~elastic/.ssh/
+    remote_src: yes
+
+- name: Set pwd policy
+  lineinfile:
+    path: /etc/sudoers.d/99-ece-users
+    line: 'elastic ALL=(ALL) NOPASSWD:ALL'
+    state: present
+    create: true
