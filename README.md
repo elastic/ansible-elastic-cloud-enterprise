@@ -57,15 +57,15 @@ The following variables are avaible:
 | `docker_config`         | If specified as a path to a docker config, copies it to the target hosts                                                                      |                                             |                                   |
 
 If more hosts should join an Elastic Cloud Enterpise installation when a primary host was already installed previously there are two more variables that are required:
-- `primary_hostname`: The (reachable) hostname of the primary host
+- `primary_hostname`: The (reachable) hostname of the primary host
 - `adminconsole_root_password`: The adminconsole root password
 
 
 Role Tags
 ---------
 The following tags are available to limit the execution:
-- `system` Determines the execution of all tasks that setup the system (everything except the actual installation of Elastic Cloud Enterprise) 
-    - `setup_filesystem` If system tasks are executed, this determines if the filesystem tasks should get executed - includes creating the partitions for xfs and mount points 
-    - `install_docker` If system tasks are executed, this determines if existing docker packages should get removed and the current, supported version should get installes
-- `ece` Determines if Elastic Cloud Enterprise should get installed
+- `system` Determines the execution of all tasks that setup the system (everything except the actual installation of Elastic Cloud Enterprise) 
+    - `setup_filesystem` If system tasks are executed, this determines if the filesystem tasks should get executed - includes creating the partitions for xfs and mount points 
+    - `install_docker` If system tasks are executed, this determines if existing docker packages should get removed and the current, supported version should get installes
+- `ece` Determines if Elastic Cloud Enterprise should get installed
 
