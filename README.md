@@ -43,16 +43,21 @@ There is a set of variables and tags available to further define the behaiviour 
 
 The following variables are avaible:
 
-| Variable                | Description                                                                                                                                   | Default                                     | Required to specify               |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |:-------------------------------------------:|:---------------------------------:|
-| `device_name`           | The name of the device on which the xfs partition should be created                                                                           | xvdb                                        |                                   |
-| `ece_primary`           | Whether this host should be the primary (first) host where Elastic Cloud Enterprise is installed - Only a single host must have this variable |                                             | yes, on a single host             |
-| `ece_roles`             | Elastic Cloud Enterprise roles that successive hosts should assume                                                                            | [director, coordinator, proxy, allocator]   |                                   |
-| `availability_zone`     | The availability zone this group of hosts belongs to                                                                                          |                                             |                                   |
-| `ece_version`           | The Elastic Cloud Enterprise version that should get installed                                                                                | 2.1.0                                       |                                   |
-| `ece_docker_registry`   | The docker registry from where to pull the Elastic Cloud Enterprise images. This is only relevant if you have a private mirror                | docker.elastic.co                           |                                   |
-| `ece_docker_repository` | The docker repository in the given registry. This is only relevant if you have a private mirror                                               | cloud-enterprise                            |                                   |
-| `docker_config`         | If specified as a path to a docker config, copies it to the target hosts                                                                      |                                             |                                   |
+- `device_name`: The name of the device on which the xfs partition should be created
+    - **Required** unless filestystem tasks are skipped via tags
+    - Default: xvdb
+- `ece_primary`: Whether this host should be the primary (first) host where Elastic Cloud Enterprise is installed
+    - **Required** on a single host
+- `ece_roles`: Elastic Cloud Enterprise roles that successive hosts should assume
+    - Default: [director, coordinator, proxy, allocator]
+- `availability_zone`: The availability zone this group of hosts belongs to
+- `ece_version`: The Elastic Cloud Enterprise version that should get installed
+    - Default: 2.1.0
+- `ece_docker_registry`: The docker registry from where to pull the Elastic Cloud Enterprise images. This is only relevant if you have a private mirror 
+    - Default: docker.elastic.co
+- `ece_docker_repository`: The docker repository in the given registry. This is only relevant if you have a private mirror
+    - Default: cloud-enterprise
+- `docker_config`: If specified as a path to a docker config, copies it to the target hosts
 
 If more hosts should join an Elastic Cloud Enterpise installation when a primary host was already installed previously there are two more variables that are required:
 - `primary_hostname`: The (reachable) hostname of the primary host
@@ -125,7 +130,7 @@ all:
 ### Adding hosts to an existing installation
 
 Assuming you already have an existing installation of Elastic Cloud Enterprise and you want to add more allocators to it you need to specify two additional variables:
-- `primary_hostname`: The (reachable) hostname of the primary host
+- `primary_hostname`: The (reachable) hostname of the primary host
 - `adminconsole_root_password`: The adminconsole root password
 
 The corresponding `site.yml` could then look like:
@@ -136,11 +141,11 @@ The corresponding `site.yml` could then look like:
     - elastic-cloud-enterprise
   vars:
     ece_roles: [allocator]
-    primary_hostname: host1
+    primary_hostname: host1
     adminconsole_root_password: secret_password
 ```
 
-With the `inventory.yml`
+With the `inventory.yml`
 ```yaml
 all:
   vars:

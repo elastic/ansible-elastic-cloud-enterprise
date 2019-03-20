@@ -5,7 +5,7 @@ bootloader_update_command: update-grub
 
 # Docker version mapping
 docker_version_map:
-  18.09:
+  "18.09":
     package: docker-ce=5:18.09.2*
     repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
     keys:
