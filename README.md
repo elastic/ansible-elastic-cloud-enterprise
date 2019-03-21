@@ -100,7 +100,7 @@ This example installs Elastic Cloud Enterprise as detailed in "A medium installa
     ece_roles: [allocator]
 ```
 
-Assuming all hosts have the device name in common the `inventory.yml` could look like this:
+Assuming all hosts have the device name in common the `inventory.yml` could look like this:
 ```yaml
 all:
   vars:
@@ -160,4 +160,32 @@ all:
           availability_zone: zone-2
         host9:
           availability_zone: zone-3
+```
+
+### Performing an upgrade
+
+You only need to run the upgrade on a single host, it will then automatically propagate to all other hosts.
+An upgrade is usually performed on the first host you installed Elastic Cloud Enterprise on, but it can also be run from any host that holds the director role.
+
+Assuming you have an installation of Elastic Cloud Enterprise 2.0.0 and want to upgrade to 2.1.0 `site.yml` could then look like:
+```yaml
+- hosts: upgradehost
+  roles:
+    - elastic-cloud-enterprise
+  vars:
+    ece_version: 2.1.0
+```
+
+with `inventory.yml`
+```yaml
+all:
+  children:
+    upgradehost:
+      hosts:
+        host1:
+```
+
+It is important that you then specify `--skip-tags system` when you run the playbook in order to only perform the Elastic Cloud Enterprise update and no other tasks, especially when the initial installation was not done with this role.
+```bash
+ansible-playbook -i inventory.yml site.yml --skip-tags system
 ```

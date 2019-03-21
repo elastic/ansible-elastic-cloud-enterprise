@@ -18,15 +18,23 @@
     owner: elastic
   when: docker_config != ""
 
-- include_tasks: primary/main.yml
-  when: ece_primary is defined and ece_primary
+- name: Check if an installation or upgrade should be performed
+  shell: docker ps -a -f name=frc-runners-runner --format {%raw%}"{{.Image}}"{%endraw%}
+  register: existing_runner
 
-- include_tasks: secondary/main.yml
-  when: ece_primary is undefined or not ece_primary
+- name: Install Elastic Cloud Enterprise
+  block:
+    - include_tasks: primary/main.yml
+      when: ece_primary is defined and ece_primary
 
-- debug:
-    msg: "Primary host is: {{ primary_hostname }}"
-- debug:
-    msg: "Adminconsole is reachable at: https://{{ primary_hostname }}:12443"
-- debug:
-    msg: "Adminconsole password is: {{ adminconsole_root_password }}"
+    - include_tasks: secondary/main.yml
+      when: ece_primary is undefined or not ece_primary
+
+    - debug:
+        msg: "Adminconsole is reachable at: https://{{ primary_hostname }}:12443"
+    - debug:
+        msg: "Adminconsole password is: {{ adminconsole_root_password }}"
+  when: existing_runner.stdout == ""
+
+- include_tasks: upgrade.yml
+  when: existing_runner.stdout != ""

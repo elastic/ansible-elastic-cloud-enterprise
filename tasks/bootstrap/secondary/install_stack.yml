@@ -19,7 +19,7 @@
     body: '{ "persistent": false, "roles": {{ ece_roles }} }'
   register: roles_token
 
-- name: Execute the elastic-cloud-enterprise.sh (director,coordinator,proxy,allocator)
+- name: Execute installation
   shell: /home/elastic/elastic-cloud-enterprise.sh --coordinator-host {{ primary_hostname }} --roles-token '{{ roles_token.json.token }}' --roles '{{ ece_roles | join(',') }}' --availability-zone {{ availability_zone }} --cloud-enterprise-version {{ ece_version }}  --docker-registry {{ ece_docker_registry }} --ece-docker-repository {{ ece_docker_repository }}
   become: yes
   become_method: sudo

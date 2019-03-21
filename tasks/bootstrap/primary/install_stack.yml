@@ -1,5 +1,5 @@
 ---
-- name: Execute the elastic-cloud-enterprise.sh
+- name: Execute the primary installation
   shell: /home/elastic/elastic-cloud-enterprise.sh install --availability-zone {{ availability_zone }} --cloud-enterprise-version {{ ece_version }} --docker-registry {{ ece_docker_registry }} --ece-docker-repository {{ ece_docker_repository }}
   become: yes
   become_method: sudo
