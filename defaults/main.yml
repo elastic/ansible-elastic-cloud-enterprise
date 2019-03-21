@@ -6,5 +6,5 @@ ece_docker_repository: cloud-enterprise
 docker_config: ""
 
 # Overall setup variables (like package versions)
-docker_version: 18.09
+docker_version: "18.09"
 device_name: xvdb

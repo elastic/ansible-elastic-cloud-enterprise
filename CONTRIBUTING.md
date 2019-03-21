@@ -41,8 +41,8 @@ bootloader_update_command: # e.g. update-bootloader on SLES
 
 # The docker version mapping is used to easily support multiple docker versions
 docker_version_map:
-  # The version of docker to be installed, this value is referenced in defaults/main.yml (e.g. "docker_version: 18.09")
-  18.09: 
+  # The version of docker to be installed, this value is referenced in defaults/main.yml (e.g. docker_version: "18.09")
+  "18.09": 
     # The package name to be installed for this version
     package: docker-18.09.1_ce 
     # The repository that needs to be added for the docker package
