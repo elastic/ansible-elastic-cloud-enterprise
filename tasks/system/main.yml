@@ -19,10 +19,11 @@
 - include_tasks: general/make_user.yml
 - include_tasks: general/set_limits.yml
 - include_tasks: general/setup_xfs.yml
-  tags: [setup_filesystem]
+  tags: [setup_filesystem, destructive]
 - include_tasks: general/update_grub_docker.yml
-  tags: [setup_filesystem]
+  tags: [setup_filesystem, destructive]
 - include_tasks: general/configure_docker.yml
+  tags: [install_docker, destructive]
 - include_tasks: general/sysctl_scripts.yml
 
 - name: Reboot the machine with all defaults

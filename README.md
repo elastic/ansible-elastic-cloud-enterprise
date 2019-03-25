@@ -38,6 +38,8 @@ At least two hosts are needed for this example, a primary and a secondary host. 
 
 There is a set of variables and tags available to further define the behaiviour of this role, or exclude certain steps.
 
+For example in many cases you might want to install Elastic Coud Enterprise without running any of the potentially destructive system prerequisites like removing existing docker installations and setting up a filesystem. This can be done by specifying `--skip-tags destrcutive` on your ansible run - or if you want to only install Elastic Coud Enterprise without any system tasks before `--skip-tags system`.
+
 
 ## Role Variables
 
@@ -66,10 +68,12 @@ If more hosts should join an Elastic Cloud Enterpise installation when a primary
 
 ## Role Tags
 
-The following tags are available to limit the execution:
+The following tags are available to limit the execution, due to the nature of tags in ansible you should only use `--skip-tags` with these to skip certain parts instead of using `--tags` to limit the execution.
+
 - `system` Determines the execution of all tasks that setup the system (everything except the actual installation of Elastic Cloud Enterprise) 
     - `setup_filesystem` If system tasks are executed, this determines if the filesystem tasks should get executed - includes creating the partitions for xfs and mount points 
-    - `install_docker` If system tasks are executed, this determines if existing docker packages should get removed and the current, supported version should get installes
+    - `install_docker` If system tasks are executed, this determines if existing docker packages should get removed and the current, supported version should get installed and configured
+- `destructive` This tag indicates whether a task is potentially destructive, like removing packages or doing filesystem partitioning
 - `ece` Determines if Elastic Cloud Enterprise should get installed
 
 
@@ -189,3 +193,7 @@ It is important that you then specify `--skip-tags system` when you run the play
 ```bash
 ansible-playbook -i inventory.yml site.yml --skip-tags system
 ```
+
+## Extendening and Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for more details on how to contribute and extend the Elastic Cloud Enterprise role.
