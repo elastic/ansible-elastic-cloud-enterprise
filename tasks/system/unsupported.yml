@@ -1,3 +1,0 @@
----
-- fail:
-    msg: 'ERROR: OS {{ ansible_distribution }} {{ ansible_distribution_major_version}} is not supported!'
