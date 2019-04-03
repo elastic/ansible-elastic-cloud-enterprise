@@ -1,11 +1,75 @@
 ---
-- name: Create 70-cloudenterprise.conf
-  template:
-    src: 70-cloudenterprise.conf
-    dest: /etc/sysctl.d/70-cloudenterprise.conf
+- name: sysctl_scripts.yml || Create file for sysctl
+  file:
+    path: '/etc/systctl.d/70-cloudenterprise.conf'
+    state: touch
+    mode: "u=rw,g=r,o=r"
 
-- name: Ensure settings in /etc/sysctl.d/*.conf are applied on boot
-  template:
-    src: 00-load-sysctl-settings
-    dest: /var/lib/cloud/scripts/per-boot/00-load-sysctl-settings
-    mode: 0755
+- name: sysctl_scripts.yml || net.ipv4.tcp_max_syn_backlog
+  sysctl:
+    name: net.ipv4.tcp_max_syn_backlog
+    value: 65536
+    sysctl_file: '/etc/systctl.d/70-cloudenterprise.conf'
+    reload: yes
+    state: present
+
+- name: sysctl_scripts.yml || net.core.somaxconn
+  sysctl:
+    name: net.core.somaxconn
+    value: 32768
+    sysctl_file: '/etc/systctl.d/70-cloudenterprise.conf'
+    reload: yes
+    state: present
+
+- name: sysctl_scripts.yml || net.core.netdev_max_backlog
+  sysctl:
+    name: net.core.netdev_max_backlog
+    value: 32768
+    sysctl_file: '/etc/systctl.d/70-cloudenterprise.conf'
+    reload: yes
+    state: present
+
+- name: sysctl_scripts.yml || vm.max_map_count
+  sysctl:
+    name: vm.max_map_count
+    value: 262144
+    sysctl_file: '/etc/systctl.d/70-cloudenterprise.conf'
+    reload: yes
+    state: present
+
+- name: sysctl_scripts.yml || vm.swappiness
+  sysctl:
+    name: vm.swappiness
+    value: 1
+    sysctl_file: '/etc/systctl.d/70-cloudenterprise.conf'
+    reload: yes
+    state: present
+
+- name: sysctl_scripts.yml ||net.ipv4.tcp_keepalive_time
+  sysctl:
+    name: net.ipv4.tcp_keepalive_time
+    value: 1800
+    sysctl_file: '/etc/systctl.d/70-cloudenterprise.conf'
+    reload: yes
+    state: present
+
+- name: sysctl_scripts.yml || net.netfilter.nf_conntrack_tcp_timeout_established
+  sysctl:
+    name: net.netfilter.nf_conntrack_tcp_timeout_established
+    value: 7200
+    sysctl_file: '/etc/systctl.d/70-cloudenterprise.conf'
+    reload: yes
+    state: present
+
+- name: sysctl_scripts.yml || net.netfilter.nf_conntrack_max
+  sysctl:
+    name: net.netfilter.nf_conntrack_max
+    value: 262140
+    sysctl_file: '/etc/systctl.d/70-cloudenterprise.conf'
+    reload: yes
+    state: present
+
+- name: sysctl_scripts.yml || load ip_conntrack if needed
+  modprobe:
+    name: ip_conntrack
+    state: present
