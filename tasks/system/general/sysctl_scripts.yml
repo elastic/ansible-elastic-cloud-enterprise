@@ -1,5 +1,4 @@
 ---
-# fatal: [ece-r1-director]: FAILED! => {"changed": false, "msg": "Error, could not touch target: [Errno 2] No such file or directory: b'/etc/systctl.d/70-cloudenterprise.conf'", "path": "/etc/systctl.d/70-cloudenterprise.conf", "state": "absent"}
 - name: sysctl_scripts.yml || net.ipv4.tcp_max_syn_backlog
   sysctl:
     name: net.ipv4.tcp_max_syn_backlog
