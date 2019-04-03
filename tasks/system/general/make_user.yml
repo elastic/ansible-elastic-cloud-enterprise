@@ -35,12 +35,18 @@
     append: yes
   when: getent_passwd["elastic"] != none
 
+- name: Check for user elastic's authorized_keys file
+  stat:
+    path: ~elastic/.ssh/authorized_keys
+  register: es_authorized_keys 
+
 - name: Copy keys from default user to elastic user
   copy:
     src: "~{{ ansible_ssh_user }}/.ssh/authorized_keys"
     dest: ~elastic/.ssh/
     remote_src: yes
-
+  when: es_authorized_keys.stat.exists == false
+  
 - name: Set pwd policy
   lineinfile:
     path: /etc/sudoers.d/99-ece-users
