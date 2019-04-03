@@ -28,6 +28,13 @@
     generate_ssh_key: true
   when: getent_passwd["elastic"] == none
 
+- name: Modify user elastic to be included in groups
+  user:
+    name: elastic
+    groups: docker
+    append: yes
+  when: getent_passwd["elastic"] != none
+
 - name: Copy keys from default user to elastic user
   copy:
     src: "~{{ ansible_ssh_user }}/.ssh/authorized_keys"
