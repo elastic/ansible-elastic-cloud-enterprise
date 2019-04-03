@@ -4,7 +4,7 @@ Ansible role for installing [Elastic Cloud Enterprise](https://www.elastic.co/pr
 
 ## Contents of this role
 
-A minimal example of a playbook might look like this:
+A minimal example of a [small playbook](https://www.elastic.co/guide/en/cloud-enterprise/current/ece-topology-example1.html) might look like this:
 
 ```yaml
 ---
@@ -20,10 +20,17 @@ A minimal example of a playbook might look like this:
   roles:
     - elastic-cloud-enterprise
   vars:
-    ece_roles: [director, coordinator, proxy]
+    ece_roles: [director, coordinator, proxy, allocator]
+
+- hosts: tertiary
+  gather_facts: true
+  roles:
+    - elastic-cloud-enterprise
+  vars:
+    ece_roles: [director, coordinator, proxy, allocator]
 ```
 
-At least two hosts are needed for this example, a primary and a secondary host. The example above would execute the following high level steps on the defined hosts:
+At least three hosts are needed for this example, a primary, a secondary, and tertiary host. The example above would execute the following high level steps on the defined hosts:
 - On all hosts:
   - Remove an existing docker installation
   - Install required general packages
@@ -31,9 +38,13 @@ At least two hosts are needed for this example, a primary and a secondary host. 
   - Create required users and set limits for them
   - Create a xfs partition and configure it
   - Configure docker
+  
+More information about the prerequisites can be found in the followoing [page](https://www.elastic.co/guide/en/cloud-enterprise/current/ece-prereqs.html).
 - On the primary host:
   - Make the primary installation of Elastic Cloud Enterprise 
 - On the secondary host:
+  - Install Elastic Cloud Enterprise to join the existing installation with the given ece_roles
+- On the tertiary host:
   - Install Elastic Cloud Enterprise to join the existing installation with the given ece_roles
 
 There is a set of variables and tags available to further define the behaiviour of this role, or exclude certain steps.
