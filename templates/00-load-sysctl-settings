@@ -1,4 +1,0 @@
-#!/bin/bash
-set -x
-lsmod | grep ip_conntrack || modprobe ip_conntrack
-sysctl --system
