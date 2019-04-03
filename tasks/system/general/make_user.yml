@@ -1,8 +1,21 @@
 ---
+- name: Determine Available groups
+  getent:
+    database: group
+
+- name: Is there an elastic User
+  getent:
+    key: "elastic"
+    database: passwd
+    fail_key: false
+
 - name: Add group elastic
   group:
     name: elastic
     state: present
+  when: item not in ansible_facts.getent_group
+  with_items:
+      - elastic  
 
 - name: Add user elastic
   user:
@@ -13,6 +26,7 @@
     append: yes
     state: present
     generate_ssh_key: true
+  when: getent_passwd["elastic"] == none
 
 - name: Copy keys from default user to elastic user
   copy:
