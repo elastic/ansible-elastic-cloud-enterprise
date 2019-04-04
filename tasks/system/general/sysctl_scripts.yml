@@ -1,6 +1,6 @@
 ---
 - name: sysctl_scripts.yml || set sysctl items
-  systctl:
+  sysctl:
     name: "{{ item.name }}"
     value: "{{ item.value }}"
     reload: yes
