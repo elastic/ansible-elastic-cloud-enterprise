@@ -1,0 +1,8 @@
+---
+- name: Install base dependencies
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+  - http://mirror.centos.org/centos/7/extras/x86_64/Packages/container-selinux-2.74-1.el7.noarch.rpm
+  - lvm2
