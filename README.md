@@ -70,7 +70,11 @@ The following variables are avaible:
     - Default: docker.elastic.co
 - `ece_docker_repository`: The docker repository in the given registry. This is only relevant if you have a private mirror
     - Default: cloud-enterprise
-- `docker_config`: If specified as a path to a docker config, copies it to the target hosts
+- `docker_config`: If specified as a path to a docker config, copies it to the target hosts  
+- [Supported Docker Versions](https://elastic.co/en/cloud-enterprise/current/ece-prereqs-software.html)  
+  - `docker_version`: Supported version on CentOS 7, Ubuntu (14.04LTS, 16.04LTS) and SLES 12 is 18.09  
+  - `rhel_docker_version`: Supported version on RHEL7 is 1.13 - Will be used only if ansible detects RedHat-7  
+
 
 If more hosts should join an Elastic Cloud Enterpise installation when a primary host was already installed previously there are two more variables that are required:
 - `primary_hostname`: The (reachable) hostname of the primary host
