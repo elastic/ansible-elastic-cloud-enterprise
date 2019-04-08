@@ -6,6 +6,5 @@ ece_docker_repository: cloud-enterprise
 docker_config: ""
 
 # Overall setup variables (like package versions)
-docker_version: "18.09"
-rhel_docker_version: "1.13" # Supported version on RHEL7 is 1.13 see: https://elastic.co/en/cloud-enterprise/current/ece-prereqs-software.html
+docker_version: "1.13"
 device_name: xvdb

@@ -72,8 +72,7 @@ The following variables are avaible:
     - Default: cloud-enterprise
 - `docker_config`: If specified as a path to a docker config, copies it to the target hosts  
 - [Supported Docker Versions](https://elastic.co/en/cloud-enterprise/current/ece-prereqs-software.html)  
-  - `docker_version`: Supported version on CentOS 7, Ubuntu (14.04LTS, 16.04LTS) and SLES 12 is 18.09  
-  - `rhel_docker_version`: Supported version on RHEL7 is 1.13 - Will be used only if ansible detects RedHat-7  
+  - `docker_version`: Supported version on CentOS 7, Ubuntu (14.04LTS, 16.04LTS) and SLES 12 is 18.09, Supported version on RHEL7 is 1.13  
 
 
 If more hosts should join an Elastic Cloud Enterpise installation when a primary host was already installed previously there are two more variables that are required:
