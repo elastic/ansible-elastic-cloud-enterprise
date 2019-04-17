@@ -34,6 +34,10 @@
 
 - name: Reload repositories
   command: "zypper --gpg-auto-import-keys refresh"
+  register: repo_reloaded
+  retries: 10
+  delay: 30
+  until: repo_reloaded is success
   args:
     warn: false
 
