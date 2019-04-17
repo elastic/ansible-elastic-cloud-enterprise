@@ -1,7 +1,7 @@
 ---
 - name: Download ece installer
   get_url:
-    url: https://download.elastic.co/cloud/elastic-cloud-enterprise.sh
+    url: "{{ ece_installer_url }}"
     dest: /home/elastic/elastic-cloud-enterprise.sh
     mode: 0755
 

@@ -70,6 +70,8 @@ The following variables are avaible:
     - Default: docker.elastic.co
 - `ece_docker_repository`: The docker repository in the given registry. This is only relevant if you have a private mirror
     - Default: cloud-enterprise
+- `ece_installer_url`: The location of the installation script. Can be a local file for offline installation.
+    - Default: `https://download.elastic.co/cloud/elastic-cloud-enterprise.sh`
 - `docker_config`: If specified as a path to a docker config, copies it to the target hosts
 
 If more hosts should join an Elastic Cloud Enterpise installation when a primary host was already installed previously there are two more variables that are required:
