@@ -65,14 +65,16 @@ The following variables are avaible:
     - Default: [director, coordinator, proxy, allocator]
 - `availability_zone`: The availability zone this group of hosts belongs to
 - `ece_version`: The Elastic Cloud Enterprise version that should get installed
-    - Default: 2.1.0
+    - Default: 2.2.0
 - `ece_docker_registry`: The docker registry from where to pull the Elastic Cloud Enterprise images. This is only relevant if you have a private mirror 
     - Default: docker.elastic.co
 - `ece_docker_repository`: The docker repository in the given registry. This is only relevant if you have a private mirror
     - Default: cloud-enterprise
 - `ece_installer_url`: The location of the installation script. Can be a local file for offline installation.
     - Default: `https://download.elastic.co/cloud/elastic-cloud-enterprise.sh`
-- `docker_config`: If specified as a path to a docker config, copies it to the target hosts
+- `docker_config`: If specified as a path to a docker config, copies it to the target hosts  
+- [Supported Docker Versions](https://elastic.co/en/cloud-enterprise/current/ece-prereqs-software.html)  
+  - `docker_version`: Supported version on CentOS 7, Ubuntu (14.04LTS, 16.04LTS) and SLES 12 is 18.09, Supported version on RHEL7 is 1.13  
 
 If more hosts should join an Elastic Cloud Enterpise installation when a primary host was already installed previously there are two more variables that are required:
 - `primary_hostname`: The (reachable) hostname of the primary host
@@ -184,13 +186,13 @@ all:
 You only need to run the upgrade on a single host, it will then automatically propagate to all other hosts.
 An upgrade is usually performed on the first host you installed Elastic Cloud Enterprise on, but it can also be run from any host that holds the director role.
 
-Assuming you have an installation of Elastic Cloud Enterprise 2.0.0 and want to upgrade to 2.1.0 `site.yml` could then look like:
+Assuming you have an installation of Elastic Cloud Enterprise 2.1.0 and want to upgrade to 2.2.0 `site.yml` could then look like:
 ```yaml
 - hosts: upgradehost
   roles:
     - elastic-cloud-enterprise
   vars:
-    ece_version: 2.1.0
+    ece_version: 2.2.0
 ```
 
 with `inventory.yml`
