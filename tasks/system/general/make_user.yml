@@ -11,10 +11,11 @@
 
 - name: Add group elastic
   group:
-    name: elastic
+    name:  "{{ item }}"
     state: present
   when: item not in ansible_facts.getent_group
   with_items:
+      - docker
       - elastic  
 
 - name: Add user elastic
