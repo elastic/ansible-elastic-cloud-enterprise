@@ -41,13 +41,21 @@
     path: ~elastic/.ssh/authorized_keys
   register: es_authorized_keys 
 
+# If elastic_authorized_keys_file is not set, copy the authorized keys from default ansible user
 - name: Copy keys from default user to elastic user
   copy:
     src: "~{{ ansible_ssh_user }}/.ssh/authorized_keys"
     dest: ~elastic/.ssh/
     remote_src: yes
-  when: es_authorized_keys.stat.exists == false
+  when: es_authorized_keys.stat.exists == false and elastic_authorized_keys_file is not defined
   
+# If elastic_authorized_keys_file is defined, use that (local) path to copy the keys from 
+- name: Copy local keys to elastic user
+  copy:
+    src: "{{elastic_authorized_keys_file}}"
+    dest: ~elastic/.ssh/
+  when: es_authorized_keys.stat.exists == false and elastic_authorized_keys_file is defined
+
 - name: Set pwd policy
   lineinfile:
     path: /etc/sudoers.d/99-ece-users
