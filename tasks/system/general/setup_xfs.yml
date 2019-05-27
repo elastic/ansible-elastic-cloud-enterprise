@@ -19,12 +19,14 @@
     vg: lxc
     lv: swap
     size: "{{swap_size.stdout}}m"
+    force: true
 
 - name: Create data volume
   lvol:
     vg: lxc
     lv: data
     size: 100%FREE
+    force: true
 
 - name: Setup swap
   command: mkswap /dev/lxc/swap
