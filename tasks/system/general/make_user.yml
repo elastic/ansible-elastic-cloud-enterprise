@@ -54,7 +54,7 @@
   copy:
     src: "{{elastic_authorized_keys_file}}"
     dest: ~elastic/.ssh/
-  when: es_authorized_keys.stat.exists == false and elastic_authorized_keys_file is defined
+  when: elastic_authorized_keys_file is defined
 
 - name: Set pwd policy
   lineinfile:
