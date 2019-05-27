@@ -9,3 +9,4 @@ ece_installer_url: "https://download.elastic.co/cloud/elastic-cloud-enterprise.s
 # Overall setup variables (like package versions)
 docker_version: "18.09"
 device_name: xvdb
+force_xfc: false

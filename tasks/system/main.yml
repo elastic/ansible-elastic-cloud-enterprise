@@ -22,6 +22,7 @@
 - include_tasks: general/set_limits.yml
 - include_tasks: general/setup_xfs.yml
   tags: [setup_filesystem, destructive]
+  when: ansible_lvm['vgs']['lxc'] is not defined or force_xfc == true
 - include_tasks: general/update_grub_docker.yml
   tags: [setup_filesystem, destructive]
 - include_tasks: general/configure_docker.yml

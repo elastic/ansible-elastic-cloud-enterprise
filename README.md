@@ -75,7 +75,8 @@ The following variables are avaible:
 - `docker_config`: If specified as a path to a docker config, copies it to the target hosts  
 - [Supported Docker Versions](https://elastic.co/en/cloud-enterprise/current/ece-prereqs-software.html)  
   - `docker_version`: Supported version on CentOS 7, Ubuntu (14.04LTS, 16.04LTS) and SLES 12 is 18.09, Supported version on RHEL7 is 1.13  
-
+- `force_xfc`: By default if the `lxc` xfc volume already exists, the `setup_xfc` step is skipped, if this is set to true, creation of the volume is forced
+    - Default: false
 If more hosts should join an Elastic Cloud Enterpise installation when a primary host was already installed previously there are two more variables that are required:
 - `primary_hostname`: The (reachable) hostname of the primary host
 - `adminconsole_root_password`: The adminconsole root password
