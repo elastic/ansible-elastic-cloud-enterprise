@@ -1,3 +1,9 @@
 ---
+- name: Disable firewalld
+  systemd:
+    name: firewalld
+    state: stopped
+    enabled: no
+
 - include_tasks: install_docker.yml
   tags: [install_docker, destructive]
