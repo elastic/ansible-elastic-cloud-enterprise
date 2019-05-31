@@ -10,3 +10,6 @@ ece_installer_url: "https://download.elastic.co/cloud/elastic-cloud-enterprise.s
 docker_version: "18.09"
 device_name: xvdb
 force_xfc: false
+
+# Misc. variables (like sysctl settings file, etc.)
+sysctl_settings_file: "/etc/sysctl.d/70-cloudenterprise.conf"
