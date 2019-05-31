@@ -2,7 +2,7 @@
 - name: Create system limits settings file
   file:
     path: "{{ system_limits_file }}"
-    state: file
+    state: touch
 
 - name: Modify pam limits
   pam_limits:
