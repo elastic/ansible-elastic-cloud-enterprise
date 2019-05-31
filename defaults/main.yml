@@ -12,4 +12,5 @@ device_name: xvdb
 force_xfc: false
 
 # Misc. variables (like sysctl settings file, etc.)
+sysctl_settings_file: "/etc/sysctl.d/70-cloudenterprise.conf"
 system_limits_file: "/etc/security/limits.d/70-cloudenterprise.conf"
