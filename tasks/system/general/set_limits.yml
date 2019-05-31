@@ -5,6 +5,7 @@
     limit_type: "{{ item.limit_type }}"
     limit_item: "{{ item.limit_item }}"
     value: "{{ item.value }}"
+  dest: "{ system_limits_file }"
   with_items:
   - { domain: '*', limit_type: 'soft', limit_item: 'nofile', value: '1024000' }
   - { domain: '*', limit_type: 'hard', limit_item: 'nofile', value: '1024000' }
