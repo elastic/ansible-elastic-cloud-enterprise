@@ -2,7 +2,7 @@
 - name: Create sysctl settings file
   file:
     path: "{{ sysctl_settings_file }}"
-    state: file
+    state: touch
 
 - name: sysctl_scripts.yml || set sysctl items
   sysctl:
