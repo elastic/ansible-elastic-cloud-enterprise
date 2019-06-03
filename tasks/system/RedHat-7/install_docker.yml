@@ -15,6 +15,7 @@
   rpm_key:
     key: https://download.docker.com/linux/centos/gpg
     state: present
+  when: docker_version == '18.09'
 
 - name: Add docker repository
   yum_repository:
