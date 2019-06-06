@@ -19,7 +19,7 @@
     path: /var/lib/docker
     state: absent
 
-- name: Reload systemd docker daemon and enable it
+- name: Docker daemon is enabled and systemd has read all changes
   systemd:
     name: docker
     enabled: yes
