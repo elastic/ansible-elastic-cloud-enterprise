@@ -4,6 +4,7 @@
     name: firewalld
     state: stopped
     enabled: no
+  ignore_errors: true
 
 - include_tasks: install_dependencies.yml
 - include_tasks: install_docker.yml
