@@ -22,6 +22,10 @@
   shell: docker ps -a -f name=frc-runners-runner --format {%raw%}"{{.Image}}"{%endraw%}
   register: existing_runner
 
+- name: Create memory settings
+  set_fact:
+    memory_settings: ' {"runner":{"xms":"{{memory.runner}}","xmx":"{{memory.runner}}"},"proxy":{"xms":"{{memory.proxy}}","xmx":"{{memory.proxy}}"},"zookeeper":{"xms":"{{memory.zookeeper}}","xmx":"{{memory.zookeeper}}"},"director":{"xms":"{{memory.director}}","xmx":"{{memory.director}}"},"constructor":{"xms":"{{memory.constructor}}","xmx":"{{memory.constructor}}"},"admin-console":{"xms":"{{memory.adminconsole}}","xmx":"{{memory.adminconsole}}"}}'
+
 - name: Install Elastic Cloud Enterprise
   block:
     - include_tasks: primary/main.yml

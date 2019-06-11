@@ -14,3 +14,13 @@ force_xfc: false
 # Misc. variables (like sysctl settings file, etc.)
 sysctl_settings_file: "/etc/sysctl.d/70-cloudenterprise.conf"
 system_limits_file: "/etc/security/limits.d/70-cloudenterprise.conf"
+
+# Memory settings
+memory:
+  runner: 1G
+  allocator: 4G
+  proxy: 8G
+  zookeeper: 4G
+  director: 1G
+  constructor: 4G
+  adminconsole: 4G
