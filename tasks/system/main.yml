@@ -28,6 +28,7 @@
 - include_tasks: general/configure_docker.yml
   tags: [install_docker, destructive]
 - include_tasks: general/sysctl_scripts.yml
+- include_tasks: general/kernel_modules.yml
 
 - name: Reboot the machine with all defaults
   shell: sleep 2 && shutdown -r now "Reboot for changes to take effect"
