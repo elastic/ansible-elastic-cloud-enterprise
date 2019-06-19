@@ -1,0 +1,8 @@
+---
+- name: Enable kernel modules
+  copy:
+    content: "{{item.kernel_module}}"
+    dest: "/etc/modules-load.d/{{item.name}}.conf"
+  with_items:
+  - { name: 'conntrack', kernel_module: 'ip_conntrack' }
+  - { name: 'overlay', kernel_module: 'overlay' }
