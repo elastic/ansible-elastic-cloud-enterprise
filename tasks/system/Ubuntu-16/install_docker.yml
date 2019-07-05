@@ -16,4 +16,6 @@
     state: present
 
 - name: Pin docker-engine packet
-  shell: echo "docker-engine hold" | sudo dpkg --set-selections
+  shell: |
+    set -o pipefail
+    echo "docker-engine hold" | sudo dpkg --set-selections

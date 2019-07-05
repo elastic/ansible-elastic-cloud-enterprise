@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Vincent Barth
-  description: Elastic Cloud Enterprise Reference preparation and installation 
+  description: Elastic Cloud Enterprise Reference preparation and installation
   company: "Elastic.co"
   license: "license (Apache)"
   min_ansible_version: 2.4
@@ -12,7 +12,7 @@ galaxy_info:
   - name: SLES
     versions:
   - name: Debian
-    versions: 
-    - 9  
+    versions:
+    - 9
 
 dependencies: []

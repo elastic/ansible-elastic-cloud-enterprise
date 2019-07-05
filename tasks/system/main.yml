@@ -7,7 +7,7 @@
 
 - name: Check that OS is supported
   fail:
-    msg: "ERROR: OS {{ ansible_distribution }} {{ ansible_distribution_major_version}} is not supported!"
+    msg: "ERROR: OS {{ ansible_distribution }} {{ ansible_distribution_major_version }} is not supported!"
   when: unsupported_version is defined and unsupported_version
 
 - name: Assert docker version is supported
@@ -16,13 +16,13 @@
     msg: "Docker version must be one of {{ docker_version_map.keys() }}"
 
 - name: execute os specific tasks
-  include_tasks: "{{ ansible_distribution }}-{{ ansible_distribution_major_version}}/main.yml"
+  include_tasks: "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}/main.yml"
 
 - include_tasks: general/make_user.yml
 - include_tasks: general/set_limits.yml
 - include_tasks: general/setup_xfs.yml
   tags: [setup_filesystem, destructive]
-  when: ansible_lvm['vgs']['lxc'] is not defined or force_xfc == true
+  when: "ansible_lvm['vgs']['{{ vg_name }}'] is not defined or force_xfc"
 - include_tasks: general/update_grub_docker.yml
   tags: [setup_filesystem, destructive]
 - include_tasks: general/configure_docker.yml

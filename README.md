@@ -54,9 +54,18 @@ For example in many cases you might want to install Elastic Coud Enterprise with
 
 ## Role Variables
 
-The following variables are avaible:
-
-- `device_name`: The name of the device on which the xfs partition should be created
+The following variables are available:
+- `data_mount_point`: The folder to mount the logical volume to.
+    - Default: /mnt/data
+- `data_docker_folder`: The folder used for docker environment
+    - Default: docker
+- `data_elastic_folder`: The folder used for elastic environment
+    - Default: elastic
+- `vg_name`: The name of the volume group to use
+    - Default: lxc
+- `lv_name`: The name of the logical volume to use
+    - Default: data
+- `device_name`: The name of the device on which the xfs partition should be created (used as physical volume for vg_name)
     - **Required** unless filestystem tasks are skipped via tags
     - Default: xvdb
 - `ece_primary`: Whether this host should be the primary (first) host where Elastic Cloud Enterprise is installed
@@ -75,7 +84,7 @@ The following variables are avaible:
 - `docker_config`: If specified as a path to a docker config, copies it to the target hosts  
 - [Supported Docker Versions](https://elastic.co/en/cloud-enterprise/current/ece-prereqs-software.html)  
   - `docker_version`: Supported version on CentOS 7, Ubuntu (14.04LTS, 16.04LTS) and SLES 12 is 18.09, Supported version on RHEL7 is 1.13  
-- `force_xfc`: By default if the `lxc` xfc volume already exists, the `setup_xfc` step is skipped, if this is set to true, creation of the volume is forced
+- `force_xfc`: By default if the `lxc` (respectively `vg_name`) xfs volume already exists, the `setup_xfs` step is skipped, if this is set to true, creation of the volume is forced
     - Default: false
 - `elastic_authorized_keys_file`: Defines a local path to an `authorized_keys` file that should be copied to the `elastic` user. If not set, the keys from the default user that is used with ansible will be copied over.
 - `memory`: Defines the JVM heap size to be used for different services running in ece. See https://www.elastic.co/guide/en/cloud-enterprise/current/ece-heap.html for example values and [defaults/main.yml](defaults/main.yml) for the default values.

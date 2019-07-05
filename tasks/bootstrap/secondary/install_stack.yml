@@ -5,8 +5,8 @@
   when: ece_roles is undefined
 
 - name: Get the roles token
-  uri: 
-    url: "https://{{primary_hostname}}:12443/api/v1/platform/configuration/security/enrollment-tokens"
+  uri:
+    url: "https://{{ primary_hostname }}:12443/api/v1/platform/configuration/security/enrollment-tokens"
     method: POST
     user: admin
     password: "{{ adminconsole_root_password }}"

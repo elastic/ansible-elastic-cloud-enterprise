@@ -1,23 +1,23 @@
 ---
-- name: Change owner of /mnt/data
+- name: "Change owner of {{ data_mount_point }}"
   file:
-    path: /mnt/data
+    path: "{{ data_mount_point }}"
     owner: elastic
     group: elastic
     mode: 0700
     state: directory
 
-- name: Change owner and permissions of /mnt/data/elastic
+- name: "Change owner and permissions of {{ data_mount_point }}/{{ data_elastic_folder }}"
   file:
-    path: /mnt/data/elastic
+    path: "{{ data_mount_point }}/{{ data_elastic_folder }}"
     state: directory
     owner: elastic
     group: elastic
     mode: 0700
 
-- name: Change owner and permissions of /mnt/data/docker
+- name: "Change owner and permissions of {{ data_mount_point }}/{{ data_docker_folder }}"
   file:
-    path: /mnt/data/docker
+    path: "{{ data_mount_point }}/{{ data_docker_folder }}"
     state: directory
     owner: elastic
     group: elastic

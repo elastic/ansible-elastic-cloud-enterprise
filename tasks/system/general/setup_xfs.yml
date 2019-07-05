@@ -1,51 +1,55 @@
 ---
-- name: Make sure /mnt/data exists
+- name: Make sure mountpoint exists
   file:
-    path: /mnt/data
+    path: "{{ data_mount_point }}"
     state: directory
 
 - name: Create the volume
   lvg:
-    vg: lxc
-    pvs: /dev/{{ device_name }}
+    vg: "{{ vg_name }}"
+    pvs: "/dev/{{ device_name }}"
     force: true
 
 - name: Define size of swap
-  shell: SWAP_MAX_SIZE=$(sudo vgdisplay --units M lxc | grep "VG Size" | awk '{ print mem=int(0.07*$3) }'); grep MemTotal /proc/meminfo | awk -v MAXMEM=${SWAP_MAX_SIZE} '{ mem=int($2/(2*1024)); if(mem>MAXMEM) mem=MAXMEM; print mem; }'
+  shell: |
+    set -o pipefail
+    SWAP_MAX_SIZE=$(sudo vgdisplay --units M '{{ vg_name }}' | grep "VG Size" | awk '{ print mem=int(0.07*$3) }'); grep MemTotal /proc/meminfo | awk -v MAXMEM=${SWAP_MAX_SIZE} '{ mem=int($2/(2*1024)); if(mem>MAXMEM) mem=MAXMEM; print mem; }'
   register: swap_size
 
 - name: Create swap volume
   lvol:
-    vg: lxc
+    vg: "{{ vg_name }}"
     lv: swap
-    size: "{{swap_size.stdout}}m"
+    size: "{{ swap_size.stdout }}m"
     force: true
 
 - name: Create data volume
   lvol:
-    vg: lxc
-    lv: data
+    vg: "{{ vg_name }}"
+    lv: "{{ lv_name }}"
     size: 100%FREE
     force: true
 
 - name: Setup swap
-  command: mkswap /dev/lxc/swap
+  command: "mkswap /dev/{{ vg_name }}/swap"
 
-- name: Create xfs filesystem on /dev/lxc/data
+- name: "Create xfs filesystem on /dev/{{ vg_name }}/{{ lv_name }}"
   filesystem:
     fstype: xfs
-    dev: /dev/lxc/data
+    dev: "/dev/{{ vg_name }}/{{ lv_name }}"
 
 - name: Add entries to fstab
   lineinfile:
     path: /etc/fstab
     line: "{{ item }}"
   with_items:
-    - '/dev/lxc/swap swap       swap  swap  0 0'
-    - '/dev/lxc/data /mnt/data  xfs   defaults,pquota,prjquota,x-systemd.automount  0 0'
+    - '/dev/{{ vg_name }}/swap swap       swap  swap  0 0'
+    - '/dev/{{ vg_name }}/{{ lv_name }} {{ data_mount_point }}  xfs   defaults,pquota,prjquota,x-systemd.automount  0 0'
 
-- name: Mount /dev/lxc/data
-  command: mount /dev/lxc/data
+- name: "Mount /dev/{{ vg_name }}/{{ lv_name }}"
+  mount:
+    path: "/dev/{{ vg_name }}/{{ lv_name }}"
+    state: mounted
 
 - name: Enable all swap devices
   command: swapon -a

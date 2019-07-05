@@ -1,10 +1,13 @@
 ---
-- set_fact:
+- name: set_fact primary_hostname
+  set_fact:
     primary_hostname: "{{ hostvars[groups['primary'][0]].primary_hostname }}"
   when: primary_hostname is undefined
 
-- set_fact:
+- name: set_fact adminconsole_root_password
+  set_fact:
     adminconsole_root_password: "{{ hostvars[groups['primary'][0]].adminconsole_root_password }}"
   when: adminconsole_root_password is undefined
 
-- include_tasks: install_stack.yml
+- name: include task install_stack.yml
+  include_tasks: install_stack.yml
