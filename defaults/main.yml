@@ -26,4 +26,8 @@ memory:
   adminconsole: 4G
 
 # Additional settings
-docker_data_path: "/mnt/data/docker"
+data_mount_point: "/mnt/data"
+data_docker_folder: "docker"
+data_elastic_folder: "elastic"
+vg_name: "lxc"
+lv_name: "data"

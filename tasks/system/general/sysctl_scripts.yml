@@ -15,7 +15,7 @@
     value: "{{ item.value }}"
     reload: yes
     state: present
-    sysctl_set: yes 
+    sysctl_set: yes
     sysctl_file: "{{ sysctl_settings_file }}"
   with_items:
   -  { name: 'net.ipv4.tcp_max_syn_backlog', value: '65536' }

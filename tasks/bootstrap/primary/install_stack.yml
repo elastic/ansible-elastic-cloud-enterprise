@@ -6,20 +6,23 @@
   become_user: elastic
 
 - name: Remember the bootstrap secrets
-  command: cat /mnt/data/elastic/bootstrap-state/bootstrap-secrets.json
+  command: cat "{{ data_mount_point }}/{{ data_elastic_folder }}"/bootstrap-state/bootstrap-secrets.json
   register: secrets
 
 - name: Fetch the bootstrap secrets
   fetch:
-    src: /mnt/data/elastic/bootstrap-state/bootstrap-secrets.json
+    src: "{{ data_mount_point }}/{{ data_elastic_folder }}/bootstrap-state/bootstrap-secrets.json"
     dest: bootstrap-secrets.local.json
     flat: yes
 
-- set_fact: 
+- name: set_fact install_secrets
+  set_fact:
     install_secrets: "{{ secrets.stdout|from_json }}"
 
-- set_fact: 
+- name: set_fact adminconsole_root_password
+  set_fact:
     adminconsole_root_password: "{{ install_secrets.adminconsole_root_password }}"
 
-- set_fact: 
+- name: set_fact primary_hostname
+  set_fact:
     primary_hostname: "{{ inventory_hostname }}"
