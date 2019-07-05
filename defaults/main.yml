@@ -24,3 +24,6 @@ memory:
   director: 1G
   constructor: 4G
   adminconsole: 4G
+
+# Additional settings
+docker_data_path: "/mnt/data/docker"

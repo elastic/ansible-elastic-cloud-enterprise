@@ -1,0 +1,13 @@
+---
+docker_unit_after: "multi-user.target"
+docker_storage_driver: overlay2
+bootloader_update_command: update-grub
+
+# Docker version mapping
+docker_version_map:
+  "18.09":
+    package: docker-ce=5:18.09.3*
+    repo: deb [arch=amd64] https://download.docker.com/linux/debian stretch stable
+    keys:
+      server: https://download.docker.com/linux/debian/gpg
+      id: 0EBFCD88

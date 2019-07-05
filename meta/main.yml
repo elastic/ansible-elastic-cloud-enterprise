@@ -11,5 +11,8 @@ galaxy_info:
     - 16.04
   - name: SLES
     versions:
+  - name: Debian
+    versions: 
+    - 9  
 
 dependencies: []
