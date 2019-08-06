@@ -39,7 +39,7 @@ At least three hosts are needed for this example, a primary, a secondary, and te
   - Create a xfs partition and configure it
   - Configure docker
   
-More information about the prerequisites can be found in the followoing [page](https://www.elastic.co/guide/en/cloud-enterprise/current/ece-prereqs.html).
+More information about the prerequisites can be found in the following [page](https://www.elastic.co/guide/en/cloud-enterprise/current/ece-prereqs.html).
 - On the primary host:
   - Make the primary installation of Elastic Cloud Enterprise 
 - On the secondary host:
@@ -47,7 +47,7 @@ More information about the prerequisites can be found in the followoing [page](h
 - On the tertiary host:
   - Install Elastic Cloud Enterprise to join the existing installation with the given ece_roles
 
-There is a set of variables and tags available to further define the behaiviour of this role, or exclude certain steps.
+There is a set of variables and tags available to further define the behaviour of this role, or exclude certain steps.
 
 For example in many cases you might want to install Elastic Coud Enterprise without running any of the potentially destructive system prerequisites like removing existing docker installations and setting up a filesystem. This can be done by specifying `--skip-tags destrcutive` on your ansible run - or if you want to only install Elastic Coud Enterprise without any system tasks before `--skip-tags system`.
 
@@ -213,6 +213,6 @@ It is important that you then specify `--skip-tags system` when you run the play
 ansible-playbook -i inventory.yml site.yml --skip-tags system
 ```
 
-## Extendening and Contributing
+## Extending and Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for more details on how to contribute and extend the Elastic Cloud Enterprise role.
