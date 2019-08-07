@@ -1,4 +1,9 @@
 ---
+- name: Install lvm packages
+  yum:
+    name: 'lvm*'
+    state: present
+
 - name: Disable firewalld
   systemd:
     name: firewalld
