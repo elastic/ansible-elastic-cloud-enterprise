@@ -49,7 +49,7 @@ More information about the prerequisites can be found in the following [page](ht
 
 There is a set of variables and tags available to further define the behaviour of this role, or exclude certain steps.
 
-For example in many cases you might want to install Elastic Coud Enterprise without running any of the potentially destructive system prerequisites like removing existing docker installations and setting up a filesystem. This can be done by specifying `--skip-tags destrcutive` on your ansible run - or if you want to only install Elastic Coud Enterprise without any system tasks before `--skip-tags system`.
+For example in many cases you might want to install Elastic Coud Enterprise without running any of the potentially destructive system prerequisites like removing existing docker installations and setting up a filesystem. This can be done by specifying `--skip-tags destructive` on your ansible run - or if you want to only install Elastic Coud Enterprise without any system tasks before `--skip-tags system`.
 
 
 ## Role Variables

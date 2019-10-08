@@ -28,7 +28,7 @@ Distribution specific tasks are executed prior to all general tasks and include 
 Therefore to add a new distribution the following steps need to be done:
 
 **1)** Add a file to `vars` with the naming scheme of `os_DISTRIBUTION_MAJORVERSION.yml`
-Inside this file at least the following needs to be specified (example from `vars/os_SLES_12.yml`):
+Inside this file at least the following needs to be specified (example from `vars/os_SLES_12.yml`):
 
 ```yaml
 ---
