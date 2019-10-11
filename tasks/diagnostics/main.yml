@@ -1,0 +1,20 @@
+---
+- name: Download ece support diagnostics
+  get_url:
+    url: "{{ ece_supportdiagnostics_url }}"
+    dest: /home/elastic/ece-support-diagnostics.tar.gz
+    mode: 0755
+
+- name: Unzip downloaded ece support diagnostics
+  unarchive:
+    src: /home/elastic/ece-support-diagnostics.tar.gz
+    dest: /home/elastic/ece-support-diagnostics
+    remote_src: yes
+
+- name: Run ece support diagnostics
+  script: /home/elastic/ece-support-diagnostics/diagnostics.sh
+
+- name: Download diagnostic bundles to ansible host and save under {{ ece_supportdiagnostics_result_path }}
+  fetch:
+    src: "/tmp/ece_diag-{{ ansible_eth0.ipv4.address }}-.tar.gz"
+    dest: "{{ ece_supportdiagnostics_result_path }}"
