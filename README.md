@@ -80,6 +80,7 @@ The following variables are avaible:
 - `elastic_authorized_keys_file`: Defines a local path to an `authorized_keys` file that should be copied to the `elastic` user. If not set, the keys from the default user that is used with ansible will be copied over.
 - `memory`: Defines the JVM heap size to be used for different services running in ece. See https://www.elastic.co/guide/en/cloud-enterprise/current/ece-heap.html for example values and [defaults/main.yml](defaults/main.yml) for the default values.
 
+- `fetch_diagnostics`: Determines if Elastic Cloud Enterprise Support Diagnostics should be downloaded and executed
 - `ece_supportdiagnostics_url`: THe location of the diagnostics tool. Can be a local file for offline installation.
     - Default: `https://github.com/elastic/ece-support-diagnostics/archive/v1.1.tar.gz`
 - `ece_supportdiagnostics_result_path`: The localtion where to store the diagnostic bundles on ansible host.
@@ -99,7 +100,6 @@ The following tags are available to limit the execution, due to the nature of ta
     - `install_docker` If system tasks are executed, this determines if existing docker packages should get removed and the current, supported version should get installed and configured
 - `destructive` This tag indicates whether a task is potentially destructive, like removing packages or doing filesystem partitioning
 - `ece` Determines if Elastic Cloud Enterprise should get installed
-- `diagnostics` Determines if Elastic Cloud Enterprise Support Diagnostics should be downloaded and executed
 
 
 ## Examples and use cases
