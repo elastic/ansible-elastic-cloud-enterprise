@@ -1,0 +1,28 @@
+---
+- name: Create path /tmp/elastic
+  local_action:
+    module: file
+    path: /tmp/elastic/ece-support-diagnostics
+    state: directory
+    mode: 0755
+
+- name: Download ece support diagnostics
+  local_action:
+    module: get_url
+    url: "{{ ece_supportdiagnostics_url }}"
+    dest: /tmp/elastic/ece-support-diagnostics.tar.gz
+    mode: 0755
+
+- name: Unzip downloaded ece support diagnostics
+  local_action:
+    module: unarchive
+    src: /tmp/elastic/ece-support-diagnostics.tar.gz
+    dest: /tmp/elastic/
+
+- name: Run ece support diagnostics
+  script: /tmp/elastic/ece-support-diagnostics-1.1/diagnostics.sh -s -d
+
+- name: Download diagnostic bundles to ansible host and save under {{ ece_supportdiagnostics_result_path }}
+  fetch:
+    src: "/tmp/ece_diag-{{ ansible_eth0.ipv4.address }}-.tar.gz"
+    dest: "{{ ece_supportdiagnostics_result_path }}"

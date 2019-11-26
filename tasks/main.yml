@@ -4,3 +4,6 @@
 
 - include_tasks: bootstrap/main.yml
   tags: [ece]
+
+- include_tasks: diagnostics/main.yml
+  tags: [diagnostics]
