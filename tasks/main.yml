@@ -6,4 +6,4 @@
   tags: [ece]
 
 - include_tasks: diagnostics/main.yml
-  tags: [diagnostics]
+  when: fetch_diagnostics == true
