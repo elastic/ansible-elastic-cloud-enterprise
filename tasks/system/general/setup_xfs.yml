@@ -36,6 +36,12 @@
     fstype: xfs
     dev: /dev/lxc/data
 
+- name: remove automount of /dev/{{ device_name }}
+  lineinfile:
+    path:  /etc/fstab
+    state: absent
+    regexp: '^/dev/{{ device_name }}'
+
 - name: Add entries to fstab
   lineinfile:
     path: /etc/fstab
@@ -50,4 +56,4 @@
 - name: Enable all swap devices
   command: swapon -a
   args:
-    warn: no
+    warn: false
