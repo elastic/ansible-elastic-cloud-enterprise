@@ -32,7 +32,7 @@
   until: repo_installed is success
 
 - name: Add RHEL7 Extras repository
-  shell: yum-config-manager --enable "Red Hat Enterprise Linux Server 7 Extra(RPMs)"
+  shell: yum-config-manager --enable "{{ docker_version_map[docker_version]['repo'] }}"
   register: repo_installed
   retries: 10
   delay: 30
