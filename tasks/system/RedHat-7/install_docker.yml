@@ -42,3 +42,10 @@
   package:
     name: "{{ docker_version_map[docker_version]['package'] }}"
     state: present
+
+- name: Verify that fs.may_detach_mounts is enabled
+  lineinfile:
+    path: /etc/sysctl.conf
+    regexp: '^fs.may_detach_mounts'
+    line: 'fs.may_detach_mounts = 1'
+    create: yes
