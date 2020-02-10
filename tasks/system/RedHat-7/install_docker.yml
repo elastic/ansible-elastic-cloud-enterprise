@@ -11,6 +11,10 @@
   delay: 30
   until: remove_packages is success
 
+- name: disable SELinux
+  selinux:
+    state: disabled
+
 - name: Add Docker GPG Key
   rpm_key:
     key: https://download.docker.com/linux/centos/gpg
