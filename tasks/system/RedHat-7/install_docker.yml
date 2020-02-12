@@ -11,6 +11,10 @@
   delay: 30
   until: remove_packages is success
 
+- name: disable SELinux
+  selinux:
+    state: disabled
+
 - name: Add Docker GPG Key
   rpm_key:
     key: https://download.docker.com/linux/centos/gpg
@@ -32,7 +36,7 @@
   until: repo_installed is success
 
 - name: Add RHEL7 Extras repository
-  shell: yum-config-manager --enable "Red Hat Enterprise Linux Server 7 Extra(RPMs)"
+  shell: yum-config-manager --enable "{{ docker_version_map[docker_version]['repo'] }}"
   register: repo_installed
   retries: 10
   delay: 30
@@ -42,3 +46,10 @@
   package:
     name: "{{ docker_version_map[docker_version]['package'] }}"
     state: present
+
+- name: Verify that fs.may_detach_mounts is enabled
+  lineinfile:
+    path: /etc/sysctl.conf
+    regexp: '^fs.may_detach_mounts'
+    line: 'fs.may_detach_mounts = 1'
+    create: yes

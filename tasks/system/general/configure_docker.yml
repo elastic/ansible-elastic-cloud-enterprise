@@ -8,11 +8,38 @@
   file:
     path: /etc/systemd/system/docker.service.d
     state: directory
+  when: docker_version == '18.09'
 
 - name: Create service.d docker.conf
   template:
     src: docker{{ docker_version }}.conf
     dest: /etc/systemd/system/docker.service.d/docker.conf
+  when: docker_version == '18.09'
+
+- name: set docker storage options
+  lineinfile:
+    path: /etc/sysconfig/docker
+    regexp: "^OPTIONS='(.*)'"
+    line: "OPTIONS='-g /mnt/data/docker \\1'"
+    backrefs: yes
+    create: yes
+  when: docker_version == '1.13'
+
+- name: set docker network options
+  lineinfile:
+    path: /etc/sysconfig/docker-network
+    regexp: '^DOCKER_NETWORK_OPTIONS='
+    line: 'DOCKER_NETWORK_OPTIONS="--bip=172.17.42.1/16"'
+    create: yes
+  when: docker_version == '1.13'
+
+- name: set docker storage driver
+  lineinfile:
+    path: /etc/sysconfig/docker-storage-setup
+    regexp: '^DOCKER_NETWORK_OPTIONS='
+    line: 'STORAGE_DRIVER={{ docker_storage_driver }}'
+    create: yes
+  when: docker_version == '1.13'
 
 - name: Remove var/lib/docker
   file:

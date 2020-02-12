@@ -7,8 +7,8 @@ bootloader_update_command: grub2-mkconfig
 docker_version_map:
   "1.13":
     name: 'Docker'
-    package: docker-1.13.1
-    repo: rhui-REGION-rhel-server-extras/7Server/x86_64
+    package: docker-2:1.13.1-109*
+    repo: "Red Hat Enterprise Linux*7*Extra*RPMs)"
   "18.09":
     name: 'Docker-CE'
     package: docker-ce-18.09.2
