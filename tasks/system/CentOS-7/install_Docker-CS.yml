@@ -1,0 +1,23 @@
+---
+- name: Add Docker GPG Key
+  rpm_key:
+    key: https://sks-keyservers.net/pks/lookup?op=get&search=0xee6d536cf7dc86e2d7d56f59a178ac6c6238f52e
+    state: present
+
+- name: Add docker repository
+  yum_repository:
+    name: "{{ docker_version_map[docker_version]['name'] }}"
+    description: "Docker repository"
+    file: docker-ce
+    baseurl: "{{ docker_version_map[docker_version]['repo'] }}"
+    enabled: yes
+    gpgcheck: no
+  register: repo_installed
+  retries: 10
+  delay: 30
+  until: repo_installed is success
+
+- name: Install docker
+  package:
+    name: "{{ docker_version_map[docker_version]['package'] }}"
+    state: present
