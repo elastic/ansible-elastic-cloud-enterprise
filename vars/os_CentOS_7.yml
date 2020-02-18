@@ -5,10 +5,17 @@ bootloader_update_command: grub2-mkconfig
 
 # Docker version mapping
 docker_version_map:
+  "1.13":
+    name: 'Docker-CS'
+    package: docker-1.13.1-108*
+    repo: https://packages.docker.com/1.13/yum/repo/main/centos/7
   "18.09":
     name: 'Docker-CE'
-    package: docker-ce-18.09.2
-    repo: https://download.docker.com/linux/centos/docker-ce.repo
+    package:
+      - docker-ce-18.09.2
+      - docker-ce-cli-18.09.2
+      - containerd.io
+    repo: https://download.docker.com/linux/centos/7/x86_64/stable
     keys:
       server: https://download.docker.com/linux/centos/gpg
       id: 060A 61C5 1B55 8A7F 742B 77AA C52F EB6B 621E 9F35
