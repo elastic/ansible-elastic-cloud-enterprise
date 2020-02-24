@@ -1,0 +1,28 @@
+---
+- name: stop and disable docker
+  systemd:
+    name: docker
+    state: stopped
+    enabled: false
+
+- include_tasks: ../base/general/setup_mount_permissions.yml
+
+- name: Place per instance disk formater
+  template:
+    src: "format-drives.j2"
+    dest: "/var/lib/cloud/scripts/per-instance/00-format-drives"
+    mode: 755
+  vars:
+    systemd_os: ansible_facts['service_mgr'] == 'systemd'
+    image_user: elastic
+
+# Because disk structure can change, we start docker daemon only after disks has been formated
+- name: Place per instance enable docker
+  copy:
+    content: |
+      #!/bin/bash
+      set -x
+      systemctl enable docker
+      systemctl start docker
+    dest: /var/lib/cloud/scripts/per-instance/01-enable-docker
+    mode: 755

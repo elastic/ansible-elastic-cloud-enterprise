@@ -20,7 +20,6 @@
 
 - include_tasks: general/make_user.yml
 - include_tasks: general/set_limits.yml
-- include_tasks: general/setup_xfs.yml
   tags: [setup_filesystem, destructive]
   when: ansible_lvm['vgs']['lxc'] is not defined or force_xfc == true
 - include_tasks: general/update_grub_docker.yml
@@ -30,17 +29,9 @@
 - include_tasks: general/sysctl_scripts.yml
 - include_tasks: general/kernel_modules.yml
 
-- name: Reboot the machine with all defaults
-  shell: sleep 2 && shutdown -r now "Reboot for changes to take effect"
-  async: 1
-  poll: 0
-  ignore_errors: true
-
-- name: Wait for the reboot to complete
-  wait_for_connection:
-    connect_timeout: 20
-    sleep: 5
-    delay: 5
-    timeout: 600
-
-- include_tasks: general/setup_mount_permissions.yml
+- name: skip automatic ephemeral mount
+  copy:
+    dest: /etc/cloud/cloud.cfg.d/01-mounts.cfg
+    content: |
+      mounts:
+        - [ ephemeral0, null ]

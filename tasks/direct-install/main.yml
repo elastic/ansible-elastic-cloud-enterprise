@@ -1,0 +1,23 @@
+---
+- include_tasks: setup_xfs.yml
+
+- name: Docker daemon is enabled and systemd has read all changes
+  systemd:
+    name: docker
+    enabled: yes
+    daemon_reload: yes
+
+- name: Reboot the machine with all defaults
+  shell: sleep 2 && shutdown -r now "Reboot for changes to take effect"
+  async: 1
+  poll: 0
+  ignore_errors: true
+
+- name: Wait for the reboot to complete
+  wait_for_connection:
+    connect_timeout: 20
+    sleep: 5
+    delay: 5
+    timeout: 600
+
+- include_tasks: ../base/general/setup_mount_permissions.yml

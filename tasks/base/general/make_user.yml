@@ -61,3 +61,10 @@
     line: 'elastic ALL=(ALL) NOPASSWD:ALL'
     state: present
     create: true
+
+- name: set boot user
+  template:
+    src: elastic.cfg.j2
+    dest: /etc/cloud/cloud.cfg.d/00-elastic.cfg
+  vars:
+    image_user: elastic

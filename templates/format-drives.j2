@@ -1,0 +1,83 @@
+#!/bin/bash
+
+set -x
+
+export IMAGE_USER={{ image_user }}
+
+TARGET_DISK=/dev/md0
+MDADM_CONF=/etc/mdadm/mdadm.conf
+LVG=lxc
+drives=""
+
+# We want to detect all available disks (without the already mounted root disk)
+# unfortunately we cannot use `lsblk --json` because of the following bug:
+# https://bugs.launchpad.net/ubuntu/+source/util-linux/+bug/1811812
+all_disks=$(lsblk -d -n --raw -o NAME)
+for disk in ${all_disks}; do
+  echo "Probing ${disk} .."
+  set +e
+  device_path="/dev/${disk}"
+  if [ -b ${device_path} ]; then
+    echo "Detected target disk: ${device_path}"
+    has_mounted_partition=$(lsblk --raw -n -o NAME,MOUNTPOINT /dev/$disk | awk 'NF>=2' | wc -l)
+    if [[ $has_mounted_partition -eq 0 ]]; then
+      drives="${drives} ${device_path}"
+      dd if=/dev/zero of=${device_path} bs=4096 count=1024
+    else
+      echo "Target disk $disk has already mounted partitions. skipping"
+    fi
+  else
+    echo "Target disk ${disk}, ${device_path} is not present. skipping"
+  fi
+  set -e
+done
+
+drive_count=$(set -- ${drives}; echo $#)
+if [[ "${drive_count}" -eq 0 ]]; then
+  echo "No data drives detected"
+elif [[ "${drive_count}" -eq 1 ]]; then
+  echo "A single target disk detected."
+  TARGET_DISK=${drives}
+else
+  partprobe || true
+  mdadm --create --verbose ${TARGET_DISK} --name=${TARGET_DISK##*/} --level=0 -c256 --raid-devices=${drive_count} ${drives}
+
+  echo DEVICE ${drives} | tee /etc/mdadm.conf
+  mdadm --detail --scan | tee -a /etc/mdadm.conf
+  blockdev --setra 65536 ${TARGET_DISK}
+  [[ -e ${MDADM_CONF} ]] && cp ${MDADM_CONF} ${MDADM_CONF}.backup
+  mdadm --examine --scan | tee -a ${MDADM_CONF}
+  echo $((30*1024)) > /proc/sys/dev/raid/speed_limit_min
+fi
+
+echo "using target devices: ${drives}"
+pvcreate ${TARGET_DISK}
+vgcreate ${LVG} ${TARGET_DISK}
+
+## create a swap volume with preferred size = total_memory/2, but
+## dont use more than 7% of the available ephemeral storage
+SWAP_MAX_SIZE=$(vgdisplay --units M ${LVG} | grep "VG Size" | awk '{ print mem=int(0.07*$3); }')
+lvcreate -n swap -L $(grep MemTotal /proc/meminfo | awk -v MAXMEM=${SWAP_MAX_SIZE} '{ mem=int($2/(2*1024)); if(mem>MAXMEM) mem=MAXMEM; print mem; }')m ${LVG}
+lvcreate -n data -l 100%FREE ${LVG}
+
+echo "Formatting LVM volumes..."
+mkswap /dev/${LVG}/swap
+mkfs.xfs -K /dev/${LVG}/data
+
+DATA_MOUNT_OPTIONS="noatime,defaults,pquota,prjquota"
+
+{% if systemd_os %}
+  DATA_MOUNT_OPTIONS="${DATA_MOUNT_OPTIONS},x-systemd.requires=cloud-init.service,x-systemd.requires"
+{% endif %}
+
+# TODO (mat): maybe remove this after testing discard behavior in fio/rally
+DATA_MOUNT_OPTIONS="${DATA_MOUNT_OPTIONS},discard"
+
+echo "/dev/${LVG}/swap swap       swap  swap  0 0" >> /etc/fstab
+echo "/dev/${LVG}/data /mnt/data  xfs   ${DATA_MOUNT_OPTIONS}  0 0" >> /etc/fstab
+
+echo "Mounting LVM volumes..."
+mount -a
+swapon -a
+chown -R ${IMAGE_USER}:${IMAGE_USER} /mnt/data
+install -d -m 0700 -o ${IMAGE_USER} -g docker /mnt/data/docker
