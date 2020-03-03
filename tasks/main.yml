@@ -9,7 +9,7 @@
   tags: [ece]
 
 - import_tasks: ece-bootstrap/main.yml
-  tags: [ece]
+  tags: [ece, bootstrap]
 
 - import_tasks: diagnostics/main.yml
   when: fetch_diagnostics == true
