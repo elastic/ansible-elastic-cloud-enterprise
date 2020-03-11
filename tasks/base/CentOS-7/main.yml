@@ -11,5 +11,21 @@
     enabled: no
   ignore_errors: true
 
+- name: ensure dhcp dns is set
+  lineinfile:
+    path: /etc/sysconfig/network-scripts/ifcfg-eth0
+    line: "{{ item }}"
+  with_items:
+    - 'PeerDNS=yes'
+    - 'NM_CONTROLLED=yes'
+
+- name: set locale
+  lineinfile:
+    path: /etc/environment
+    line: "{{ item }}"
+  with_items:
+    - 'LANG=en_US.utf8'
+    - 'LC_CTYPE=en_US.utf8'
+
 - include_tasks: install_docker.yml
   tags: [install_docker, destructive]

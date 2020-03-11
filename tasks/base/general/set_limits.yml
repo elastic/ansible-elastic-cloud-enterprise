@@ -23,3 +23,8 @@
   - { domain: 'root', limit_type: 'soft', limit_item: 'nofile', value: '1024000' }
   - { domain: 'root', limit_type: 'hard', limit_item: 'nofile', value: '1024000' }
   - { domain: 'root', limit_type: 'soft', limit_item: 'memlock', value: 'unlimited' }
+
+- name: Delete /etc/security/limits.d/20-nproc.conf
+  file:
+    path: /etc/security/limits.d/20-nproc.conf
+    state: absent
