@@ -27,5 +27,11 @@
     - 'LANG=en_US.utf8'
     - 'LC_CTYPE=en_US.utf8'
 
+- name: set path
+  lineinfile:
+    path: /etc/profile.d/path.sh
+    line: "export PATH=$PATH:/usr/sbin"
+    create: yes
+
 - include_tasks: install_docker.yml
   tags: [install_docker, destructive]
