@@ -3,7 +3,7 @@
   systemd:
     name: docker
     state: stopped
-    enabled: false
+    enabled: no
 
 - include_tasks: ../base/general/setup_mount_permissions.yml
 
@@ -13,7 +13,7 @@
     dest: "/var/lib/cloud/scripts/per-instance/00-format-drives"
     mode: 755
   vars:
-    systemd_os: ansible_facts['service_mgr'] == 'systemd'
+    systemd_os: ansible_service_mgr == 'systemd'
     image_user: elastic
 
 # Because disk structure can change, we start docker daemon only after disks has been formated
