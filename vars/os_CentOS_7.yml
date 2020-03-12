@@ -9,6 +9,8 @@ docker_version_map:
     name: 'Docker-CS'
     package: docker-1.13.1-108*
     repo: https://packages.docker.com/1.13/yum/repo/main/centos/7
+    keys:
+      server: https://packages.docker.com/1.13/yum/gpg
   "18.09":
     name: 'Docker-CE'
     package:
@@ -18,4 +20,3 @@ docker_version_map:
     repo: https://download.docker.com/linux/centos/7/x86_64/stable
     keys:
       server: https://download.docker.com/linux/centos/gpg
-      id: 060A 61C5 1B55 8A7F 742B 77AA C52F EB6B 621E 9F35

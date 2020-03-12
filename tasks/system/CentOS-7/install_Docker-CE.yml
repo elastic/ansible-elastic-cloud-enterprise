@@ -1,7 +1,7 @@
 ---
 - name: Add Docker GPG Key
   rpm_key:
-    key: https://download.docker.com/linux/centos/gpg
+    key: "{{ docker_version_map[docker_version]['keys']['server']}}"
     state: present
 
 - name: Add docker repository
