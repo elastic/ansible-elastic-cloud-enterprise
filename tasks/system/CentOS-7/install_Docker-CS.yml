@@ -5,7 +5,7 @@
 
 - name: Add Docker GPG Key
   rpm_key:
-    key: https://sks-keyservers.net/pks/lookup?op=get&search=0xee6d536cf7dc86e2d7d56f59a178ac6c6238f52e
+    key: "{{ docker_version_map[docker_version]['keys']['server']}}"
     state: present
 
 - name: Add docker repository
