@@ -2,8 +2,8 @@
 - import_tasks: base/main.yml
   tags: [system]
 
-- import_tasks: ami/main.yml
-  tags: [never, ami]
+- import_tasks: vmimage/main.yml
+  tags: [never, vmimage]
 
 - import_tasks: direct-install/main.yml
   tags: [ece]

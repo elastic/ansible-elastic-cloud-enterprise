@@ -95,12 +95,16 @@ If more hosts should join an Elastic Cloud Enterpise installation when a primary
 
 The following tags are available to limit the execution, due to the nature of tags in ansible you should only use `--skip-tags` with these to skip certain parts instead of using `--tags` to limit the execution.
 
-- `system` Determines the execution of all tasks that setup the system (everything except the actual installation of Elastic Cloud Enterprise) 
+- `base` Determines the execution of all tasks that setup the system (everything except the actual installation of Elastic Cloud Enterprise) 
     - `setup_filesystem` If system tasks are executed, this determines if the filesystem tasks should get executed - includes creating the partitions for xfs and mount points 
     - `install_docker` If system tasks are executed, this determines if existing docker packages should get removed and the current, supported version should get installed and configured
 - `destructive` This tag indicates whether a task is potentially destructive, like removing packages or doing filesystem partitioning
 - `ece` Determines if Elastic Cloud Enterprise should get installed
+- `vmimage` Prepare the system for building a Virtual Machine Image (Amazon AMI, ...). This will install a cloud-init script which will auto-discover and mount disk selected when an instance is launched with this image.
+- `bootstrap` This tags should be picked for only installing Elastic Cloud Entreprise itself (no prerequistes)
 
+By default, all tags are applied, except `vmimage`, which means that it will install all prerequisites and Elastic Cloud Entreprise.
+In order to use this ansible playbook for building a VM image, the following tags should be selected: `--tags base,vmimage` (this won't install Elastic Cloud Enterprise)
 
 ## Examples and use cases
 
@@ -218,6 +222,20 @@ It is important that you then specify `--skip-tags system` when you run the play
 ```bash
 ansible-playbook -i inventory.yml site.yml --skip-tags system
 ```
+
+### Building a base Virtual Machine Image
+Building a Virtual Machine Images depends on the tools and platform you are using. Once a base instance is running, you can use a playbook like the following:
+```yaml
+- hosts: all
+  become: true
+  roles:
+    - elastic-cloud-enterprise
+```
+
+And ansible should be run with `--tags base,vmimage`, this will install prerequisites for Elastic Cloud Entreprise, but not Elastic Cloud Entreprise. 
+Finally, you will be able to save the instance as VM image (depending on your cloud provider)
+
+Once the image is ready, you can use it as a base to install Elastic Cloud Entreprise, either from the boostraper script, or with ansible, using `--tags bootstrap` (this will install only Elastic Cloud Entreprise)
 
 ## Extending and Contributing
 
