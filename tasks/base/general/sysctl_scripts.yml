@@ -26,3 +26,4 @@
   -  { name: 'net.ipv4.tcp_keepalive_time', value: '1800' }
   -  { name: 'net.netfilter.nf_conntrack_tcp_timeout_established', value: '7200' }
   -  { name: 'net.netfilter.nf_conntrack_max', value: '262140' }
+  -  { name: 'net.ipv4.ip_forward', value: '1'}

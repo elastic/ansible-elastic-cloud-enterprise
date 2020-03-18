@@ -4,7 +4,7 @@
 
 Ansible automatically determines on which distribution it is executing a playbook.
 
-In `tasks/system/main.yml` tasks and variables are dynamically included depending on the distribution of the host they are run on. 
+In `tasks/base/main.yml` tasks and variables are dynamically included depending on the distribution of the host they are run on. 
 
 ```yaml
 - name: Include OS specific vars
@@ -21,7 +21,7 @@ In `tasks/system/main.yml` tasks and variables are dynamically included dependin
 ```
 This means:
 - All distribution specific *variables* go into `vars/os_DISTRIBUTION_MAJORVERSION.yml` (e.g. `os_Ubuntu_16.yml`)
-- All distribution specific *tasks* go in `tasks/system/DISTRIBUTION-MAJORVERSION/`
+- All distribution specific *tasks* go in `tasks/base/DISTRIBUTION-MAJORVERSION/`
 
 Distribution specific tasks are executed prior to all general tasks and include e.g. installing specific packages.
 
@@ -57,7 +57,7 @@ docker_version_map:
 
 See `vars/os_Ubuntu_16.yml` as an example.
 
-**2)** Add a folder `DISTRIBUTION-MAJORVERSION` to `tasks/system/`
+**2)** Add a folder `DISTRIBUTION-MAJORVERSION` to `tasks/base/`
 
 This folder must at least contain a file `main.yml`. Normally `main.yml` only includes playbooks which then contain the specific tasks.
-The specific tasks must include installing docker and other required packages (see [tasks/system/Ubuntu-16](tasks/system/Ubuntu-16)).
+The specific tasks must include installing docker and other required packages (see [tasks/base/Ubuntu-16](tasks/system/Ubuntu-16)).
