@@ -1,6 +1,6 @@
 ---
 - import_tasks: base/main.yml
-  tags: [system]
+  tags: [base]
 
 - import_tasks: vmimage/main.yml
   tags: [never, vmimage]
