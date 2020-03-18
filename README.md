@@ -49,7 +49,7 @@ More information about the prerequisites can be found in the following [page](ht
 
 There is a set of variables and tags available to further define the behaviour of this role, or exclude certain steps.
 
-For example in many cases you might want to install Elastic Coud Enterprise without running any of the potentially destructive system prerequisites like removing existing docker installations and setting up a filesystem. This can be done by specifying `--skip-tags destructive` on your ansible run - or if you want to only install Elastic Coud Enterprise without any system tasks before `--skip-tags system`.
+For example in many cases you might want to install Elastic Coud Enterprise without running any of the potentially destructive system prerequisites like removing existing docker installations and setting up a filesystem. This can be done by specifying `--skip-tags destructive` on your ansible run - or if you want to only install Elastic Coud Enterprise without any system tasks before `--skip-tags base`.
 
 
 ## Role Variables
@@ -218,9 +218,9 @@ all:
         host1:
 ```
 
-It is important that you then specify `--skip-tags system` when you run the playbook in order to only perform the Elastic Cloud Enterprise update and no other tasks, especially when the initial installation was not done with this role.
+It is important that you then specify `--skip-tags base` when you run the playbook in order to only perform the Elastic Cloud Enterprise update and no other tasks, especially when the initial installation was not done with this role.
 ```bash
-ansible-playbook -i inventory.yml site.yml --skip-tags system
+ansible-playbook -i inventory.yml site.yml --skip-tags base
 ```
 
 ### Building a base Virtual Machine Image

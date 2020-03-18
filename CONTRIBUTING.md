@@ -60,4 +60,4 @@ See `vars/os_Ubuntu_16.yml` as an example.
 **2)** Add a folder `DISTRIBUTION-MAJORVERSION` to `tasks/base/`
 
 This folder must at least contain a file `main.yml`. Normally `main.yml` only includes playbooks which then contain the specific tasks.
-The specific tasks must include installing docker and other required packages (see [tasks/base/Ubuntu-16](tasks/system/Ubuntu-16)).
+The specific tasks must include installing docker and other required packages (see [tasks/base/Ubuntu-16](tasks/base/Ubuntu-16)).
