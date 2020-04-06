@@ -38,6 +38,9 @@ if [[ "${drive_count}" -eq 0 ]]; then
 elif [[ "${drive_count}" -eq 1 ]]; then
   echo "A single target disk detected."
   TARGET_DISK=${drives}
+elif [[ "${drive_count}" -gt 1 ]]; then
+  echo "Multiple target disks detected"
+  TARGET_DISK=${drives}
 else
   partprobe || true
   mdadm --create --verbose ${TARGET_DISK} --name=${TARGET_DISK##*/} --level=0 -c256 --raid-devices=${drive_count} ${drives}
@@ -75,6 +78,13 @@ DATA_MOUNT_OPTIONS="${DATA_MOUNT_OPTIONS},discard"
 
 echo "/dev/${LVG}/swap swap       swap  swap  0 0" >> /etc/fstab
 echo "/dev/${LVG}/data /mnt/data  xfs   ${DATA_MOUNT_OPTIONS}  0 0" >> /etc/fstab
+
+#Checks if /mnt/data exists, creates if not
+if [ ! -d "/mnt/data"]; then
+  echo "/mnt/data does not exist, creating..."
+  mkdir -p /mnt/data
+fi
+
 
 echo "Mounting LVM volumes..."
 mount -a
