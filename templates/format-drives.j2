@@ -80,7 +80,7 @@ echo "/dev/${LVG}/swap swap       swap  swap  0 0" >> /etc/fstab
 echo "/dev/${LVG}/data /mnt/data  xfs   ${DATA_MOUNT_OPTIONS}  0 0" >> /etc/fstab
 
 #Checks if /mnt/data exists, creates if not
-if [ ! -d "/mnt/data"]; then
+if [[ ! -d "/mnt/data" ]]; then
   echo "/mnt/data does not exist, creating..."
   mkdir -p /mnt/data
 fi
