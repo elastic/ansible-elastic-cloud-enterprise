@@ -85,6 +85,8 @@ The following variables are avaible:
     - Default: `https://github.com/elastic/ece-support-diagnostics/archive/v1.1.tar.gz`
 - `ece_supportdiagnostics_result_path`: The localtion where to store the diagnostic bundles on ansible host.
     - Default: `/tmp/ece-support-diagnostics`
+- `ece_runner_id`: Assigns an arbitrary ID to the host (runner) that you are installing Elastic Cloud Enterprise on
+    - Default: `host-ip`
 
 If more hosts should join an Elastic Cloud Enterpise installation when a primary host was already installed previously there are two more variables that are required:
 - `primary_hostname`: The (reachable) hostname of the primary host
