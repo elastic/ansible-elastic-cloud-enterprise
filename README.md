@@ -75,6 +75,7 @@ The following variables are avaible:
 - `docker_config`: If specified as a path to a docker config, copies it to the target hosts  
 - [Supported Docker Versions](https://elastic.co/en/cloud-enterprise/current/ece-prereqs-software.html)  
   - `docker_version`: Supported version on CentOS 7, Ubuntu (14.04LTS, 16.04LTS) and SLES 12 is 18.09, Supported version on RHEL7 is 1.13  
+- `docker_bridge_ip `: The default IP of the docker bridge. Configurable to avoid overlapping with the current host subnet.
 - `force_xfc`: By default if the `lxc` xfc volume already exists, the `setup_xfc` step is skipped, if this is set to true, creation of the volume is forced
     - Default: false
 - `elastic_authorized_keys_file`: Defines a local path to an `authorized_keys` file that should be copied to the `elastic` user. If not set, the keys from the default user that is used with ansible will be copied over.
