@@ -1,9 +1,4 @@
 ---
-- name: Install lvm packages
-  yum:
-    name: 'lvm*'
-    state: present
-
 - name: Disable firewalld
   systemd:
     name: firewalld
@@ -32,6 +27,7 @@
     path: /etc/profile.d/path.sh
     line: "export PATH=$PATH:/usr/sbin"
     create: yes
-
+    
+- include_tasks: install_dependencies.yml
 - include_tasks: install_docker.yml
   tags: [install_docker, destructive]
