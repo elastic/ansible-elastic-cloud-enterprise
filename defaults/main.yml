@@ -5,6 +5,7 @@ ece_docker_registry: docker.elastic.co
 ece_docker_repository: cloud-enterprise
 docker_config: ""
 ece_installer_url: "https://download.elastic.co/cloud/elastic-cloud-enterprise.sh"
+ece_runner_id: "{{ ansible_default_ipv4.address }}"
 
 # Overall setup variables (like package versions)
 docker_version: "18.09"
