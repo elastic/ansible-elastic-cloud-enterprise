@@ -29,7 +29,7 @@
   lineinfile:
     path: /etc/sysconfig/docker-network
     regexp: '^DOCKER_NETWORK_OPTIONS='
-    line: 'DOCKER_NETWORK_OPTIONS="--bip=172.17.42.1/16"'
+    line: 'DOCKER_NETWORK_OPTIONS="--bip={{ docker_bridge_ip }}"'
     create: yes
   when: docker_version == '1.13'
 
