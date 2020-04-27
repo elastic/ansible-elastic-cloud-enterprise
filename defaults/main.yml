@@ -29,6 +29,3 @@ memory:
 ece_supportdiagnostics_url: "https://github.com/elastic/ece-support-diagnostics/archive/v1.1.tar.gz"
 ece_supportdiagnostics_result_path: "/tmp/ece-support-diagnostics"
 fetch_diagnostics: false
-
-# General settings for docker environment
-docker_bridge_ip: "172.17.42.1/16"
