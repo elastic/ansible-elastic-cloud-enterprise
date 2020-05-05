@@ -36,16 +36,23 @@
     fstype: xfs
     dev: /dev/lxc/data
 
-- name: Add entries to fstab
-  lineinfile:
-    path: /etc/fstab
-    line: "{{ item }}"
-  with_items:
-    - '/dev/lxc/swap swap       swap  swap  0 0'
-    - '/dev/lxc/data /mnt/data  xfs   defaults,pquota,prjquota,x-systemd.automount  0 0'
-
 - name: Mount /dev/lxc/data
-  command: mount /dev/lxc/data
+  mount:
+    path: /mnt/data
+    state: mounted
+    src: /dev/lxc/data
+    fstype: xfs
+    opts: "defaults,pquota,prjquota,x-systemd.automount"
+
+- name: Mount /dev/lxc/swap
+  mount:
+    src: "/dev/lxc/swap"
+    name: "swap"
+    fstype: "swap"
+    opts: "swap"
+    dump: "0"
+    passno: "0"
+    state: "present"
 
 - name: Enable all swap devices
   command: swapon -a
