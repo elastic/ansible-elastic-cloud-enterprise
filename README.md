@@ -11,21 +11,21 @@ A minimal example of a [small playbook](https://www.elastic.co/guide/en/cloud-en
 - hosts: primary
   gather_facts: true
   roles:
-    - elastic-cloud-enterprise
+    - ansible-elastic-cloud-enterprise
   vars:
     ece_primary: true
 
 - hosts: secondary
   gather_facts: true
   roles:
-    - elastic-cloud-enterprise
+    - ansible-elastic-cloud-enterprise
   vars:
     ece_roles: [director, coordinator, proxy, allocator]
 
 - hosts: tertiary
   gather_facts: true
   roles:
-    - elastic-cloud-enterprise
+    - ansible-elastic-cloud-enterprise
   vars:
     ece_roles: [director, coordinator, proxy, allocator]
 ```
@@ -119,19 +119,19 @@ This example installs Elastic Cloud Enterprise as detailed in "A medium installa
 ```yaml
 - hosts: primary
   roles:
-    - elastic-cloud-enterprise
+    - ansible-elastic-cloud-enterprise
   vars:
     ece_primary: true
 
 - hosts: director_coordinator
   roles:
-    - elastic-cloud-enterprise
+    - ansible-elastic-cloud-enterprise
   vars:
     ece_roles: [director, coordinator, proxy]
 
 - hosts: allocator
   roles:
-    - elastic-cloud-enterprise
+    - ansible-elastic-cloud-enterprise
   vars:
     ece_roles: [allocator]
 ```
@@ -174,7 +174,7 @@ The corresponding `site.yml` could then look like:
 ```yaml
 - hosts: allocator
   roles:
-    - elastic-cloud-enterprise
+    - ansible-elastic-cloud-enterprise
   vars:
     ece_roles: [allocator]
     primary_hostname: host1
@@ -207,7 +207,7 @@ Assuming you have an installation of Elastic Cloud Enterprise 2.1.0 and want to 
 ```yaml
 - hosts: upgradehost
   roles:
-    - elastic-cloud-enterprise
+    - ansible-elastic-cloud-enterprise
   vars:
     ece_version: 2.2.0
 ```
@@ -232,7 +232,7 @@ Building a Virtual Machine Images depends on the tools and platform you are usin
 - hosts: all
   become: true
   roles:
-    - elastic-cloud-enterprise
+    - ansible-elastic-cloud-enterprise
 ```
 
 And ansible should be run with `--tags base,vmimage`, this will install prerequisites for Elastic Cloud Entreprise, but not Elastic Cloud Entreprise. 
