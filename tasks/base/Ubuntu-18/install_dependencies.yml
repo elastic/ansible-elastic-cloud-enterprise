@@ -1,0 +1,13 @@
+---
+- name: Install base dependencies
+  apt:
+    name: "{{ packages }}"
+    update_cache: yes
+    install_recommends: yes
+    state: present
+  register: apt_res
+  retries: 3
+  until: apt_res is success
+  vars:
+    packages:
+    - xfsprogs
