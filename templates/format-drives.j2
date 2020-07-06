@@ -42,10 +42,11 @@ else
   partprobe || true
   mdadm --create --verbose ${TARGET_DISK} --name=${TARGET_DISK##*/} --level=0 -c256 --raid-devices=${drive_count} ${drives}
 
-  echo DEVICE ${drives} | tee /etc/mdadm.conf
-  mdadm --detail --scan | tee -a /etc/mdadm.conf
-  blockdev --setra 65536 ${TARGET_DISK}
   [[ -e ${MDADM_CONF} ]] && cp ${MDADM_CONF} ${MDADM_CONF}.backup
+  install -Dv /dev/null ${MDADM_CONF}
+  echo DEVICE ${drives} | tee ${MDADM_CONF}
+  mdadm --detail --scan | tee -a ${MDADM_CONF}
+  blockdev --setra 65536 ${TARGET_DISK}
   mdadm --examine --scan | tee -a ${MDADM_CONF}
   echo $((30*1024)) > /proc/sys/dev/raid/speed_limit_min
 fi
