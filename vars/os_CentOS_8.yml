@@ -1,0 +1,17 @@
+---
+docker_unit_after: "multi-user.target"
+docker_storage_driver: overlay2
+bootloader_update_command: grub2-mkconfig
+
+# Docker version mapping
+docker_version_map:
+  "19.03":
+    name: 'Docker-CE'
+    package:
+      - docker-ce-19.03.12
+      - docker-ce-cli-19.03.12
+      - containerd.io
+    repo: https://download.docker.com/linux/centos/docker-ce.repo
+    keys:
+      server: https://download.docker.com/linux/centos/gpg
+      id: 060A 61C5 1B55 8A7F 742B 77AA C52F EB6B 621E 9F35
