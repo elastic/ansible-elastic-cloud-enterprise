@@ -1,6 +1,6 @@
 ---
 docker_unit_after: "multi-user.target"
-docker_storage_driver: aufs
+docker_storage_driver: overlay2
 bootloader_update_command: update-grub
 
 # Docker version mapping
