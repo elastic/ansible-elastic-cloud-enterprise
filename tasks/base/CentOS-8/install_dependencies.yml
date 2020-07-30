@@ -1,0 +1,7 @@
+---
+- name: Install base dependencies
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+  - lvm2

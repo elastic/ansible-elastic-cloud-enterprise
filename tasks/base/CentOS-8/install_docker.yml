@@ -1,0 +1,54 @@
+---
+- name: Remove docker
+  package:
+    name: "{{ packages }}"
+    state: absent
+  vars:
+    packages:
+    - docker
+  register: remove_packages
+  retries: 10
+  delay: 30
+  until: remove_packages is success
+
+- name: disable SELinux
+  selinux:
+    state: disabled
+
+- name: Add Docker GPG Key
+  rpm_key:
+    key: https://download.docker.com/linux/centos/gpg
+    state: present
+  when: docker_version == '19.03'
+
+- name: Add docker repository
+  yum_repository:
+    name: "{{ docker_version_map[docker_version]['name'] }}"
+    description: "Docker repository"
+    file: docker-ce
+    baseurl: https://download.docker.com/linux/centos/7/x86_64/stable
+    enabled: yes
+    gpgcheck: no
+  when: docker_version == '19.03'
+  register: repo_installed
+  retries: 10
+  delay: 30
+  until: repo_installed is success
+
+- name: Install containerd separately (CentOS 8).
+  package:
+    name: https://download.docker.com/linux/centos/7/x86_64/stable/Packages/containerd.io-1.2.13-3.2.el7.x86_64.rpm
+    state: present
+  when: ansible_distribution_major_version | int == 8
+
+- name: Install docker
+  package:
+    name: "{{ docker_version_map[docker_version]['package'] }}"
+    state: present
+
+- name: Verify that fs.may_detach_mounts is enabled
+  lineinfile:
+    path: /etc/sysctl.conf
+    regexp: '^fs.may_detach_mounts'
+    line: 'fs.may_detach_mounts = 1'
+    create: yes
