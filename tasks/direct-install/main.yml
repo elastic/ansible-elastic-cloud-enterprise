@@ -1,5 +1,6 @@
 ---
 - include_tasks: setup_xfs.yml
+  tags: [setup_filesystem, destructive]
 
 - name: Reboot the machine with all defaults
   reboot:
@@ -7,3 +8,4 @@
     post_reboot_delay: 10
 
 - include_tasks: ../base/general/setup_mount_permissions.yml
+  tags: [setup_filesystem]
