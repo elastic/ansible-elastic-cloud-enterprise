@@ -62,6 +62,12 @@
     state: present
     create: true
 
+- name: Ensure cloud-init directory paths exist
+  file: >
+    path=/etc/cloud/cloud.cfg.d/
+    recurse=yes
+    state=directory
+
 - name: set boot user
   template:
     src: elastic.cfg.j2
