@@ -64,9 +64,9 @@
 
 - name: Ensure cloud-init directory paths exist
   file: >
-    path=/etc/cloud/cloud.cfg.d/
-    recurse=yes
-    state=directory
+    path: /etc/cloud/cloud.cfg.d/
+    recurse: yes
+    state: directory
 
 - name: set boot user
   template:
