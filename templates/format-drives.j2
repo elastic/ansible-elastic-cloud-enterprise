@@ -75,10 +75,10 @@ DATA_MOUNT_OPTIONS="noatime,defaults,pquota,prjquota"
 DATA_MOUNT_OPTIONS="${DATA_MOUNT_OPTIONS},discard"
 
 echo "/dev/${LVG}/swap swap       swap  swap  0 0" >> /etc/fstab
-echo "/dev/${LVG}/data /mnt/data  xfs   ${DATA_MOUNT_OPTIONS}  0 0" >> /etc/fstab
+echo "/dev/${LVG}/data {{ data_dir }}  xfs   ${DATA_MOUNT_OPTIONS}  0 0" >> /etc/fstab
 
 echo "Mounting LVM volumes..."
 mount -a
 swapon -a
-chown -R ${IMAGE_USER}:${IMAGE_USER} /mnt/data
-install -d -m 0700 -o ${IMAGE_USER} -g docker /mnt/data/docker
+chown -R ${IMAGE_USER}:${IMAGE_USER} {{ data_dir }}
+install -d -m 0700 -o ${IMAGE_USER} -g docker {{ data_dir }}/docker

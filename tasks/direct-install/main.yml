@@ -6,6 +6,7 @@
   reboot:
     msg: "Reboot for changes to take effect initiated by Ansible"
     post_reboot_delay: 10
+  tags: [setup_filesystem]
 
 - include_tasks: ../base/general/setup_mount_permissions.yml
   tags: [setup_filesystem]

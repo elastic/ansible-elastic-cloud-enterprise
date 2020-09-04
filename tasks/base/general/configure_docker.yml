@@ -20,7 +20,7 @@
   lineinfile:
     path: /etc/sysconfig/docker
     regexp: "^OPTIONS='(.*)'"
-    line: "OPTIONS='-g /mnt/data/docker \\1'"
+    line: "OPTIONS='-g {{ data_dir }}/docker \\1'"
     backrefs: yes
     create: yes
   when: docker_version == '1.13'
