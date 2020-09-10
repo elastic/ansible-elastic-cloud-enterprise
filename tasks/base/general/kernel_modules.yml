@@ -1,5 +1,6 @@
 ---
 - name: Enable kernel modules
+  become: yes
   copy:
     content: "{{item.kernel_module}}"
     dest: "/etc/modules-load.d/{{item.name}}.conf"

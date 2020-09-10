@@ -30,6 +30,7 @@
 - include_tasks: general/kernel_modules.yml
 
 - name: skip automatic ephemeral mount
+  become: yes
   copy:
     dest: /etc/cloud/cloud.cfg.d/01-mounts.cfg
     content: |

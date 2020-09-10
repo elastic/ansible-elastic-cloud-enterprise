@@ -1,5 +1,6 @@
 ---
 - name: stop and disable docker
+  become: yes
   systemd:
     name: docker
     state: stopped
@@ -8,6 +9,7 @@
 - include_tasks: ../base/general/setup_mount_permissions.yml
 
 - name: Place per instance disk formater
+  become: yes
   template:
     src: "format-drives.j2"
     dest: "/var/lib/cloud/scripts/per-instance/00-format-drives"
@@ -18,6 +20,7 @@
 
 # Because disk structure can change, we start docker daemon only after disks has been formated
 - name: Place per instance enable docker
+  become: yes
   copy:
     content: |
       #!/bin/bash

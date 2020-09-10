@@ -1,15 +1,18 @@
 ---
 - name: sysctl_scripts.yml || load ip_conntrack if needed
+  become: yes
   modprobe:
     name: ip_conntrack
     state: present
 
 - name: Create sysctl settings file
+  become: yes
   file:
     path: "{{ sysctl_settings_file }}"
     state: touch
 
 - name: sysctl_scripts.yml || set sysctl items
+  become: yes
   sysctl:
     name: "{{ item.name }}"
     value: "{{ item.value }}"

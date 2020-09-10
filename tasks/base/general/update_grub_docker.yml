@@ -1,5 +1,6 @@
 ---
 - name: Modify GRUB_CMDLINE_LINUX
+  become: yes
   lineinfile:
     state: present
     dest: /etc/default/grub
@@ -8,4 +9,5 @@
     line: '\1 cgroup_enable=memory swapaccount=1 cgroup.memory=nokmem\2'
 
 - name: Run bootloader update
+  become: yes
   command: "{{ bootloader_update_command }}"

@@ -1,22 +1,26 @@
 ---
 - name: Stop the docker service
+  become: yes
   systemd:
     name: docker
     state: stopped
 
 - name: Ensures /etc/systemd/system/docker.service.d dir exists
+  become: yes
   file:
     path: /etc/systemd/system/docker.service.d
     state: directory
   when: docker_version == '18.09'
 
 - name: Create service.d docker.conf
+  become: yes
   template:
     src: docker{{ docker_version }}.conf
     dest: /etc/systemd/system/docker.service.d/docker.conf
   when: docker_version == '18.09'
 
 - name: set docker storage options
+  become: yes
   lineinfile:
     path: /etc/sysconfig/docker
     regexp: "^OPTIONS='(.*)'"
@@ -26,6 +30,7 @@
   when: docker_version == '1.13'
 
 - name: set docker network options
+  become: yes
   lineinfile:
     path: /etc/sysconfig/docker-network
     regexp: '^DOCKER_NETWORK_OPTIONS='
@@ -34,6 +39,7 @@
   when: docker_version == '1.13'
 
 - name: set docker storage driver
+  become: yes
   lineinfile:
     path: /etc/sysconfig/docker-storage-setup
     regexp: '^DOCKER_NETWORK_OPTIONS='
@@ -42,11 +48,13 @@
   when: docker_version == '1.13'
 
 - name: Remove var/lib/docker
+  become: yes
   file:
     path: /var/lib/docker
     state: absent
 
 - name: Docker daemon is enabled and systemd has read all changes
+  become: yes
   systemd:
     name: docker
     enabled: yes

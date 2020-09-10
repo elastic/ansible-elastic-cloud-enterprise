@@ -3,6 +3,7 @@
   tags: [setup_filesystem, destructive]
 
 - name: Reboot the machine with all defaults
+  become: yes
   reboot:
     msg: "Reboot for changes to take effect initiated by Ansible"
     post_reboot_delay: 10

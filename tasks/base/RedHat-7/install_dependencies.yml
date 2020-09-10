@@ -1,5 +1,6 @@
 ---
 - name: Install base dependencies
+  become: yes
   package:
     name: "{{ item }}"
     state: present

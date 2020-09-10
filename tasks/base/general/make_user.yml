@@ -10,6 +10,7 @@
     fail_key: false
 
 - name: Add group elastic
+  become: yes
   group:
     name:  "{{ item }}"
     state: present
@@ -19,6 +20,7 @@
       - elastic
 
 - name: Add user elastic
+  become: yes
   user:
     name: elastic
     group: elastic
@@ -29,6 +31,7 @@
   when: getent_passwd["elastic"] == none
 
 - name: Modify user elastic to be included in groups
+  become: yes
   user:
     name: elastic
     groups: docker
@@ -36,12 +39,14 @@
   when: getent_passwd["elastic"] != none
 
 - name: Check for user elastic's authorized_keys file
+  become: yes
   stat:
     path: ~elastic/.ssh/authorized_keys
   register: es_authorized_keys
 
 # If elastic_authorized_keys_file is not set, copy the authorized keys from default ansible user
 - name: Copy keys from default user to elastic user
+  become: yes
   copy:
     src: "~{{ ansible_ssh_user }}/.ssh/authorized_keys"
     dest: ~elastic/.ssh/
@@ -50,19 +55,29 @@
 
 # If elastic_authorized_keys_file is defined, use that (local) path to copy the keys from
 - name: Copy local keys to elastic user
+  become: yes
   copy:
     src: "{{elastic_authorized_keys_file}}"
     dest: ~elastic/.ssh/
   when: elastic_authorized_keys_file is defined
 
 - name: Set pwd policy
+  become: yes
   lineinfile:
     path: /etc/sudoers.d/99-ece-users
     line: 'elastic ALL=(ALL) NOPASSWD:ALL'
     state: present
     create: true
 
+- name: Ensure cloud-init directory paths exist
+  become: yes
+  file:
+    path: /etc/cloud/cloud.cfg.d/
+    recurse: yes
+    state: directory
+
 - name: set boot user
+  become: yes
   template:
     src: elastic.cfg.j2
     dest: /etc/cloud/cloud.cfg.d/00-elastic.cfg
