@@ -10,6 +10,7 @@ ece_runner_id: "{{ ansible_default_ipv4.address }}"
 # Overall setup variables (like package versions)
 docker_version: "18.09"
 device_name: xvdb
+data_dir: /mnt/data
 force_xfc: false
 
 # Misc. variables (like sysctl settings file, etc.)

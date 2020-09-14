@@ -1,7 +1,7 @@
 ---
-- name: Make sure /mnt/data exists
+- name: Make sure {{ data_dir }} exists
   file:
-    path: /mnt/data
+    path: "{{ data_dir }}"
     state: directory
 
 - name: Create the volume
@@ -38,7 +38,7 @@
 
 - name: Mount /dev/lxc/data
   mount:
-    path: /mnt/data
+    path: "{{ data_dir }}"
     state: mounted
     src: /dev/lxc/data
     fstype: xfs

@@ -38,10 +38,10 @@ At least three hosts are needed for this example, a primary, a secondary, and te
   - Create required users and set limits for them
   - Create a xfs partition and configure it
   - Configure docker
-  
+
 More information about the prerequisites can be found in the following [page](https://www.elastic.co/guide/en/cloud-enterprise/current/ece-prereqs.html).
 - On the primary host:
-  - Make the primary installation of Elastic Cloud Enterprise 
+  - Make the primary installation of Elastic Cloud Enterprise
 - On the secondary host:
   - Install Elastic Cloud Enterprise to join the existing installation with the given ece_roles
 - On the tertiary host:
@@ -61,20 +61,22 @@ The following variables are avaible:
     - Default: xvdb
 - `ece_primary`: Whether this host should be the primary (first) host where Elastic Cloud Enterprise is installed
     - **Required** on a single host
+- `data_dir`: Which directory to mount the xfs partition under
+    - Default: `/mnt/data`
 - `ece_roles`: Elastic Cloud Enterprise roles that successive hosts should assume
     - Default: [director, coordinator, proxy, allocator]
 - `availability_zone`: The availability zone this group of hosts belongs to
 - `ece_version`: The Elastic Cloud Enterprise version that should get installed
     - Default: 2.4.3
-- `ece_docker_registry`: The docker registry from where to pull the Elastic Cloud Enterprise images. This is only relevant if you have a private mirror 
+- `ece_docker_registry`: The docker registry from where to pull the Elastic Cloud Enterprise images. This is only relevant if you have a private mirror
     - Default: docker.elastic.co
 - `ece_docker_repository`: The docker repository in the given registry. This is only relevant if you have a private mirror
     - Default: cloud-enterprise
 - `ece_installer_url`: The location of the installation script. Can be a local file for offline installation.
     - Default: `https://download.elastic.co/cloud/elastic-cloud-enterprise.sh`
-- `docker_config`: If specified as a path to a docker config, copies it to the target hosts  
-- [Supported Docker Versions](https://elastic.co/en/cloud-enterprise/current/ece-prereqs-software.html)  
-  - `docker_version`: Supported version on Centos 8, RHEL 8, Ubuntu 18 is 19.03, CentOS 7, Ubuntu (14.04LTS, 16.04LTS) and SLES 12 is 18.09, Supported version on RHEL7 is 1.13  
+- `docker_config`: If specified as a path to a docker config, copies it to the target hosts
+- [Supported Docker Versions](https://elastic.co/en/cloud-enterprise/current/ece-prereqs-software.html)
+  - `docker_version`: Supported version on Centos 8, RHEL 8, Ubuntu 18 is 19.03, CentOS 7, Ubuntu (14.04LTS, 16.04LTS) and SLES 12 is 18.09, Supported version on RHEL7 is 1.13
 - `docker_bridge_ip `: The default IP of the docker bridge. Configurable to avoid overlapping with the current host subnet.
 - `force_xfc`: By default if the `lxc` xfc volume already exists, the `setup_xfc` step is skipped, if this is set to true, creation of the volume is forced
     - Default: false
@@ -98,8 +100,8 @@ If more hosts should join an Elastic Cloud Enterpise installation when a primary
 
 The following tags are available to limit the execution, due to the nature of tags in ansible you should only use `--skip-tags` with these to skip certain parts instead of using `--tags` to limit the execution.
 
-- `base` Determines the execution of all tasks that setup the system (everything except the actual installation of Elastic Cloud Enterprise) 
-    - `setup_filesystem` If system tasks are executed, this determines if the filesystem tasks should get executed - includes creating the partitions for xfs and mount points 
+- `base` Determines the execution of all tasks that setup the system (everything except the actual installation of Elastic Cloud Enterprise)
+    - `setup_filesystem` If system tasks are executed, this determines if the filesystem tasks should get executed - includes creating the partitions for xfs and mount points
     - `install_docker` If system tasks are executed, this determines if existing docker packages should get removed and the current, supported version should get installed and configured
 - `destructive` This tag indicates whether a task is potentially destructive, like removing packages or doing filesystem partitioning
 - `ece` Determines if Elastic Cloud Enterprise should get installed
@@ -235,7 +237,7 @@ Building a Virtual Machine Images depends on the tools and platform you are usin
     - ansible-elastic-cloud-enterprise
 ```
 
-And ansible should be run with `--tags base,vmimage`, this will install prerequisites for Elastic Cloud Entreprise, but not Elastic Cloud Entreprise. 
+And ansible should be run with `--tags base,vmimage`, this will install prerequisites for Elastic Cloud Entreprise, but not Elastic Cloud Entreprise.
 Finally, you will be able to save the instance as VM image (depending on your cloud provider)
 
 Once the image is ready, you can use it as a base to install Elastic Cloud Entreprise, either from the boostraper script, or with ansible, using `--tags bootstrap` (this will install only Elastic Cloud Entreprise)

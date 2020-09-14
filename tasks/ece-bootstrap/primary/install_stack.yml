@@ -1,25 +1,25 @@
 ---
 - name: Execute the primary installation
-  shell: /home/elastic/elastic-cloud-enterprise.sh install --availability-zone {{ availability_zone }} --cloud-enterprise-version {{ ece_version }} --docker-registry {{ ece_docker_registry }} --ece-docker-repository {{ ece_docker_repository }} --memory-settings '{{ memory_settings }}' --runner-id {{ ece_runner_id }}
+  shell: /home/elastic/elastic-cloud-enterprise.sh install --availability-zone {{ availability_zone }} --cloud-enterprise-version {{ ece_version }} --docker-registry {{ ece_docker_registry }} --ece-docker-repository {{ ece_docker_repository }} --memory-settings '{{ memory_settings }}' --runner-id {{ ece_runner_id }} --host-storage-path {{ data_dir }}/elastic
   become: yes
   become_method: sudo
   become_user: elastic
 
 - name: Remember the bootstrap secrets
-  command: cat /mnt/data/elastic/bootstrap-state/bootstrap-secrets.json
+  command: cat {{ data_dir }}/elastic/bootstrap-state/bootstrap-secrets.json
   register: secrets
 
 - name: Fetch the bootstrap secrets
   fetch:
-    src: /mnt/data/elastic/bootstrap-state/bootstrap-secrets.json
+    src: "{{ data_dir }}/elastic/bootstrap-state/bootstrap-secrets.json"
     dest: bootstrap-secrets.local.json
     flat: yes
 
-- set_fact: 
+- set_fact:
     install_secrets: "{{ secrets.stdout|from_json }}"
 
-- set_fact: 
+- set_fact:
     adminconsole_root_password: "{{ install_secrets.adminconsole_root_password }}"
 
-- set_fact: 
+- set_fact:
     primary_hostname: "{{ inventory_hostname }}"
