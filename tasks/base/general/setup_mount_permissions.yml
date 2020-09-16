@@ -1,7 +1,7 @@
 ---
 - name: Change owner of {{ data_dir }}
   file:
-    path: {{ data_dir }}
+    path: "{{ data_dir }}"
     owner: elastic
     group: elastic
     mode: 0700
