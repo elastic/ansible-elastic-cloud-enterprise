@@ -61,7 +61,17 @@
     line: 'elastic ALL=(ALL) NOPASSWD:ALL'
     state: present
     create: true
-
+    
+# Ensure /etc/cloud/cloud.cfg.d directories exist before trying to write files to them
+- name: Create cloud directories
+  file:
+    path: "/etc/{{ item }}"
+    state: directory
+  register: file_output
+  loop:
+    - cloud
+    - cloud/cloud.cfg.d
+    
 - name: set boot user
   template:
     src: elastic.cfg.j2
