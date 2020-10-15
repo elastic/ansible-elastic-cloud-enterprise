@@ -15,26 +15,6 @@
   selinux:
     state: disabled
 
-- name: Add Docker GPG Key
-  rpm_key:
-    key: https://download.docker.com/linux/centos/gpg
-    state: present
-  when: docker_version == '18.09'
-
-- name: Add docker repository
-  yum_repository:
-    name: "{{ docker_version_map[docker_version]['name'] }}"
-    description: "Docker repository"
-    file: docker-ce
-    baseurl: https://download.docker.com/linux/centos/7/x86_64/stable
-    enabled: yes
-    gpgcheck: no
-  when: docker_version == '18.09'
-  register: repo_installed
-  retries: 10
-  delay: 30
-  until: repo_installed is success
-
 - name: Add RHEL7 Extras repository
   shell: yum-config-manager --enable "{{ docker_version_map[docker_version]['repo'] }}"
   register: repo_installed
