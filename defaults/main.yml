@@ -8,7 +8,6 @@ ece_installer_url: "https://download.elastic.co/cloud/elastic-cloud-enterprise.s
 ece_runner_id: "{{ ansible_default_ipv4.address }}"
 
 # Overall setup variables (like package versions)
-docker_version: "18.09"
 device_name: xvdb
 data_dir: /mnt/data
 force_xfc: false

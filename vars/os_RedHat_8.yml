@@ -8,8 +8,8 @@ docker_version_map:
   "19.03":
     name: 'Docker-CE'
     package:
-      - docker-ce-19.03.12
-      - docker-ce-cli-19.03.12
+      - docker-ce-19.03.13
+      - docker-ce-cli-19.03.13
       - containerd.io
     repo: https://download.docker.com/linux/centos/docker-ce.repo
     keys:
