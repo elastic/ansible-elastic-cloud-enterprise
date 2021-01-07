@@ -8,13 +8,13 @@
   file:
     path: /etc/systemd/system/docker.service.d
     state: directory
-  when: docker_version == '18.09'
+  when: docker_version != '1.13'
 
 - name: Create service.d docker.conf
   template:
     src: docker{{ docker_version }}.conf
     dest: /etc/systemd/system/docker.service.d/docker.conf
-  when: docker_version == '18.09'
+  when: docker_version != '1.13'
 
 - name: set docker storage options
   lineinfile:
