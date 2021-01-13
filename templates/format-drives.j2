@@ -44,8 +44,6 @@ else
 
   [[ -e ${MDADM_CONF} ]] && cp ${MDADM_CONF} ${MDADM_CONF}.backup
   install -Dv /dev/null ${MDADM_CONF}
-  echo DEVICE ${drives} | tee ${MDADM_CONF}
-  mdadm --detail --scan | tee -a ${MDADM_CONF}
   blockdev --setra 65536 ${TARGET_DISK}
   mdadm --examine --scan | tee -a ${MDADM_CONF}
   echo $((30*1024)) > /proc/sys/dev/raid/speed_limit_min
