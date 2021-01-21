@@ -5,3 +5,4 @@
     state: present
   with_items:
   - lvm2
+  - mdadm
