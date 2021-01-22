@@ -4,7 +4,7 @@ Ansible role for installing [Elastic Cloud Enterprise](https://www.elastic.co/pr
 
 ## Contents of this role
 
-A minimal example of a [small playbook](https://www.elastic.co/guide/en/cloud-enterprise/current/ece-topology-example1.html) might look like this:
+A minimal example of a [small playbook](https://www.elastic.co/guide/en/cloud-enterprise/current/ece-install-small-cloud.html) might look like this:
 
 ```yaml
 ---
