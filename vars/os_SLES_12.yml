@@ -5,10 +5,5 @@ bootloader_update_command: update-bootloader
 
 # Docker version mapping
 docker_version_map:
-  "18.09":
-    package: docker-18.09.7_ce-98.43.1
-    repo: https://download.opensuse.org/repositories/Virtualization:containers/SLE_12_SP3/
-    name: Virtualization:containers
-    keys:
-      server: http://download.opensuse.org/repositories/Virtualization:/containers/SLE_12_SP3/repodata/repomd.xml.key
-      id:
+  "19.03":
+    package: docker-19.03.14_ce

@@ -32,27 +32,16 @@ Inside this file at least the following needs to be specified (example from `var
 
 ```yaml
 ---
-# The following variables are used to populate templates/docker18.09.conf for the sysctl configuration
-docker_unit_after: "network.target docker.socket" # Goes into "[Unit] After=", e.g. 
-docker_storage_driver: overlay # The storage driver to use with docker
+# The following variables are used to populate templates/docker19.03.conf for the sysctl configuration
+---
+docker_unit_after: "network.target docker.socket"
+docker_storage_driver: overlay
+bootloader_update_command: update-bootloader
 
-# The command to be run to update the bootloader
-bootloader_update_command: # e.g. update-bootloader on SLES
-
-# The docker version mapping is used to easily support multiple docker versions
+# Docker version mapping
 docker_version_map:
-  # The version of docker to be installed, this value is referenced in defaults/main.yml (e.g. docker_version: "18.09")
-  "18.09": 
-    # The package name to be installed for this version
-    package: docker-18.09.1_ce 
-    # The repository that needs to be added for the docker package
-    repo: https://download.opensuse.org/repositories/Virtualization:containers/SLE_12_SP3/ 
-    name: Virtualization:containers # The name of the repository, if one is required
-    keys:
-      # The url from where to fetch the key for the repositry
-      server: http://download.opensuse.org/repositories/Virtualization:/containers/SLE_12_SP3/repodata/repomd.xml.key
-      # The id of the key
-      id:
+  "19.03":
+    package: docker-19.03.14_ce
 ```
 
 See `vars/os_Ubuntu_16.yml` as an example.
