@@ -12,35 +12,6 @@
   delay: 30
   until: remove_packages is success
 
-- name: Add docker repository
-  zypper_repository:
-    name: "{{ docker_version_map[docker_version]['name'] }}"
-    repo: "{{ docker_version_map[docker_version]['repo'] }}"
-    state: present
-    overwrite_multiple : true
-  register: repo_installed
-  retries: 10
-  delay: 30
-  until: repo_installed is success
-
-- name: Add docker repository key
-  command: "rpm --import '{{ docker_version_map[docker_version]['keys']['server'] }}'"
-  register: key_installed
-  retries: 10
-  delay: 30
-  until: key_installed is success
-  args:
-    warn: false
-
-- name: Reload repositories
-  command: "zypper --gpg-auto-import-keys refresh"
-  register: repo_reloaded
-  retries: 10
-  delay: 30
-  until: repo_reloaded is success
-  args:
-    warn: false
-
 - name: Install docker
   command: "zypper install -y --force-resolution --replacefiles {{ docker_version_map[docker_version]['package'] }}"
   args:
