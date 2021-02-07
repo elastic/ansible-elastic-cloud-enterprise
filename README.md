@@ -81,7 +81,7 @@ The following variables are avaible:
 - `force_xfc`: By default if the `lxc` xfc volume already exists, the `setup_xfc` step is skipped, if this is set to true, creation of the volume is forced
     - Default: false
 - `elastic_authorized_keys_file`: Defines a local path to an `authorized_keys` file that should be copied to the `elastic` user. If not set, the keys from the default user that is used with ansible will be copied over.
-- `memory`: Defines the JVM heap size to be used for different services running in ece. See https://www.elastic.co/guide/en/cloud-enterprise/current/ece-heap.html for example values and [defaults/main.yml](defaults/main.yml) for the default values.
+- `memory`: Defines the JVM heap size to be used for different services running in ece. See https://www.elastic.co/guide/en/cloud-enterprise/2.7/ece-jvm.html for example values and [defaults/main.yml](defaults/main.yml) for the default values.
 
 - `fetch_diagnostics`: Determines if Elastic Cloud Enterprise Support Diagnostics should be downloaded and executed
 - `ece_supportdiagnostics_url`: THe location of the diagnostics tool. Can be a local file for offline installation.
