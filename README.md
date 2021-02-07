@@ -4,7 +4,7 @@ Ansible role for installing [Elastic Cloud Enterprise](https://www.elastic.co/pr
 
 ## Contents of this role
 
-A minimal example of a [small playbook](https://www.elastic.co/guide/en/cloud-enterprise/current/ece-topology-example1.html) might look like this:
+A minimal example of a [small playbook](https://www.elastic.co/guide/en/cloud-enterprise/2.7/ece-install-small-onprem.html) might look like this:
 
 ```yaml
 ---
@@ -39,7 +39,7 @@ At least three hosts are needed for this example, a primary, a secondary, and te
   - Create a xfs partition and configure it
   - Configure docker
 
-More information about the prerequisites can be found in the following [page](https://www.elastic.co/guide/en/cloud-enterprise/current/ece-prereqs.html).
+More information about the prerequisites can be found in the following [page](https://www.elastic.co/guide/en/cloud-enterprise/2.7/ece-prereqs.html).
 - On the primary host:
   - Make the primary installation of Elastic Cloud Enterprise
 - On the secondary host:
@@ -115,7 +115,7 @@ In order to use this ansible playbook for building a VM image, the following tag
 
 ### Medium sized first installation of Elastic Cloud Enterprise
 
-This example installs Elastic Cloud Enterprise as detailed in "A medium installation with separate management services" [in the official documentation](https://www.elastic.co/guide/en/cloud-enterprise/current/ece-topology-example2.html) and brings you up to *step 5 - Modify the first host you installed Elastic Cloud Enterprise on*
+This example installs Elastic Cloud Enterprise as detailed in "A medium installation with separate management services" [in the official documentation](https://www.elastic.co/guide/en/cloud-enterprise/2.7/ece-install-medium-onprem.html) and brings you up to *step 5 - Modify the first host you installed Elastic Cloud Enterprise on*
 
 `site.yml`:
 ```yaml
