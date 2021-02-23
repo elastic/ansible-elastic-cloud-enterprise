@@ -67,7 +67,7 @@ The following variables are avaible:
     - Default: [director, coordinator, proxy, allocator]
 - `availability_zone`: The availability zone this group of hosts belongs to
 - `ece_version`: The Elastic Cloud Enterprise version that should get installed
-    - Default: 2.7.0
+    - Default: 2.8.1
 - `ece_docker_registry`: The docker registry from where to pull the Elastic Cloud Enterprise images. This is only relevant if you have a private mirror
     - Default: docker.elastic.co
 - `ece_docker_repository`: The docker repository in the given registry. This is only relevant if you have a private mirror
