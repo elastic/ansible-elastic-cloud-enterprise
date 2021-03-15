@@ -26,6 +26,7 @@
     vg: lxc
     lv: data
     size: 100%FREE
+    shrink: no
     force: true
 
 - name: Setup swap
