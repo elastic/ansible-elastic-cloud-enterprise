@@ -26,7 +26,13 @@
     vg: lxc
     lv: data
     size: 100%FREE
+    shrink: no
     force: true
+
+- name: Disable all swap devices
+  command: swapoff -a
+  args:
+    warn: no
 
 - name: Setup swap
   command: mkswap /dev/lxc/swap
