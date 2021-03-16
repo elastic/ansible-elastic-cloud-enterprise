@@ -29,13 +29,10 @@
     shrink: no
     force: true
 
-- name: Disable all swap devices
-  command: swapoff -a
-  args:
-    warn: no
-
-- name: Setup swap
-  command: mkswap /dev/lxc/swap
+- name: Create swap filesystem on /dev/lxc/swap
+  filesystem:
+    fstype: swap
+    dev: /dev/lxc/swap
 
 - name: Create xfs filesystem on /dev/lxc/data
   filesystem:
