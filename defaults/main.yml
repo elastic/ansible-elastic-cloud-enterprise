@@ -27,7 +27,7 @@ memory:
   adminconsole: 4G
 
 # Elastic Cloud Enterprise - Support Diagnostics Settings
-ece_supportdiagnostics_url: "https://github.com/elastic/ece-support-diagnostics/archive/v1.1.tar.gz"
+ece_supportdiagnostics_url: "https://github.com/elastic/ece-support-diagnostics/archive/v1.2.tar.gz"
 ece_supportdiagnostics_result_path: "/tmp/ece-support-diagnostics"
 fetch_diagnostics: false
 
