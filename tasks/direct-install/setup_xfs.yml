@@ -26,10 +26,13 @@
     vg: lxc
     lv: data
     size: 100%FREE
+    shrink: no
     force: true
 
-- name: Setup swap
-  command: mkswap /dev/lxc/swap
+- name: Create swap filesystem on /dev/lxc/swap
+  filesystem:
+    fstype: swap
+    dev: /dev/lxc/swap
 
 - name: Create xfs filesystem on /dev/lxc/data
   filesystem:

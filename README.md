@@ -39,7 +39,7 @@ At least three hosts are needed for this example, a primary, a secondary, and te
   - Create a xfs partition and configure it
   - Configure docker
 
-More information about the prerequisites can be found in the following [page](https://www.elastic.co/guide/en/cloud-enterprise/current/ece-prereqs.html).
+More information about the prerequisites can be found in the following [page](https://www.elastic.co/guide/en/cloud-enterprise/2.7/ece-prereqs.html).
 - On the primary host:
   - Make the primary installation of Elastic Cloud Enterprise
 - On the secondary host:
@@ -49,7 +49,7 @@ More information about the prerequisites can be found in the following [page](ht
 
 There is a set of variables and tags available to further define the behaviour of this role, or exclude certain steps.
 
-For example in many cases you might want to install Elastic Coud Enterprise without running any of the potentially destructive system prerequisites like removing existing docker installations and setting up a filesystem. This can be done by specifying `--skip-tags destructive` on your ansible run - or if you want to only install Elastic Coud Enterprise without any system tasks before `--skip-tags base`.
+For example in many cases you might want to install Elastic Coud Enterprise without running any of the potentially destructive system prerequisites like removing existing docker installations and setting up a filesystem. This can be done by specifying `--skip-tags destructive` on your ansible run - or if you want to only install Elastic Coud Enterprise without any system tasks before `--tags bootstrap`.
 
 
 ## Role Variables
@@ -67,7 +67,7 @@ The following variables are avaible:
     - Default: [director, coordinator, proxy, allocator]
 - `availability_zone`: The availability zone this group of hosts belongs to
 - `ece_version`: The Elastic Cloud Enterprise version that should get installed
-    - Default: 2.4.3
+    - Default: 2.8.1
 - `ece_docker_registry`: The docker registry from where to pull the Elastic Cloud Enterprise images. This is only relevant if you have a private mirror
     - Default: docker.elastic.co
 - `ece_docker_repository`: The docker repository in the given registry. This is only relevant if you have a private mirror
@@ -75,13 +75,13 @@ The following variables are avaible:
 - `ece_installer_url`: The location of the installation script. Can be a local file for offline installation.
     - Default: `https://download.elastic.co/cloud/elastic-cloud-enterprise.sh`
 - `docker_config`: If specified as a path to a docker config, copies it to the target hosts
-- [Supported Docker Versions](https://elastic.co/en/cloud-enterprise/current/ece-prereqs-software.html)
+- [Supported Docker Versions](https://www.elastic.co/guide/en/cloud-enterprise/2.7/ece-software-prereq.html#ece-linux-docker)
   - `docker_version`: Supported version on Centos 8, RHEL 8, Ubuntu 18 is 19.03, CentOS 7, Ubuntu (14.04LTS, 16.04LTS) and SLES 12 is 18.09, Supported version on RHEL7 is 1.13
 - `docker_bridge_ip `: The default IP of the docker bridge. Configurable to avoid overlapping with the current host subnet.
 - `force_xfc`: By default if the `lxc` xfc volume already exists, the `setup_xfc` step is skipped, if this is set to true, creation of the volume is forced
     - Default: false
 - `elastic_authorized_keys_file`: Defines a local path to an `authorized_keys` file that should be copied to the `elastic` user. If not set, the keys from the default user that is used with ansible will be copied over.
-- `memory`: Defines the JVM heap size to be used for different services running in ece. See https://www.elastic.co/guide/en/cloud-enterprise/current/ece-heap.html for example values and [defaults/main.yml](defaults/main.yml) for the default values.
+- `memory`: Defines the JVM heap size to be used for different services running in ece. See https://www.elastic.co/guide/en/cloud-enterprise/2.7/ece-jvm.html for example values and [defaults/main.yml](defaults/main.yml) for the default values.
 
 - `fetch_diagnostics`: Determines if Elastic Cloud Enterprise Support Diagnostics should be downloaded and executed
 - `ece_supportdiagnostics_url`: THe location of the diagnostics tool. Can be a local file for offline installation.
@@ -223,9 +223,9 @@ all:
         host1:
 ```
 
-It is important that you then specify `--skip-tags base` when you run the playbook in order to only perform the Elastic Cloud Enterprise update and no other tasks, especially when the initial installation was not done with this role.
+It is important that you then specify `--tags bootstrap` when you run the playbook in order to only perform the Elastic Cloud Enterprise update and no other tasks, especially when the initial installation was not done with this role.
 ```bash
-ansible-playbook -i inventory.yml site.yml --skip-tags base
+ansible-playbook -i inventory.yml site.yml --tags bootstrap
 ```
 
 ### Building a base Virtual Machine Image
