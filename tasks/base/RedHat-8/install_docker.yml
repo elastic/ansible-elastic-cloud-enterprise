@@ -26,7 +26,7 @@
     name: "{{ docker_version_map[docker_version]['name'] }}"
     description: "Docker repository"
     file: docker-ce
-    baseurl: https://download.docker.com/linux/centos/7/x86_64/stable
+    baseurl: https://download.docker.com/linux/centos/8/x86_64/stable
     enabled: yes
     gpgcheck: no
   when: docker_version == '19.03'
