@@ -42,12 +42,6 @@
   delay: 30
   until: repo_installed is success
 
-- name: Install containerd separately (CentOS 8).
-  package:
-    name: https://download.docker.com/linux/centos/7/x86_64/stable/Packages/containerd.io-1.2.13-3.2.el7.x86_64.rpm
-    state: present
-  when: ansible_distribution_major_version | int == 8
-
 - name: Install docker
   package:
     name: "{{ docker_version_map[docker_version]['package'] }}"
