@@ -6,7 +6,7 @@ bootloader_update_command: grub2-mkconfig
 # Docker version mapping
 docker_version_map:
   "19.03":
-    name: 'Docker-CE'
+    name: 'docker-ce-stable'
     package:
       - docker-ce-19.03.13
       - docker-ce-cli-19.03.13
