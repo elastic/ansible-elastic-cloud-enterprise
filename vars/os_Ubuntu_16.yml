@@ -7,9 +7,9 @@ bootloader_update_command: update-grub
 docker_version_map:
   "18.09":
     package:
-      - docker-ce=5:18.09.2*
-      - docker-ce-cli=5:18.09.2*
-      - containerd.io
+      - docker-ce=5:18.09.9*
+      - docker-ce-cli=5:18.09.9*
+      - containerd.io=1.4.3-1*
     repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
     keys:
       server: https://download.docker.com/linux/ubuntu/gpg
