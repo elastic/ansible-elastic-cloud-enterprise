@@ -8,9 +8,9 @@ docker_version_map:
   "18.09":
     name: 'Docker-CE'
     package:
-      - docker-ce-18.09.2
-      - docker-ce-cli-18.09.2
-      - containerd.io
+      - docker-ce-18.09.9
+      - docker-ce-cli-18.09.9
+      - containerd.io-1.4.3
     repo: https://download.docker.com/linux/centos/7/x86_64/stable
     keys:
       server: https://download.docker.com/linux/centos/gpg
