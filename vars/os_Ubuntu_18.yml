@@ -5,11 +5,11 @@ bootloader_update_command: update-grub
 
 # Docker version mapping
 docker_version_map:
-  "19.03":
+  "20.10":
     package:
-      - docker-ce=5:19.03.15*
-      - docker-ce-cli=5:19.03.15*
-      - containerd.io=1.4.3-1*
+      - docker-ce=5:20.10.7*
+      - docker-ce-cli=5:20.10.7*
+      - containerd.io=1.4.9-1*
     repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable
     keys:
       server: https://download.docker.com/linux/ubuntu/gpg

@@ -13,13 +13,13 @@
 
 - name: disable SELinux
   selinux:
-    state: disabled
+    state: enforcing
 
 - name: Add Docker GPG Key
   rpm_key:
     key: https://download.docker.com/linux/centos/gpg
     state: present
-  when: docker_version == '19.03'
+  when: docker_version == '20.10'
 
 - name: Add docker repository
   yum_repository:
