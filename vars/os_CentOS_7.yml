@@ -14,3 +14,12 @@ docker_version_map:
     repo: https://download.docker.com/linux/centos/7/x86_64/stable
     keys:
       server: https://download.docker.com/linux/centos/gpg
+  "20.10":
+    name: 'Docker-CE'
+    package:
+      - docker-ce-20.10.8
+      - docker-ce-cli-20.10.8
+      - containerd.io-1.4.3
+    repo: https://download.docker.com/linux/centos/7/x86_64/stable
+    keys:
+      server: https://download.docker.com/linux/centos/gpg
