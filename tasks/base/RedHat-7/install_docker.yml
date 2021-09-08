@@ -22,6 +22,41 @@
   delay: 30
   until: repo_installed is success 
 
+# Fixing https://stackoverflow.com/questions/65878769/cannot-install-docker-in-a-rhel-server
+- name: Add Centos 7 Extras repository
+  yum_repository:
+    name: "Centos-extras-x86_64"
+    description: "Centos Extra repository"
+    file: docker-ce
+    baseurl: "http://mirror.centos.org/centos/7/extras/x86_64"
+    enabled: yes
+    gpgcheck: no
+  register: repo_installed
+  retries: 10
+  delay: 30
+  until: repo_installed is success
+  when: docker_version != '1.13'
+
+- name: Add Docker GPG Key
+  rpm_key:
+    key: "{{ docker_version_map[docker_version]['keys']['server'] }}"
+    state: present
+  when: docker_version != '1.13'
+
+- name: Add docker repository
+  yum_repository:
+    name: "{{ docker_version_map[docker_version]['name'] }}"
+    description: "Docker repository"
+    file: docker-ce
+    baseurl: "{{ docker_version_map[docker_version]['repo'] }}"
+    enabled: yes
+    gpgcheck: no
+  register: repo_installed
+  retries: 10
+  delay: 30
+  until: repo_installed is success
+  when: docker_version != '1.13'
+
 - name: Install docker
   package:
     name: "{{ docker_version_map[docker_version]['package'] }}"
