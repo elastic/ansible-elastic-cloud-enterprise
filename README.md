@@ -76,7 +76,7 @@ The following variables are avaible:
     - Default: `https://download.elastic.co/cloud/elastic-cloud-enterprise.sh`
 - `docker_config`: If specified as a path to a docker config, copies it to the target hosts
 - [Supported Docker Versions](https://www.elastic.co/guide/en/cloud-enterprise/2.7/ece-software-prereq.html#ece-linux-docker)
-  - `docker_version`: Supported version on Centos 8, RHEL 8, Ubuntu 18 is 19.03, CentOS 7, Ubuntu (14.04LTS, 16.04LTS) and SLES 12 is 18.09, Supported version on RHEL7 is 1.13
+  - `docker_version`: Last supported version on Centos 7/8 and RHEL 7/8 is 20.0, Ubuntu 16, Ubuntu 18 and SLES 12 is 19.03.
 - `docker_bridge_ip `: The default IP of the docker bridge. Configurable to avoid overlapping with the current host subnet.
 - `force_xfc`: By default if the `lxc` xfc volume already exists, the `setup_xfc` step is skipped, if this is set to true, creation of the volume is forced
     - Default: false
