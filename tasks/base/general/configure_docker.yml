@@ -12,7 +12,7 @@
 
 - name: Create service.d docker.conf
   template:
-    src: docker{{ docker_version }}.conf
+    src: docker.conf
     dest: /etc/systemd/system/docker.service.d/docker.conf
   when: docker_version != '1.13'
 

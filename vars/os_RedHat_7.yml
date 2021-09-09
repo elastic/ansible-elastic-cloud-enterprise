@@ -9,3 +9,13 @@ docker_version_map:
     name: 'Docker'
     package: docker-2:1.13.1-109*
     repo: "Red Hat Enterprise Linux*7*Extra*RPMs)"
+  "20.10":
+    name: 'Docker-CE'
+    package:
+      - docker-ce-20.10.8
+      - docker-ce-cli-20.10.8
+      - containerd.io-1.4.3
+    repo: https://download.docker.com/linux/centos/7/x86_64/stable
+    keys:
+      server: https://download.docker.com/linux/centos/gpg
+      id: 060A 61C5 1B55 8A7F 742B 77AA C52F EB6B 621E 9F35
