@@ -2,6 +2,12 @@
 
 Ansible role for installing [Elastic Cloud Enterprise](https://www.elastic.co/products/ece) and preparing hosts for it.
 
+## Requirements
+
+This role is tested against Ansible 2.8.7.
+
+If you are using different Ansible version and having issues with it, then please [submit an issue](https://github.com/elastic/ansible-elastic-cloud-enterprise/issues/new)
+
 ## Contents of this role
 
 A minimal example of a [small playbook](https://www.elastic.co/guide/en/cloud-enterprise/current/ece-install-small-cloud.html) might look like this:
