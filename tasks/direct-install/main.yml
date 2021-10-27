@@ -9,4 +9,4 @@
   tags: [setup_filesystem]
 
 - include_tasks: ../base/general/setup_mount_permissions.yml
-  tags: [setup_filesystem]
+  tags: [setup_filesystem, setup_fs_permissions]
