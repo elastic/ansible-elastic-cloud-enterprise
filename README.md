@@ -57,7 +57,7 @@ For example in many cases you might want to install Elastic Coud Enterprise with
 The following variables are avaible:
 
 - `device_name`: The name of the device on which the xfs partition should be created
-    - **Required** unless filestystem tasks are skipped via tags
+    - **Required** unless filesystem tasks are skipped via tags
     - Default: xvdb
 - `ece_primary`: Whether this host should be the primary (first) host where Elastic Cloud Enterprise is installed
     - **Required** on a single host
