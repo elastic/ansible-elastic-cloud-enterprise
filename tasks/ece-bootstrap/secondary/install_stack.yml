@@ -19,9 +19,18 @@
     body: '{ "persistent": false, "roles": {{ ece_roles }} }'
   register: roles_token
 
-- name: Execute installation
+- name: Execute installation - no allocator-tags
   shell: /home/elastic/elastic-cloud-enterprise.sh --coordinator-host {{ primary_hostname }} --roles-token '{{ roles_token.json.token }}' --roles '{{ ece_roles | join(',') }}' --availability-zone {{ availability_zone }} --cloud-enterprise-version {{ ece_version }}  --docker-registry {{ ece_docker_registry }} --ece-docker-repository {{ ece_docker_repository }} --host-storage-path {{ data_dir }}/elastic --memory-settings '{{ memory_settings }}' --runner-id {{ ece_runner_id }}
   become: yes
   become_method: sudo
   become_user: elastic
   register: installation
+  when: allocator_tags is undefined
+
+- name: Execute installation - with allocator-tags
+  shell: /home/elastic/elastic-cloud-enterprise.sh --coordinator-host {{ primary_hostname }} --roles-token '{{ roles_token.json.token }}' --roles '{{ ece_roles | join(',') }}' --availability-zone {{ availability_zone }} --cloud-enterprise-version {{ ece_version }}  --docker-registry {{ ece_docker_registry }} --ece-docker-repository {{ ece_docker_repository }} --host-storage-path {{ data_dir }}/elastic --memory-settings '{{ memory_settings }}' --runner-id {{ ece_runner_id }} --allocator-tags {{ allocator_tags }}
+  become: yes
+  become_method: sudo
+  become_user: elastic
+  register: installation
+  when: allocator_tags is defined

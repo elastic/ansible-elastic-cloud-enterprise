@@ -94,6 +94,8 @@ The following variables are avaible:
     - Default: `/tmp/ece-support-diagnostics`
 - `ece_runner_id`: Assigns an arbitrary ID to the host (runner) that you are installing Elastic Cloud Enterprise on
     - Default: `ansible_default_ipv4.address`
+- `allocator_tags`: If your allocators require allocator tags, you can set this variable on the allocator hosts
+    - Default: no allocator tags
 
 If more hosts should join an Elastic Cloud Enterpise installation when a primary host was already installed previously there are two more variables that are required:
 - `primary_hostname`: The (reachable) hostname of the primary host
@@ -169,6 +171,20 @@ all:
           availability_zone: zone-3
 ```
 
+If you rely on allocator tags you can add them to each of the allocator hosts above - it could look like this:
+```yaml
+    allocator:
+      hosts:
+        host4:
+          availability_zone: zone-1
+          allocator_tags: "i3en:true"
+        host5:
+          availability_zone: zone-2
+          allocator_tags: "i3en:true"
+        host6:
+          availability_zone: zone-3
+          allocator_tags: "i3en:true"
+```
 ### Adding hosts to an existing installation
 
 Assuming you already have an existing installation of Elastic Cloud Enterprise and you want to add more allocators to it you need to specify two additional variables:
