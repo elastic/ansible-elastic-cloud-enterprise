@@ -1,7 +1,7 @@
 ---
-- name: sysctl_scripts.yml || load ip_conntrack if needed
+- name: sysctl_scripts.yml || load {{ conntrack_module }} if needed
   modprobe:
-    name: ip_conntrack
+    name: "{{ conntrack_module }}"
     state: present
 
 - name: Create sysctl settings file
