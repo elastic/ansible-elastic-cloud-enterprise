@@ -69,6 +69,8 @@ The following variables are avaible:
     - Default: `/mnt/data`
 - `ece_roles`: Elastic Cloud Enterprise roles that successive hosts should assume
     - Default: [director, coordinator, proxy, allocator]
+- `capacity`: [Amount of memory to grant to the allocator](https://www.elastic.co/guide/en/cloud-enterprise/current/ece-manage-capacity.html#ece-alloc-memory)
+    - Default: left empty, installer default behavior will be applied
 - `availability_zone`: The availability zone this group of hosts belongs to
 - `ece_version`: The Elastic Cloud Enterprise version that should get installed
     - Default: 2.8.1
