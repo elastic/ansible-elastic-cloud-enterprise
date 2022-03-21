@@ -7,5 +7,26 @@
   ignore_errors: true
 
 - include_tasks: install_dependencies.yml
-- include_tasks: install_docker.yml
-  tags: [install_docker, destructive]
+
+- name: Install docker task
+  include_tasks: 
+    file: install_docker.yml
+  tags: 
+    - install_docker
+    - destructive
+  when: "'install_podman' not in ansible_run_tags"
+
+- name: Install podman task
+  include_tasks: 
+    file: install_podman.yml
+  tags: 
+    - install_podman
+    - destructive
+    - never
+
+- name: Verify that fs.may_detach_mounts is enabled
+  lineinfile:
+    path: /etc/sysctl.conf
+    regexp: '^fs.may_detach_mounts'
+    line: 'fs.may_detach_mounts = 1'
+    create: yes

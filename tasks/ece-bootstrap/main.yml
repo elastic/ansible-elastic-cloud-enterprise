@@ -5,18 +5,53 @@
     dest: /home/elastic/elastic-cloud-enterprise.sh
     mode: 0755
 
-- name: Ensure ~/.docker is present
-  file:
-    path: /home/elastic/.docker/
-    state: directory
-    owner: elastic
+- name: check if podman is installed instead of docker
+  stat: 
+    path: /usr/bin/podman
+  register: podman_exec
 
-- name: Copy local docker config
-  copy:
-    src: "{{ docker_config }}"
-    dest: /home/elastic/.docker/config.json
-    owner: elastic
-  when: docker_config != ""
+- name: Docker config
+  block:
+    - name: Ensure ~/.docker is present
+      file:
+        path: /home/elastic/.docker/
+        state: directory
+        owner: elastic
+
+    - name: Copy local docker config
+      copy:
+        src: "{{ docker_config }}"
+        dest: /home/elastic/.docker/config.json
+        owner: elastic
+      when: docker_config != ""
+    - name: set socket for docker or podman service
+      lineinfile:
+        path: /etc/environment
+        line: "{{ item }}"
+      with_items:
+        - "DOCKER_HOST={{ docker_socket }}"
+  when: not podman_exec.stat.exists
+
+- name: Workaround for podman
+  block:
+    - name: replace docker -H with podman --url in installer
+      replace:
+        path: /home/elastic/elastic-cloud-enterprise.sh
+        regexp: 'docker \-H'
+        replace: 'podman-remote --url'
+    - name: Copy local auth config
+      copy:
+        src: "{{ docker_config }}"
+        dest: /run/user/1001/containers/auth.json
+        owner: elastic
+      when: docker_config != ""
+    - name: set socket for docker or podman service
+      lineinfile:
+        path: /etc/environment
+        line: "{{ item }}"
+      with_items:
+        - "DOCKER_HOST={{ podman_socket }}"
+  when: podman_exec.stat.exists
 
 - name: Check if an installation or upgrade should be performed
   shell: docker ps -a -f name=frc-runners-runner --format {%raw%}"{{.Image}}"{%endraw%}

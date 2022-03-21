@@ -1,0 +1,41 @@
+---
+- name: Remove docker
+  package:
+    name: "{{ packages }}"
+    state: absent
+  vars:
+    packages:
+    - docker
+    - docker-ce
+    - podman
+    - podman-remote
+  register: remove_packages
+  retries: 10
+  delay: 30
+  until: remove_packages is success
+
+- name: disable SELinux
+  selinux:
+    state: disabled
+
+- name: Install podman
+  package:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+    - podman-3.4.2
+    - podman-remote-3.4.2
+- name: Ensures /etc/systemd/system/user@.service.d/ dir exists
+  file: path=/etc/systemd/system/user@.service.d state=directory
+
+- name: enable CPU delegation
+  copy:
+    src: delegate.conf
+    dest: /etc/systemd/system/user@.service.d/delegate.conf
+
+- name: reload daemon
+  systemd:
+    daemon_reload: yes
+
+

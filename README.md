@@ -113,6 +113,7 @@ The following tags are available to limit the execution, due to the nature of ta
 - `ece` Determines if Elastic Cloud Enterprise should get installed
 - `vmimage` Prepare the system for building a Virtual Machine Image (Amazon AMI, ...). This will install a cloud-init script which will auto-discover and mount disk selected when an instance is launched with this image.
 - `bootstrap` This tags should be picked for only installing Elastic Cloud Entreprise itself (no prerequistes)
+- `podman` Installs and uses podman instead of docker daemon. (Only for Ubuntu 18)
 
 By default, all tags are applied, except `vmimage`, which means that it will install all prerequisites and Elastic Cloud Entreprise.
 In order to use this ansible playbook for building a VM image, the following tags should be selected: `--tags base,vmimage` (this won't install Elastic Cloud Enterprise)
