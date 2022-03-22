@@ -34,6 +34,19 @@
     src: delegate.conf
     dest: /etc/systemd/system/user@.service.d/delegate.conf
 
+- name: copy /etc/systemd/system/user-0.slice
+  copy:
+    src: user-0.slice
+    dest: /etc/systemd/system/user-0.slice
+
+# - name: Ensures /etc/systemd/system/user-.slice.d dir exists
+#   file: path=/etc/systemd/system/user-.slice.d state=directory
+
+# - name: copy /etc/systemd/system/user-.slice.d/override.conf
+#   copy:
+#     src: override.conf
+#     dest: /etc/systemd/system/user-.slice.d/override.conf
+
 - name: reload daemon
   systemd:
     daemon_reload: yes

@@ -5,7 +5,7 @@
     dest: /etc/default/grub
     backrefs: yes
     regexp: '^(GRUB_CMDLINE_LINUX=\"[^\"]*)(\".*)'
-    line: '\1 cgroup_enable=memory swapaccount=1 cgroup.memory=nokmem\2'
+    line: '\1 cgroup_enable=memory swapaccount=1 cgroup.memory=nokmem systemd.unified_cgroup_hierarchy=1 \2'
 
 - name: Run bootloader update
   command: "{{ bootloader_update_command }}"

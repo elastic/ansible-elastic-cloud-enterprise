@@ -42,7 +42,7 @@
   lineinfile:
     path: /etc/containers/storage.conf
     regexp: "^driver = "
-    line: driver = "overlay2"
+    line: driver = "overlay"
     backrefs: yes
     create: yes
 
