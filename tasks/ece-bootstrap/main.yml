@@ -39,7 +39,15 @@
         path: /home/elastic/elastic-cloud-enterprise.sh
         regexp: 'docker \-H'
         replace: 'podman-remote --url'
-    - name: Copy local auth config
+    - name: Make sure /run/user/1001/containers exists
+      file:
+        path: /run/user/1001/containers/
+        state: directory
+        owner: elastic
+        group: elastic
+        mode: 0700
+      when: docker_config != ""
+    - name: Copy local auth config TODO
       copy:
         src: "{{ docker_config }}"
         dest: /run/user/1001/containers/auth.json

@@ -15,14 +15,14 @@
     state: present
   when: item not in ansible_facts.getent_group
   with_items:
-      - docker
+      - "{{ container_group }}"
       - elastic
 
 - name: Add user elastic
   user:
     name: elastic
     group: elastic
-    groups: docker
+    groups: "{{ container_group }}"
     append: yes
     state: present
     generate_ssh_key: true
@@ -31,7 +31,7 @@
 - name: Modify user elastic to be included in groups
   user:
     name: elastic
-    groups: docker
+    groups: "{{ container_group }}"
     append: yes
   when: getent_passwd["elastic"] != none
 

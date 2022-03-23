@@ -14,6 +14,10 @@
   delay: 30
   until: remove_packages is success
 
+- name: Set container_group = podman
+  set_fact:
+    container_group: "podman"
+
 - name: disable SELinux
   selinux:
     state: disabled
@@ -26,26 +30,6 @@
     packages:
     - podman-3.4.2
     - podman-remote-3.4.2
-- name: Ensures /etc/systemd/system/user@.service.d/ dir exists
-  file: path=/etc/systemd/system/user@.service.d state=directory
-
-- name: enable CPU delegation
-  copy:
-    src: delegate.conf
-    dest: /etc/systemd/system/user@.service.d/delegate.conf
-
-- name: copy /etc/systemd/system/user-0.slice
-  copy:
-    src: user-0.slice
-    dest: /etc/systemd/system/user-0.slice
-
-# - name: Ensures /etc/systemd/system/user-.slice.d dir exists
-#   file: path=/etc/systemd/system/user-.slice.d state=directory
-
-# - name: copy /etc/systemd/system/user-.slice.d/override.conf
-#   copy:
-#     src: override.conf
-#     dest: /etc/systemd/system/user-.slice.d/override.conf
 
 - name: reload daemon
   systemd:

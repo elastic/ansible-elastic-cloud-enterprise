@@ -1,13 +1,13 @@
 ---
-- name: Stop the podman service
-  systemd:
-    name: podman.service
-    state: stopped
+- name: Ensures /etc/systemd/system/podman.socket.d dir exists
+  file:
+    path: /etc/systemd/system/podman.socket.d
+    state: directory
 
-- name: Configure podmanapi.service
+- name: Configure podman.socket
   template:
-    src: podmanapi.service
-    dest: /usr/lib/systemd/user/podmanapi.service
+    src: podman.conf
+    dest: /etc/systemd/system/podman.socket.d/podman.conf
 
 - name: alias docker and use socket
   template:
@@ -38,37 +38,22 @@
     line: rootless_storage_path = "/mnt/data/docker/rootless/$UID/"
     create: yes
 
-- name: set overlay2 storage driver
-  lineinfile:
-    path: /etc/containers/storage.conf
-    regexp: "^driver = "
-    line: driver = "overlay"
-    backrefs: yes
-    create: yes
-
-# For some reason, podman services cannot start with user elastic unless we reboot
-- name: enable linger for elastic user
-  shell: loginctl enable-linger elastic
-
-- name: Reset ssh connection to allow user changes to affect 'current login user'
-  meta: reset_connection
-
-- name: Start the podman socket
-  systemd:
-    name: podman.socket
-    enabled: yes
-    scope: user
-    daemon_reload: true
-  become: yes
-  become_method: sudo
-  become_user: elastic
+# TODO: this does not work as it still expect blobs in 
+#  /mnt/data/docker/graphroot/overlay/ while it's in /overlay2/
+#
+# - name: set overlay2 storage driver
+#   lineinfile:
+#     path: /etc/containers/storage.conf
+#     regexp: "^driver = "
+#     line: driver = "{{ docker_storage_driver }}"
+#     backrefs: yes
+#     create: yes
 
 - name: Start the podman service
   systemd:
-    name: podmanapi.service
+    name: podman.service
     enabled: yes
-    scope: user
     daemon_reload: true
   become: yes
   become_method: sudo
-  become_user: elastic
+  become_user: root
