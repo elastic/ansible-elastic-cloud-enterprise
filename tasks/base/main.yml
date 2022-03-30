@@ -32,6 +32,12 @@
   tags: [setup_filesystem, destructive]
 - include_tasks: general/configure_docker.yml
   tags: [install_docker, destructive]
+  when: "'install_podman' not in ansible_run_tags"
+- include_tasks: general/configure_podman.yml
+  tags: 
+    - install_podman
+    - destructive
+    - never
 - include_tasks: general/sysctl_scripts.yml
 - include_tasks: general/kernel_modules.yml
 

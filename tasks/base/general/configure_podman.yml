@@ -1,0 +1,59 @@
+---
+- name: Ensures /etc/systemd/system/podman.socket.d dir exists
+  file:
+    path: /etc/systemd/system/podman.socket.d
+    state: directory
+
+- name: Configure podman.socket
+  template:
+    src: podman.conf
+    dest: /etc/systemd/system/podman.socket.d/podman.conf
+
+- name: alias docker and use socket
+  template:
+    src: docker.alias
+    dest: /usr/bin/docker
+    mode: 0755
+
+- name: set Temporary storage location
+  lineinfile:
+    path: /etc/containers/storage.conf
+    regexp: "^runroot = "
+    line: runroot = "/mnt/data/docker/runroot/"
+    backrefs: yes
+    create: yes
+
+- name: set Primary Read/Write location of container storage
+  lineinfile:
+    path: /etc/containers/storage.conf
+    regexp: "^graphroot = "
+    line: graphroot = "/mnt/data/docker/graphroot/"
+    backrefs: yes
+    create: yes
+
+- name: set location of container storage for rootless
+  lineinfile:
+    path: /etc/containers/storage.conf
+    insertafter: '^# rootless_storage_path = '
+    line: rootless_storage_path = "/mnt/data/docker/rootless/$UID/"
+    create: yes
+
+# TODO: this does not work as it still expect blobs in 
+#  /mnt/data/docker/graphroot/overlay/ while it's in /overlay2/
+#
+# - name: set overlay2 storage driver
+#   lineinfile:
+#     path: /etc/containers/storage.conf
+#     regexp: "^driver = "
+#     line: driver = "{{ docker_storage_driver }}"
+#     backrefs: yes
+#     create: yes
+
+- name: Start the podman service
+  systemd:
+    name: podman.service
+    enabled: yes
+    daemon_reload: true
+  become: yes
+  become_method: sudo
+  become_user: root

@@ -5,4 +5,4 @@
     dest: "/etc/modules-load.d/{{item.name}}.conf"
   with_items:
   - { name: 'conntrack', kernel_module: 'ip_conntrack' }
-  - { name: 'overlay', kernel_module: 'overlay' }
+  - { name: 'overlay', kernel_module: "{{ docker_storage_driver }}" }

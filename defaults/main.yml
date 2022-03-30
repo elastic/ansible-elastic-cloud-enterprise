@@ -1,6 +1,6 @@
 ---
 # General Elastic Cloud Enterprise relevant settings
-ece_version: 3.0.0
+ece_version: 3.1.0
 ece_docker_registry: docker.elastic.co
 ece_docker_repository: cloud-enterprise
 docker_config: ""
@@ -33,3 +33,6 @@ fetch_diagnostics: false
 
 # General settings for docker environment
 docker_bridge_ip: "172.17.42.1/16"
+docker_socket: "/var/run/docker.sock"
+podman_socket: "/var/run/docker.sock"
+container_group: "docker"
