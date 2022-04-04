@@ -33,6 +33,6 @@ fetch_diagnostics: false
 
 # General settings for docker environment
 docker_bridge_ip: "172.17.42.1/16"
-docker_socket: "/var/run/docker.sock"
-podman_socket: "/var/run/docker.sock"
+docker_socket: "/run/docker.sock"
+podman_socket: "/run/docker.sock"
 container_group: "docker"
