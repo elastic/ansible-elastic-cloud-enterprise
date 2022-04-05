@@ -24,12 +24,6 @@
         dest: /home/elastic/.docker/config.json
         owner: elastic
       when: docker_config != ""
-    - name: set socket for docker or podman service
-      lineinfile:
-        path: /etc/environment
-        line: "{{ item }}"
-      with_items:
-        - "DOCKER_HOST={{ docker_socket }}"
   when: not podman_exec.stat.exists
 
 - name: Workaround for podman
