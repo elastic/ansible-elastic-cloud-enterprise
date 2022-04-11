@@ -24,7 +24,18 @@
   register: roles_token
 
 - name: Execute installation
-  shell: /home/elastic/elastic-cloud-enterprise.sh --coordinator-host {{ primary_hostname }} --roles-token '{{ roles_token.json.token }}' --roles '{{ ece_roles | join(',') }}' --availability-zone {{ availability_zone }} --cloud-enterprise-version {{ ece_version }}  --docker-registry {{ ece_docker_registry }} --ece-docker-repository {{ ece_docker_repository }} --host-storage-path {{ data_dir }}/elastic --memory-settings '{{ memory_settings }}' --runner-id {{ ece_runner_id }} {{ '--capacity ' + capacity if capacity }}
+  shell: /home/elastic/elastic-cloud-enterprise.sh
+    --coordinator-host {{ primary_hostname }}
+    --roles-token '{{ roles_token.json.token }}'
+    --roles '{{ ece_roles | join(',') }}'
+    --availability-zone {{ availability_zone }}
+    --cloud-enterprise-version {{ ece_version }}
+    --docker-registry {{ ece_docker_registry }}
+    --ece-docker-repository {{ ece_docker_repository }}
+    --host-storage-path {{ data_dir }}/elastic
+    --memory-settings '{{ memory_settings }}'
+    --runner-id {{ ece_runner_id }}{% if capacity is defined %}
+    --capacity {{ capacity }}{% endif %}
   become: yes
   become_method: sudo
   become_user: elastic
