@@ -1,10 +1,10 @@
 ---
 docker_unit_after: "network.target docker.socket"
-docker_storage_driver: overlay
+docker_storage_driver: overlay2
 bootloader_update_command: update-bootloader
 conntrack_module: ip_conntrack
 
 # Docker version mapping
 docker_version_map:
   "19.03":
-    package: docker-19.03.14_ce
+    package: docker-19.03.15_ce

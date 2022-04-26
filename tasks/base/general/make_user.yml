@@ -11,18 +11,17 @@
 
 - name: Add group elastic
   group:
-    name:  "{{ item }}"
+    name:  elastic
     state: present
-  when: item not in ansible_facts.getent_group
-  with_items:
-      - docker
-      - elastic
+    gid: "{{ elastic_gid }}"
+  when: "'elastic' not in ansible_facts.getent_group"
 
 - name: Add user elastic
   user:
     name: elastic
     group: elastic
     groups: docker
+    uid: "{{ elastic_uid }}"
     append: yes
     state: present
     generate_ssh_key: true
@@ -68,3 +67,37 @@
     dest: /etc/cloud/cloud.cfg.d/00-elastic.cfg
   vars:
     image_user: elastic
+
+# # Workaround for https://github.com/elastic/ansible-elastic-cloud-enterprise/issues/155 
+# - name: Add user 'ece' for SLES (workaround starting ECE 2.13+)
+#   block:
+#     - name: Is there an ece User
+#       getent:
+#         key: "ece"
+#         database: passwd
+#         fail_key: false
+
+#     - name: Add group ece
+#       group:
+#         name:  "ece"
+#         state: present
+#         gid: "199"
+#       when: "'ece' not in ansible_facts.getent_group"
+
+#     - name: Add user ece
+#       user:
+#         name: ece
+#         group: ece
+#         uid: "199"
+#         append: yes
+#         state: present
+#         generate_ssh_key: false
+#       when: getent_passwd["ece"] == none
+
+#     - name: Modify user elastic to be included in ece
+#       user:
+#         name: elastic
+#         groups: ece
+#         append: yes
+
+#   when: ansible_distribution == "SLES"
