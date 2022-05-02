@@ -1,0 +1,23 @@
+---
+- name: Remove docker and docker-runc
+  zypper:
+    name: "{{ packages }}"
+    state: absent
+  vars:
+    packages:
+    - docker
+    - docker-runc
+  register: remove_packages
+  retries: 10
+  delay: 30
+  until: remove_packages is success
+
+- name: Install docker
+  command: "zypper install -y --force-resolution --replacefiles {{ docker_version_map[docker_version]['package'] }} acl"
+  args:
+    warn: false
+
+- name: disable nscd (otherwise container will ignore their /etc/hosts)
+  systemd:
+    name: nscd
+    enabled: no
