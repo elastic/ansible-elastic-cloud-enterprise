@@ -17,7 +17,8 @@
   args:
     warn: false
 
-- name: disable nscd (otherwise container will ignore their /etc/hosts)
-  systemd:
+# Workaround for https://github.com/elastic/ansible-elastic-cloud-enterprise/issues/155#issuecomment-1117069430
+- name: Uninstall nscd 
+  zypper:
     name: nscd
-    enabled: no
+    state: absent
