@@ -16,6 +16,12 @@
     gid: "{{ elastic_gid }}"
   when: "'elastic' not in ansible_facts.getent_group"
 
+- name: Add group docker
+  group:
+    name:  docker
+    state: present
+  when: "'docker' not in ansible_facts.getent_group"
+
 - name: Add user elastic
   user:
     name: elastic
