@@ -4,10 +4,6 @@
     ece_roles: [director, coordinator, proxy, allocator]
   when: ece_roles is undefined
 
-- name: Set empty capacity if not defined
-  set_fact:
-    capacity: "{{ capacity | default('') }}"
-
 - name: Get the roles token
   uri:
     url: "https://{{primary_hostname}}:12443/api/v1/platform/configuration/security/enrollment-tokens"
@@ -24,7 +20,18 @@
   register: roles_token
 
 - name: Execute installation
-  shell: /home/elastic/elastic-cloud-enterprise.sh --coordinator-host {{ primary_hostname }} --roles-token '{{ roles_token.json.token }}' --roles '{{ ece_roles | join(',') }}' --availability-zone {{ availability_zone }} --cloud-enterprise-version {{ ece_version }}  --docker-registry {{ ece_docker_registry }} --ece-docker-repository {{ ece_docker_repository }} --host-storage-path {{ data_dir }}/elastic --memory-settings '{{ memory_settings }}' --runner-id {{ ece_runner_id }} {{ '--capacity ' + capacity if capacity }}
+  shell: /home/elastic/elastic-cloud-enterprise.sh
+    --coordinator-host {{ primary_hostname }}
+    --roles-token '{{ roles_token.json.token }}'
+    --roles '{{ ece_roles | join(',') }}'
+    --availability-zone {{ availability_zone }}
+    --cloud-enterprise-version {{ ece_version }}
+    --docker-registry {{ ece_docker_registry }}
+    --ece-docker-repository {{ ece_docker_repository }}
+    --host-storage-path {{ data_dir }}/elastic
+    --memory-settings '{{ memory_settings }}'
+    --runner-id {{ ece_runner_id }}{% if capacity is defined %}
+    --capacity {{ capacity }}{% endif %}
   become: yes
   become_method: sudo
   become_user: elastic
