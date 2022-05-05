@@ -1,9 +1,27 @@
 ---
+- name: fixing Centos Appstream (https://github.com/elastic/ansible-elastic-cloud-enterprise/issues/153)
+  block:
+    - name: Find all of the files inside this directory
+      find:
+        paths: "/etc/yum.repos.d/"
+        patterns: "CentOS-*.repo"
+      register: repos
+    - replace:
+        path: "{{ item.path }}"
+        regexp: 'mirrorlist\='
+        replace: '#mirrorlist='
+      with_items: "{{ repos.files }}"
+    - replace:
+        path: "{{ item.path }}"
+        regexp: '#baseurl=http://mirror\.centos\.org'
+        replace: 'baseurl=http://vault.centos.org'
+      with_items: "{{ repos.files }}"
+
 - name: Install base dependencies
-  package:
-    name: "{{ item }}"
+  yum:
+    name: 
+      - lvm2
+      - mdadm
+      - iptables
     state: present
-  with_items:
-  - lvm2
-  - mdadm
-  - iptables
+    update_cache: yes
