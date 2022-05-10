@@ -6,5 +6,5 @@ conntrack_module: ip_conntrack
 
 # Docker version mapping
 docker_version_map:
-  "19.03":
-    package: docker-19.03.15_ce
+  "20.10":
+    package: docker-20.10.12_ce

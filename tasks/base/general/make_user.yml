@@ -11,18 +11,23 @@
 
 - name: Add group elastic
   group:
-    name:  "{{ item }}"
+    name:  elastic
     state: present
-  when: item not in ansible_facts.getent_group
-  with_items:
-      - docker
-      - elastic
+    gid: "{{ elastic_gid }}"
+  when: "'elastic' not in ansible_facts.getent_group"
+
+- name: Add group docker
+  group:
+    name:  docker
+    state: present
+  when: "'docker' not in ansible_facts.getent_group"
 
 - name: Add user elastic
   user:
     name: elastic
     group: elastic
     groups: docker
+    uid: "{{ elastic_uid }}"
     append: yes
     state: present
     generate_ssh_key: true
