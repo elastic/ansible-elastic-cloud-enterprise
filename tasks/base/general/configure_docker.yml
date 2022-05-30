@@ -45,6 +45,7 @@
   file:
     path: /var/lib/docker
     state: absent
+    force: yes
 
 - name: Docker daemon is enabled and systemd has read all changes
   systemd:
