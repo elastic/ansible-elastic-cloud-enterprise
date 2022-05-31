@@ -20,13 +20,13 @@
   group:
     name:  "{{ container_group }}"
     state: present
-  when: "'{{ container_group }}' not in ansible_facts.getent_group"
+  when: "container_group|string not in ansible_facts.getent_group"
 
 - name: Add user elastic
   user:
     name: elastic
     group: elastic
-    groups: docker
+    groups: "{{ container_group }}"
     uid: "{{ elastic_uid }}"
     append: yes
     state: present
