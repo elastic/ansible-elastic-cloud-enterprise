@@ -78,8 +78,11 @@ The following variables are avaible:
     - Default: docker.elastic.co
 - `ece_docker_repository`: The docker repository in the given registry. This is only relevant if you have a private mirror
     - Default: cloud-enterprise
-- `ece_installer_url`: The location of the installation script. Can be a local file for offline installation.
+- `ece_installer_url`: The url of the installation script to download.
     - Default: `https://download.elastic.co/cloud/elastic-cloud-enterprise.sh`
+    - This will use the local script if existing in `/home/elastic/elastic-cloud-enterprise.sh`
+- `ece_installer_path`: The location of the installation script on the controller machine. It will be copied to remote host. 
+    - Default: left empty, it will download it from internet (cf. `ece_installer_url`)
 - `docker_config`: If specified as a path to a docker config, copies it to the target hosts
 - [Supported Docker Versions](https://www.elastic.co/guide/en/cloud-enterprise/2.7/ece-software-prereq.html#ece-linux-docker)
   - `docker_version`: Last supported version on Centos 7/8 and RHEL 7/8 is 20.0, Ubuntu 16, Ubuntu 18 and SLES 12 is 19.03.

@@ -1,9 +1,17 @@
 ---
+- name: Copy ece installer
+  copy:
+    src: "{{ ece_installer_path }}"
+    dest: /home/elastic/elastic-cloud-enterprise.sh
+    mode: 0755
+  when: ece_installer_path is defined
+  
 - name: Download ece installer
   get_url:
     url: "{{ ece_installer_url }}"
     dest: /home/elastic/elastic-cloud-enterprise.sh
     mode: 0755
+  when: ece_installer_path is not defined
 
 - name: Ensure ~/.docker is present
   file:
