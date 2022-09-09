@@ -56,4 +56,4 @@
 - name: Start the docker service
   systemd:
     name: docker
-    state: stopped
+    state: started
