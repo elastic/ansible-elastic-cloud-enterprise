@@ -52,8 +52,3 @@
     name: docker
     enabled: yes
     daemon_reload: yes
-
-- name: Start the docker service
-  systemd:
-    name: docker
-    state: started
