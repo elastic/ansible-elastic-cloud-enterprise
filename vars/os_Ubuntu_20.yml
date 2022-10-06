@@ -11,7 +11,7 @@ docker_version_map:
       - docker-ce=5:20.10.14*
       - docker-ce-cli=5:20.10.14*
       - containerd.io
-    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
+    repo: deb https://download.docker.com/linux/ubuntu focal stable
     keys:
       server: https://download.docker.com/linux/ubuntu/gpg
       id: 0EBFCD88
