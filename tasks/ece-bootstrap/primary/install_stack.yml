@@ -1,6 +1,6 @@
 ---
 - name: Execute the primary installation
-  shell: /home/elastic/ 
+  shell: /home/elastic/elastic-cloud-enterprise.sh
     install 
     --availability-zone {{ availability_zone }} 
     --cloud-enterprise-version {{ ece_version }} 
