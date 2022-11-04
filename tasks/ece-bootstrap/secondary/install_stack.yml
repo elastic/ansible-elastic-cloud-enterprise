@@ -32,6 +32,7 @@
     --memory-settings '{{ memory_settings }}'
     --runner-id {{ ece_runner_id }}{% if capacity is defined %}
     --capacity {{ capacity }}{% endif %}
+    {{ extra_installer_args }}
   become: yes
   become_method: sudo
   become_user: elastic
