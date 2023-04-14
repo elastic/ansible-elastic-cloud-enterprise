@@ -1,20 +1,17 @@
 ---
-- name: Stop the docker service
-  systemd:
-    name: docker
-    state: stopped
-
 - name: Ensures /etc/systemd/system/docker.service.d dir exists
   file:
     path: /etc/systemd/system/docker.service.d
     state: directory
   when: docker_version != '1.13'
+  notify: Restart docker
 
 - name: Create service.d docker.conf
   template:
     src: docker.conf
     dest: /etc/systemd/system/docker.service.d/docker.conf
   when: docker_version != '1.13'
+  notify: Restart docker
 
 - name: set docker storage options
   lineinfile:
@@ -24,6 +21,7 @@
     backrefs: yes
     create: yes
   when: docker_version == '1.13'
+  notify: Restart docker
 
 - name: set docker network options
   lineinfile:
@@ -32,6 +30,7 @@
     line: 'DOCKER_NETWORK_OPTIONS="--bip={{ docker_bridge_ip }}"'
     create: yes
   when: docker_version == '1.13'
+  notify: Restart docker
 
 - name: set docker storage driver
   lineinfile:
@@ -40,6 +39,7 @@
     line: 'STORAGE_DRIVER={{ docker_storage_driver }}'
     create: yes
   when: docker_version == '1.13'
+  notify: Restart docker
 
 - name: Remove var/lib/docker
   file:
@@ -47,8 +47,5 @@
     state: absent
     force: yes
 
-- name: Docker daemon is enabled and systemd has read all changes
-  systemd:
-    name: docker
-    enabled: yes
-    daemon_reload: yes
+- name: Flush handlers to trigger the (re-)start of docker if needed
+  meta: flush_handlers
