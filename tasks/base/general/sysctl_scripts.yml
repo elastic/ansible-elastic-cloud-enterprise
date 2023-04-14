@@ -8,6 +8,7 @@
   file:
     path: "{{ sysctl_settings_file }}"
     state: touch
+  changed_when: false
 
 - name: sysctl_scripts.yml || set sysctl items
   sysctl:
