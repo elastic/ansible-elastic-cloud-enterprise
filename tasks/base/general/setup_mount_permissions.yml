@@ -14,11 +14,3 @@
     owner: elastic
     group: elastic
     mode: 0700
-
-- name: Change owner and permissions of {{ data_dir }}/docker
-  file:
-    path: "{{ data_dir }}/docker"
-    state: directory
-    owner: elastic
-    group: elastic
-    mode: 0700
