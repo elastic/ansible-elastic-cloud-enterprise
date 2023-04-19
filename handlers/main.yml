@@ -15,7 +15,7 @@
   ignore_errors: true
   when: ece_do_bootloader_reboot | bool
 
-- name: wait for reboot
+- name: Wait for reboot
   wait_for_connection:
     delay: 15
     sleep: 2
