@@ -21,7 +21,11 @@
     regexp: '^GRUB_CMDLINE_LINUX="'
     line: "GRUB_CMDLINE_LINUX=\"{{ (existing_grub_cmdline_linux_options | union(['cgroup_enable=memory', 'swapaccount=1', 'cgroup.memory=nokmem'])) | join(' ') }}\""
   register: modify_grub_cmdline_linux
+  notify: Reboot
 
 - name: Run bootloader update
   command: "{{ bootloader_update_command }}"
   when: modify_grub_cmdline_linux.changed
+
+- name: Run handlers
+  meta: flush_handlers

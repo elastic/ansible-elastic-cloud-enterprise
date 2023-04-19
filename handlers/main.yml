@@ -5,3 +5,20 @@
     enabled: yes
     daemon_reload: yes
     state: restarted
+
+- name: Reboot
+  # ensure host is offline, even if it takes long to shutdown
+  shell: "sleep 5 && /sbin/shutdown -r now && systemctl stop sshd"
+  async: 1
+  poll: 0
+  # ignore errors for hosts that disconect immediatly
+  ignore_errors: true
+  when: ece_do_bootloader_reboot | bool
+
+- name: wait for reboot
+  wait_for_connection:
+    delay: 15
+    sleep: 2
+    timeout: 600
+  listen: Reboot
+  when: ece_do_bootloader_reboot | bool
