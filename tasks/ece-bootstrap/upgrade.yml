@@ -4,3 +4,9 @@
   become: yes
   become_method: sudo
   become_user: elastic
+  when: (existing_runner.stdout | split(':') | last) is version (ece_version, '<')
+
+- name: Notify already on desired version
+  debug:
+    msg: "The current version {{ existing_runner.stdout | split(':') | last }} is the same or newer as {{ ece_version }}"
+  when: (existing_runner.stdout | split(':') | last) is not version (ece_version, '<')
