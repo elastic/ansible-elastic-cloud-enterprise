@@ -73,5 +73,4 @@
     dest: /etc/cloud/cloud.cfg.d/00-elastic.cfg
   vars:
     image_user: elastic
-  tags: [never, vmimage]
-  
+  when: ece_do_cloudinit | bool

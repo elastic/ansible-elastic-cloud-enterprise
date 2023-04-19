@@ -16,6 +16,25 @@ force_xfc: false
 sysctl_settings_file: "/etc/sysctl.d/70-cloudenterprise.conf"
 system_limits_file: "/etc/security/limits.d/70-cloudenterprise.conf"
 
+# Do cloud-init related tasks
+ece_do_cloudinit: true
+
+# Create elastic user
+ece_do_user: true
+
+# same as --skip-tags setup_filesystem
+ece_do_setup_filesystem: true
+
+# Setup permissions
+ece_do_setup_fs_permissions: true
+
+# Set limits
+ece_do_fs_limits: true
+
+# Set bootloader settings
+ece_do_fs_bootloader: true
+ece_do_bootloader_reboot: false
+
 # Memory settings
 memory:
   runner: 1G
