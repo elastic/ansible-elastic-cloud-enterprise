@@ -9,7 +9,7 @@
     existing_grub_cmdline_linux_options: >-
       {%- set line=(existing_grub_cmdline_linux['content'] | b64decode | regex_findall('GRUB_CMDLINE_LINUX=\"(.+)\"')) -%}
       {%- if line | length > 0 -%}
-      {{ line | first | split(' ') }}
+      {{ (line | first).split(' ') }}
       {%- else -%}
       []
       {%- endif -%}
