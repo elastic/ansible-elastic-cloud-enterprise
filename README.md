@@ -43,7 +43,7 @@ At least three hosts are needed for this example, a primary, a secondary, and te
   - Create a xfs partition and configure it
   - Configure docker
 
-More information about the prerequisites can be found in the following [page](https://www.elastic.co/guide/en/cloud-enterprise/2.7/ece-prereqs.html).
+More information about the prerequisites can be found in the following [page](https://www.elastic.co/guide/en/cloud-enterprise/current/ece-prereqs.html).
 - On the primary host:
   - Make the primary installation of Elastic Cloud Enterprise
 - On the secondary host:
