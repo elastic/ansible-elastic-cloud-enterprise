@@ -59,5 +59,3 @@
 
 - name: Enable all swap devices
   command: swapon -a
-  args:
-    warn: no
