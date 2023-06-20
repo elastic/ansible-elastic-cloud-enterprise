@@ -14,7 +14,7 @@
     - replace:
         path: "{{ item.path }}"
         regexp: '#baseurl=http://mirror\.centos\.org'
-        replace: 'baseurl=http://vault.centos.org'
+        replace: 'baseurl=http://mirror.centos.org'
       with_items: "{{ repos.files }}"
 
 - name: Install base dependencies
