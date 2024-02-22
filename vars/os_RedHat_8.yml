@@ -11,7 +11,7 @@ docker_version_map:
     package:
       - docker-ce-19.03.13
       - docker-ce-cli-19.03.13
-      - containerd.io-1.4.3
+      - containerd.io-1.5.11
     repo: https://download.docker.com/linux/centos/docker-ce.repo
     keys:
       server: https://download.docker.com/linux/centos/gpg
@@ -21,7 +21,7 @@ docker_version_map:
     package:
       - docker-ce-20.10.8
       - docker-ce-cli-20.10.8
-      - containerd.io-1.4.3
+      - containerd.io-1.5.11
     repo: https://download.docker.com/linux/centos/docker-ce.repo
     keys:
       server: https://download.docker.com/linux/centos/gpg
