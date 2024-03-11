@@ -1,12 +1,15 @@
 ---
 - include_tasks: setup_xfs.yml
   tags: [setup_filesystem, destructive]
+  when: ece_do_setup_filesystem | bool
 
 - name: Reboot the machine with all defaults
   reboot:
     msg: "Reboot for changes to take effect initiated by Ansible"
     post_reboot_delay: 10
   tags: [setup_filesystem]
+  when: ece_do_setup_filesystem | bool
 
 - include_tasks: ../base/general/setup_mount_permissions.yml
   tags: [setup_filesystem, setup_fs_permissions]
+  when: (ece_do_setup_filesystem | bool) or (ece_do_setup_fs_permissions | bool)

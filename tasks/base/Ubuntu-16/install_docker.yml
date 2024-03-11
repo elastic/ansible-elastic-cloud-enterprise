@@ -17,3 +17,4 @@
 
 - name: Pin docker-engine packet
   shell: echo "docker-engine hold" | sudo dpkg --set-selections
+  changed_when: false

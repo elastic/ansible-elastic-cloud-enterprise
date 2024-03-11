@@ -1,11 +1,31 @@
 ---
+- name: Get GRUB_CMDLINE_LINUX
+  slurp:
+    src: /etc/default/grub
+  register: existing_grub_cmdline_linux
+
+- name: Set existing options list
+  set_fact:
+    existing_grub_cmdline_linux_options: >-
+      {%- set line=(existing_grub_cmdline_linux['content'] | b64decode | regex_findall('GRUB_CMDLINE_LINUX=\"(.+)\"')) -%}
+      {%- if line | length > 0 -%}
+      {{ (line | first).split(' ') }}
+      {%- else -%}
+      []
+      {%- endif -%}
+
 - name: Modify GRUB_CMDLINE_LINUX
   lineinfile:
     state: present
     dest: /etc/default/grub
-    backrefs: yes
-    regexp: '^(GRUB_CMDLINE_LINUX=\"[^\"]*)(\".*)'
-    line: '\1 cgroup_enable=memory swapaccount=1 cgroup.memory=nokmem\2'
+    regexp: '^GRUB_CMDLINE_LINUX="'
+    line: "GRUB_CMDLINE_LINUX=\"{{ (existing_grub_cmdline_linux_options | union(['cgroup_enable=memory', 'swapaccount=1', 'cgroup.memory=nokmem'])) | join(' ') }}\""
+  register: modify_grub_cmdline_linux
+  notify: Reboot
 
 - name: Run bootloader update
   command: "{{ bootloader_update_command }}"
+  when: modify_grub_cmdline_linux.changed
+
+- name: Run handlers
+  meta: flush_handlers
