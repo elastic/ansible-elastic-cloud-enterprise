@@ -1,0 +1,17 @@
+---
+docker_unit_after: "multi-user.target"
+docker_storage_driver: overlay2
+bootloader_update_command: update-grub
+conntrack_module: xt_conntrack
+
+# Docker version mapping
+docker_version_map:
+  "24.09":
+    package:
+      - docker-ce=5:24.0.9
+      - docker-ce-cli=5:24.0.9
+      - containerd.io
+    repo: deb https://download.docker.com/linux/ubuntu jammy stable
+    keys:
+      server: https://download.docker.com/linux/ubuntu/gpg
+      id: 0EBFCD88

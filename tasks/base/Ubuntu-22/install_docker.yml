@@ -1,0 +1,19 @@
+---
+- name: Add docker repository key
+  apt_key:
+    url: "{{ docker_version_map[docker_version]['keys']['server'] }}"
+    id: "{{ docker_version_map[docker_version]['keys']['id'] }}"
+
+- name: Add docker repository
+  apt_repository:
+    repo: "{{ docker_version_map[docker_version]['repo'] }}"
+    state: present
+
+- name: Install docker
+  apt:
+    name: "{{ docker_version_map[docker_version]['package'] }}"
+    update_cache: yes
+    state: present
+
+- name: Pin docker-engine packet
+  shell: echo "docker-engine hold" | sudo dpkg --set-selections
