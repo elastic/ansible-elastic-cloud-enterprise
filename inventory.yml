@@ -1,0 +1,20 @@
+all:
+  vars:
+    ansible_become: yes
+    device_name: sdb
+  children:
+    primary:
+      hosts:
+        host1:
+          availability_zone: zone-1
+          ansible_host: 35.187.216.201
+    secondary:
+      hosts:
+        host2:
+          availability_zone: zone-2
+          ansible_host: 35.200.121.152
+    tertiary:
+      hosts:
+        host3:
+          availability_zone: zone-3
+          ansible_host: 35.200.113.246
