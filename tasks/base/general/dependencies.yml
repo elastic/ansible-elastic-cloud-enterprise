@@ -1,4 +1,17 @@
 ---
+# As per the documentation.
+- name: Remove nscd
+  package:
+    name: "{{ packages }}"
+    state: absent
+  vars:
+    packages:
+    - nscd
+  register: remove_packages
+  retries: 10
+  delay: 30
+  until: remove_packages is success
+
 - name: Install common base dependencies
   package:
     name: "{{ item }}"

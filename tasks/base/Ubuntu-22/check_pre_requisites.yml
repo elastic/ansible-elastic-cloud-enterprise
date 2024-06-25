@@ -1,0 +1,19 @@
+---
+- name: Check kernel version
+  vars:
+    kernel_version: "{{ ansible_kernel.split('-')|first }}"
+  fail:
+    msg: '{{ ansible_kernel }} is below the recommendation of 4.15'
+  when:
+    - kernel_version is version('4.15', operator='lt', strict=True)
+  ignore_errors: True
+
+
+- name: Get cgroup version
+  shell: "grep cgroup /proc/filesystems"
+  register: cgroup_version
+- name: Check cgroup is supported
+  fail:
+    msg: '{{cgroup_version}} is not supported, ECE only support cgroup v1'
+  when:
+    - "'nodev\tcgroup' not in cgroup_version.stdout_lines"  

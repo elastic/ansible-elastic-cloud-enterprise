@@ -6,10 +6,10 @@ conntrack_module: xt_conntrack
 
 # Docker version mapping
 docker_version_map:
-  "20.10":
+  "24.0":
     package:
-      - docker-ce=5:20.10.14*
-      - docker-ce-cli=5:20.10.14*
+      - docker-ce=5:24.0.*
+      - docker-ce-cli=5:24.0.*
       - containerd.io
     repo: deb https://download.docker.com/linux/ubuntu focal stable
     keys:

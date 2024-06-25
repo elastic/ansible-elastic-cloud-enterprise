@@ -1,4 +1,23 @@
 ---
+# As per the doc
+# https://docs.docker.com/engine/install/ubuntu/#uninstall-old-versions
+- name: Remove docker
+  package:
+    name: "{{ packages }}"
+    state: absent
+  vars:
+    packages:
+    - docker.io
+    - docker-doc
+    - docker-compose
+    - docker-compose-v2
+    - podman-docker
+    - containerd
+    - runc
+  register: remove_packages
+  retries: 10
+  delay: 30
+  until: remove_packages is success
 - name: Add docker repository key
   apt_key:
     url: "{{ docker_version_map[docker_version]['keys']['server'] }}"
