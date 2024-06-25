@@ -16,4 +16,5 @@
   fail:
     msg: '{{cgroup_version}} is not supported, ECE only support cgroup v1'
   when:
-    - "'nodev\tcgroup' not in cgroup_version.stdout_lines"  
+    - "'nodev\tcgroup' not in cgroup_version.stdout_lines"
+ 
