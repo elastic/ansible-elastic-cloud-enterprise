@@ -1,3 +1,0 @@
----
-- name: Clean-up previous ECE install 
-  shell: "sudo docker rm -f frc-runners-runner frc-allocators-allocator $(sudo docker ps -a -q); sudo rm -rf /mnt/data/elastic/ && sudo docker ps -a"

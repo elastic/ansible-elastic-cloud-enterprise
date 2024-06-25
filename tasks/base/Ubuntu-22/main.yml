@@ -3,4 +3,3 @@
 - include_tasks: check_pre_requisites.yml
 - include_tasks: install_docker.yml
   tags: [install_docker, destructive]
-- include_tasks: uninstall_any_ece.yml
