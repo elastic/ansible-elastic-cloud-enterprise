@@ -9,6 +9,7 @@ galaxy_info:
   - name: Ubuntu
     versions:
     - 16.04
+    - 22.04
   - name: SLES
     versions:
 

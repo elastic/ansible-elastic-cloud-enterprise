@@ -38,5 +38,5 @@ fetch_diagnostics: false
 docker_bridge_ip: "172.17.42.1/16"
 
 # User and group id
-elastic_uid: 1001
-elastic_gid: 1001
+elastic_uid: 1234
+elastic_gid: 1234
