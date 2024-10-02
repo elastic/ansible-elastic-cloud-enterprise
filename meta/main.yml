@@ -12,5 +12,8 @@ galaxy_info:
     - 22.04
   - name: SLES
     versions:
+  - name: Rocky
+    versions:
+    - 8
 
 dependencies: []
