@@ -11,5 +11,5 @@
   - sysstat
   - net-tools
   # for Rocky 9
-  - containernetworking-plugins
+  # - containernetworking-plugins
 
