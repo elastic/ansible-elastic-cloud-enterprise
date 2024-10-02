@@ -1,4 +1,6 @@
 ---
+# Note: this code is largely copied from the RedHat-8 version
+
 - name: Remove docker
   package:
     name: "{{ packages }}"
