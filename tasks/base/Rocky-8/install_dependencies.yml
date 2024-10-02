@@ -3,6 +3,11 @@
   package:
     name: "{{ item }}"
     state: present
+  # Note: Elastic doc'n calls for sysstat & net-tools, 
+  # but the RedHat-8 version of this file omits them
   with_items:
   - lvm2
   - iptables
+  - sysstat
+  - net-tools
+
