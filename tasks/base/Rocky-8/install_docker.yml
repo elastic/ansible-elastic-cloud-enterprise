@@ -20,7 +20,7 @@
     key: "{{ docker_version_map[docker_version]['keys']['server'] }}"
     state: present
 
-- name: Add RHEL8 Extras repository
+- name: Add Rocky8 Extras repository
   shell: dnf config-manager --add-repo="{{ docker_version_map[docker_version]['repo'] }}"
   register: repo_installed
   retries: 10
