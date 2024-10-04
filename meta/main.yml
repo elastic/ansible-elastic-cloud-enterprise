@@ -15,5 +15,6 @@ galaxy_info:
   - name: Rocky
     versions:
     - 8
+    - 9
 
 dependencies: []
