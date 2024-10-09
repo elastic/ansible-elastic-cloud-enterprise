@@ -1,0 +1,42 @@
+---
+# Note: this code is largely copied from the RedHat-8 version
+
+- name: Remove docker
+  package:
+    name: "{{ packages }}"
+    state: absent
+  vars:
+    packages:
+    - docker
+  register: remove_packages
+  retries: 10
+  delay: 30
+  until: remove_packages is success
+
+- name: disable SELinux
+  selinux:
+    state: disabled
+
+- name: Add Docker GPG Key
+  rpm_key:
+    key: "{{ docker_version_map[docker_version]['keys']['server'] }}"
+    state: present
+
+- name: Add Rocky8 Extras repository
+  shell: dnf config-manager --add-repo="{{ docker_version_map[docker_version]['repo'] }}"
+  register: repo_installed
+  retries: 10
+  delay: 30
+  until: repo_installed is success
+
+- name: Install docker
+  package:
+    name: "{{ docker_version_map[docker_version]['package'] }}"
+    state: present
+
+- name: Verify that fs.may_detach_mounts is enabled
+  lineinfile:
+    path: /etc/sysctl.conf
+    regexp: '^fs.may_detach_mounts'
+    line: 'fs.may_detach_mounts = 1'
+    create: yes
