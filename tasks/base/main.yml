@@ -23,19 +23,28 @@
   include_tasks: "{{ ansible_distribution }}-{{ ansible_distribution_major_version}}/main.yml"
 
 - include_tasks: general/dependencies.yml
+  when: ece_do_cloudinit | bool
 
 - include_tasks: general/make_user.yml
+  when: ece_do_user | bool
+
 - include_tasks: general/set_limits.yml
   tags: [setup_filesystem, destructive]
-  when: ansible_lvm['vgs']['lxc'] is not defined or force_xfc == true
+  when:
+    - ansible_lvm['vgs']['lxc'] is not defined or force_xfc == true
+    - ece_do_fs_limits | bool
+
 - include_tasks: general/update_grub_docker.yml
   tags: [setup_filesystem, destructive]
+  when: ece_do_fs_bootloader | bool
+
 - include_tasks: general/configure_docker.yml
   tags: [install_docker, destructive]
 - include_tasks: general/sysctl_scripts.yml
 - include_tasks: general/kernel_modules.yml
 
 - name: skip automatic ephemeral mount
+  when: ece_do_cloudinit | bool
   copy:
     dest: /etc/cloud/cloud.cfg.d/01-mounts.cfg
     content: |

@@ -3,6 +3,7 @@
   file:
     path: "{{ system_limits_file }}"
     state: touch
+  changed_when: false
 
 - name: Modify pam limits
   pam_limits:
