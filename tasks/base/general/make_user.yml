@@ -18,15 +18,15 @@
 
 - name: Add group docker
   group:
-    name:  docker
+    name:  "{{ container_engine | lower }}"
     state: present
-  when: "'docker' not in ansible_facts.getent_group"
+  when: container_engine | lower not in ansible_facts.getent_group
 
-- name: Add user elastic
+- name: Add user elastic to {{ container_engine }} group
   user:
     name: elastic
     group: elastic
-    groups: docker
+    groups: "{{ container_engine | lower }}"
     uid: "{{ elastic_uid }}"
     append: yes
     state: present
@@ -36,7 +36,7 @@
 - name: Modify user elastic to be included in groups
   user:
     name: elastic
-    groups: docker
+    groups: "{{ container_engine | lower }}"
     append: yes
   when: getent_passwd["elastic"] != none
 

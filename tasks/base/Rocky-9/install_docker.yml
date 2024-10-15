@@ -8,6 +8,7 @@
   vars:
     packages:
     - docker
+    - podman
   register: remove_packages
   retries: 10
   delay: 30

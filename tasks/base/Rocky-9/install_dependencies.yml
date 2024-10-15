@@ -13,3 +13,4 @@
   - net-tools
   # Elastic doc'n specifically mentions this for Rocky 9
   - containernetworking-plugins
+  - policycoreutils-python-utils

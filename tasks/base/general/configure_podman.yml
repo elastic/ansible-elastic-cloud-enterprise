@@ -1,0 +1,81 @@
+---
+- name: Stop the Podman service
+  systemd:
+    name: podman
+    state: stopped
+
+# - name: Ensures /etc/systemd/system/podman.service.d dir exists
+#   file:
+#     path: /etc/systemd/system/podman.service.d
+#     state: directory
+
+# - name: Create service.d podman.conf
+#   template:
+#     src: docker.conf
+#     dest: /etc/systemd/system/podman.service.d/podman.conf
+
+# - name: set docker storage options
+#   lineinfile:
+#     path: /etc/sysconfig/docker
+#     regexp: "^OPTIONS='(.*)'"
+#     line: "OPTIONS='-g {{ data_dir }}/docker \\1'"
+#     backrefs: yes
+#     create: yes
+#   when: docker_version == '1.13'
+
+# - name: set docker network options
+#   lineinfile:
+#     path: /etc/sysconfig/docker-network
+#     regexp: '^DOCKER_NETWORK_OPTIONS='
+#     line: 'DOCKER_NETWORK_OPTIONS="--bip={{ docker_bridge_ip }}"'
+#     create: yes
+#   when: docker_version == '1.13'
+
+# - name: set docker storage driver
+#   lineinfile:
+#     path: /etc/sysconfig/docker-storage-setup
+#     regexp: '^DOCKER_NETWORK_OPTIONS='
+#     line: 'STORAGE_DRIVER={{ docker_storage_driver }}'
+#     create: yes
+#   when: docker_version == '1.13'
+
+# - name: Remove var/lib/docker
+#   file:
+#     path: /var/lib/docker
+#     state: absent
+#     force: yes
+
+- name: Set Podman Socket Mode
+  ansible.builtin.lineinfile:
+    path: /usr/lib/systemd/system/podman.socket
+    line: SocketMode=0770
+    regexp: ^SocketMode.*
+
+- name: Set Podman Socket ACL
+  ansible.builtin.lineinfile:
+    path: /usr/lib/systemd/system/podman.socket
+    line: "{{ item }}"
+    insertafter: ^SocketMode=.*
+  loop: 
+    - SocketGroup=podman
+    - DirectoryMode=0777
+
+- name: Add subuid and subgid to elastic user
+  ansible.builtin.lineinfile:
+    path: "{{ item.path }}"
+    line: "{{ item.line }}"
+    regexp: ^elastic\:.*
+  loop:
+    - path: /etc/subuid
+      line: elastic:100000:65536
+    - path: /etc/subgid
+      line: elastic:100000:65536
+
+- name: Podman daemon is enabled and systemd has read all changes
+  systemd:
+    name: "{{ item }}"
+    enabled: yes
+    daemon_reload: yes
+  loop:
+    - podman.service
+    - podman.socket
