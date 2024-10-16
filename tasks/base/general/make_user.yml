@@ -9,11 +9,24 @@
     database: passwd
     fail_key: false
 
+- name: Set elastic_uid from ansible_user 
+  ansible.builtin.set_fact:
+    elastic_uid: "{{ getent_passwd[ansible_user].1 }}"
+    cacheable: true
+  when: ansible_user == "elastic"
+  
+
+- name: Set elastic_gid from ansible_user 
+  ansible.builtin.set_fact:
+    elastic_gid: "{{ getent_passwd[ansible_user].2 }}"
+    cacheable: true
+  when: ansible_user == "elastic"
+
 - name: Add group elastic
   group:
     name:  elastic
     state: present
-    gid: "{{ elastic_gid }}"
+    gid: "{{ elastic_gid | default(1234) }}"
   when: "'elastic' not in ansible_facts.getent_group"
 
 - name: Add group docker
@@ -27,7 +40,7 @@
     name: elastic
     group: elastic
     groups: "{{ container_engine | lower }}"
-    uid: "{{ elastic_uid }}"
+    uid: "{{ elastic_uid | default(1234) }}"
     append: yes
     state: present
     generate_ssh_key: true

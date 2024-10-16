@@ -7,9 +7,6 @@
   ignore_errors: true
 
 - ansible.builtin.include_tasks: install_dependencies.yml
-- ansible.builtin.include_tasks: install_docker.yml
-  tags: [install_docker, destructive]
-  when: container_engine == "Docker"
 - ansible.builtin.include_tasks: install_podman.yml
   tags: [install_docker, destructive]
   when: container_engine == "Podman"

@@ -44,6 +44,24 @@
 #     path: /var/lib/docker
 #     state: absent
 #     force: yes
+- name: Enable lingering for Elastic user
+  ansible.builtin.shell: loginctl enable-linger elastic
+
+- name: Remove Podman Socket
+  ansible.builtin.file:
+    path: /run/podman
+    state: absent
+    force: true
+
+- name: Ensure /etc/tmpfiles.d/podman.conf exists
+  ansible.builtin.file:
+    path: /etc/tmpfiles.d/podman.conf
+    state: touch
+    
+- name: Set Podman Socket Dir Permissions
+  ansible.builtin.lineinfile:
+    path: /etc/tmpfiles.d/podman.conf
+    line: d /run/podman 0777 podman podman -
 
 - name: Set Podman Socket Mode
   ansible.builtin.lineinfile:
@@ -79,3 +97,4 @@
   loop:
     - podman.service
     - podman.socket
+  become_user: elastic

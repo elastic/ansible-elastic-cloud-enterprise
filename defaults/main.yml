@@ -4,6 +4,7 @@ ece_version: 3.7.2
 ece_docker_registry: docker.elastic.co
 ece_docker_repository: cloud-enterprise
 docker_config: ""
+podman_config: "templates/podman.conf"
 ece_installer_url: "https://download.elastic.co/cloud/elastic-cloud-enterprise.sh"
 ece_runner_id: "{{ ansible_default_ipv4.address }}"
 
@@ -39,5 +40,5 @@ fetch_diagnostics: false
 docker_bridge_ip: "172.17.42.1/16"
 
 # User and group id
-elastic_uid: 1234
-elastic_gid: 1234
+# elastic_uid: 1234
+# elastic_gid: 1234

@@ -18,6 +18,17 @@
   become: yes
   become_method: sudo
   become_user: elastic
+  async: 960
+  poll: 0
+  register: ece_installer_result
+
+- name: Monitor installer progress
+  ansible.builtin.shell: 
+    cmd: cat {{ ece_installer_result.results_file }}
+  until: "'Elastic Cloud Enterprise installation completed successfully' in ece_installer_result_text.stdout"
+  register: ece_installer_result_text
+  retries: 192
+  delay: 5
 
 # - debug: msg="/home/elastic/elastic-cloud-enterprise.sh
 #     install
@@ -30,7 +41,7 @@
 #     --host-storage-path {{ data_dir }}/elastic 
 #     {% if container_engine == "Podman" %}
 #     --podman
-#     --host-docker-host /run/podman/podman.sock
+#     --host-docker-host /run/user/{{ elastic_uid }}/podman/podman.sock
 #     --force
 #     {% endif %}
 #     {{ extra_installer_args }}"
