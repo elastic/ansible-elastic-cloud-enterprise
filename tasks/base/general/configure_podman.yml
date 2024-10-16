@@ -97,4 +97,3 @@
   loop:
     - podman.service
     - podman.socket
-  become_user: elastic
