@@ -39,6 +39,7 @@ fetch_diagnostics: false
 # General settings for docker environment
 docker_bridge_ip: "172.17.42.1/16"
 
-# User and group id
+
+# User and group id, uncomment if needed to override.
 # elastic_uid: 1234
 # elastic_gid: 1234

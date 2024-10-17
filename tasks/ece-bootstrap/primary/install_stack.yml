@@ -1,7 +1,7 @@
 ---
 # This task may run for a long time and may experience SSH timeouts.
 # The async and poll attributes below allow for the task to be launched and checked for completion.
-# If this behavior is unwanted in your environment, comment out line 25-34
+# If this behavior is unwanted in your environment, comment out line 25-34.
 
 - name: Execute the primary installation
   ansible.builtin.shell: /home/elastic/elastic-cloud-enterprise.sh
