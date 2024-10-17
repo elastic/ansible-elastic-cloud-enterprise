@@ -1,4 +1,8 @@
 ---
+# This task may run for a long time and may experience SSH timeouts.
+# The async and poll attributes below allow for the task to be launched and checked for completion.
+# If this behavior is unwanted in your environment, comment out line 25-34
+
 - name: Execute the primary installation
   ansible.builtin.shell: /home/elastic/elastic-cloud-enterprise.sh
     install
@@ -20,7 +24,6 @@
   become_user: elastic
   async: 960
   poll: 0
-  register: ece_installer_result
 
 - name: Monitor installer progress
   ansible.builtin.shell: 
@@ -29,23 +32,6 @@
   register: ece_installer_result_text
   retries: 192
   delay: 5
-
-# - debug: msg="/home/elastic/elastic-cloud-enterprise.sh
-#     install
-#     --availability-zone {{ availability_zone }} 
-#     --cloud-enterprise-version {{ ece_version }} 
-#     --docker-registry {{ ece_docker_registry }} 
-#     --ece-docker-repository {{ ece_docker_repository }} 
-#     --memory-settings '{{ memory_settings }}' 
-#     --runner-id {{ ece_runner_id }} 
-#     --host-storage-path {{ data_dir }}/elastic 
-#     {% if container_engine == "Podman" %}
-#     --podman
-#     --host-docker-host /run/user/{{ elastic_uid }}/podman/podman.sock
-#     --force
-#     {% endif %}
-#     {{ extra_installer_args }}"
-# - fail:
 
 - name: Remember the bootstrap secrets
   command: cat {{ data_dir }}/elastic/bootstrap-state/bootstrap-secrets.json
