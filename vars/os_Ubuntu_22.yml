@@ -3,6 +3,7 @@ docker_unit_after: "multi-user.target"
 docker_storage_driver: overlay2
 bootloader_update_command: update-grub
 conntrack_module: xt_conntrack
+container_engine: Docker
 
 # Docker version mapping
 docker_version_map:
