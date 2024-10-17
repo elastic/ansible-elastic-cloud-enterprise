@@ -38,6 +38,8 @@
   filesystem:
     fstype: xfs
     dev: /dev/lxc/data
+    opts: "-n ftype=1"
+    
 
 - name: Mount /dev/lxc/data
   mount:

@@ -22,3 +22,4 @@
     owner: elastic
     group: elastic
     mode: 0700
+  when: container_engine == "Docker"

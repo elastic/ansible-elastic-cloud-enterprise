@@ -18,22 +18,46 @@
     path: /home/elastic/.docker/
     state: directory
     owner: elastic
+  when: container_engine == "Docker"
 
-- name: Copy local docker config
+- name: Ensure ~/.config/containers/containers.conf is present
+  file:
+    path: /home/elastic/.config/containers/
+    state: directory
+    owner: elastic
+  when: container_engine == "Podman"
+
+- name: Copy local Docker config
   copy:
     src: "{{ docker_config }}"
     dest: /home/elastic/.docker/config.json
     owner: elastic
-  when: docker_config != ""
+  when: docker_config != "" and container_engine == "Docker"
 
-- name: Ensure the docker service is started
+- name: Copy local Podman config
+  copy:
+    src: "{{ podman_config }}"
+    dest: /home/elastic/.config/containers/containers.conf
+    owner: elastic
+  when: podman_config != "" and container_engine == "Podman"
+
+- name: Ensure the Docker service is started
   systemd:
     name: docker
     state: started
+  when: container_engine == "Docker"
+
+- name: Ensure the Podman service is started
+  systemd:
+    name: podman
+    state: started
+  when: container_engine == "Podman"
 
 - name: Check if an installation or upgrade should be performed
-  shell: docker ps -a -f name=frc-runners-runner --format {%raw%}"{{.Image}}"{%endraw%}
+  shell: '{{ container_engine | lower }} ps -a -f name=frc-runners-runner --format {%raw%}"{{.Image}}"{%endraw%}'
   register: existing_runner
+  # become: true
+  # become_user: root
 
 - name: Create memory settings
   set_fact:

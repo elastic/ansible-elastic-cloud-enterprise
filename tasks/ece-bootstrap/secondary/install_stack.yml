@@ -32,6 +32,11 @@
     --memory-settings '{{ memory_settings }}'
     --runner-id {{ ece_runner_id }}{% if capacity is defined %}
     --capacity {{ capacity }}{% endif %}
+    {% if container_engine == "Podman" %}
+    --podman
+    --host-docker-host /run/podman/podman.sock
+    --force
+    {% endif %}
     {{ extra_installer_args }}
   become: yes
   become_method: sudo

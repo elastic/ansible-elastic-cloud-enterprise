@@ -4,6 +4,7 @@ ece_version: 3.7.2
 ece_docker_registry: docker.elastic.co
 ece_docker_repository: cloud-enterprise
 docker_config: ""
+podman_config: "templates/podman.conf"
 ece_installer_url: "https://download.elastic.co/cloud/elastic-cloud-enterprise.sh"
 ece_runner_id: "{{ ansible_default_ipv4.address }}"
 
@@ -29,6 +30,7 @@ memory:
 # Elastic Cloud Enterprise additional installer arguments
 extra_installer_args: ""
 
+
 # Elastic Cloud Enterprise - Support Diagnostics Settings
 ece_supportdiagnostics_url: "https://github.com/elastic/ece-support-diagnostics/archive/v1.3.tar.gz"
 ece_supportdiagnostics_result_path: "/tmp/ece-support-diagnostics"
@@ -37,6 +39,7 @@ fetch_diagnostics: false
 # General settings for docker environment
 docker_bridge_ip: "172.17.42.1/16"
 
-# User and group id
-elastic_uid: 1234
-elastic_gid: 1234
+
+# User and group id, uncomment if needed to override.
+# elastic_uid: 1234
+# elastic_gid: 1234

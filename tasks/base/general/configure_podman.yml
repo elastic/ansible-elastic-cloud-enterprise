@@ -1,0 +1,66 @@
+---
+- name: Stop the Podman service
+  systemd:
+    name: podman
+    state: stopped
+
+# Not strictly needed, allows containers to run after user logout in some situations.
+- name: Enable lingering for Elastic user
+  ansible.builtin.shell: loginctl enable-linger elastic
+
+# Default socket is created with restrictive permissions
+- name: Remove Podman Socket
+  ansible.builtin.file:
+    path: /run/podman
+    state: absent
+    force: true
+
+- name: Ensure /etc/tmpfiles.d/podman.conf exists
+  ansible.builtin.file:
+    path: /etc/tmpfiles.d/podman.conf
+    state: touch
+
+# Allows non-root user to interact with root socket    
+- name: Set Podman Socket Dir Permissions
+  ansible.builtin.lineinfile:
+    path: /etc/tmpfiles.d/podman.conf
+    line: d /run/podman 0777 podman podman -
+
+# Allows non-root user to interact with root socket 
+- name: Set Podman Socket Mode
+  ansible.builtin.lineinfile:
+    path: /usr/lib/systemd/system/podman.socket
+    line: SocketMode=0770
+    regexp: ^SocketMode.*
+
+# Allows non-root user to interact with root socket 
+- name: Set Podman Socket ACL
+  ansible.builtin.lineinfile:
+    path: /usr/lib/systemd/system/podman.socket
+    line: "{{ item }}"
+    insertafter: ^SocketMode=.*
+  loop: 
+    - SocketGroup=podman
+    - DirectoryMode=0777
+
+# Not strictly needed, included out of caution for some configurations.
+# Containers spawned should retain elastic's uid
+- name: Add subuid and subgid to elastic user
+  ansible.builtin.lineinfile:
+    path: "{{ item.path }}"
+    line: "{{ item.line }}"
+    regexp: ^elastic\:.*
+  loop:
+    - path: /etc/subuid
+      line: elastic:100000:65536
+    - path: /etc/subgid
+      line: elastic:100000:65536
+
+- name: Podman daemon is enabled and systemd has read all changes
+  systemd:
+    name: "{{ item }}"
+    enabled: yes
+    daemon_reload: yes
+  loop:
+    - podman.service
+    - podman.socket
