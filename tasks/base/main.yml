@@ -10,14 +10,27 @@
     msg: "ERROR: OS {{ ansible_distribution }} {{ ansible_distribution_major_version}} is not supported!"
   when: unsupported_version is defined and unsupported_version
 
-- name: Set docker version
+- name: Set Docker version
   set_fact:
     docker_version: "{{ docker_version | default(docker_version_map.keys()|list|last) }}"
+  when: container_engine == "Docker"
 
-- name: Assert docker version is supported
+- name: Set Podman version
+  set_fact:
+    podman_version: "{{ podman_version | default(podman_version_map.keys()|list|last) }}"
+  when: container_engine == "Podman"
+
+- name: Assert Docker version is supported
   assert:
     that: "docker_version in docker_version_map.keys()"
     msg: "Docker version must be one of {{ docker_version_map.keys() }}"
+  when: container_engine == "Docker"
+
+- name: Assert Podman version is supported
+  assert:
+    that: "podman_version in podman_version_map.keys()"
+    msg: "Podman version must be one of {{ podman_version_map.keys() }}"
+  when: container_engine == "Podman"
 
 - name: execute os specific tasks
   include_tasks: "{{ ansible_distribution }}-{{ ansible_distribution_major_version}}/main.yml"
@@ -32,6 +45,10 @@
   tags: [setup_filesystem, destructive]
 - include_tasks: general/configure_docker.yml
   tags: [install_docker, destructive]
+  when: container_engine == "Docker"
+- include_tasks: general/configure_podman.yml
+  tags: [install_podman, destructive]
+  when: container_engine == "Podman"
 - include_tasks: general/sysctl_scripts.yml
 - include_tasks: general/kernel_modules.yml
 

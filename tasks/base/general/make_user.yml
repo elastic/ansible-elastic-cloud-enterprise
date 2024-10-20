@@ -9,25 +9,39 @@
     database: passwd
     fail_key: false
 
+# Needed when elastic user created manually and used for Ansible
+- name: Set elastic_uid from ansible_user 
+  ansible.builtin.set_fact:
+    elastic_uid: "{{ getent_passwd[ansible_user].1 }}"
+    cacheable: true
+  when: ansible_user == "elastic"
+
+# Needed when elastic user created manually and used for Ansible
+- name: Set elastic_gid from ansible_user 
+  ansible.builtin.set_fact:
+    elastic_gid: "{{ getent_passwd[ansible_user].2 }}"
+    cacheable: true
+  when: ansible_user == "elastic"
+
 - name: Add group elastic
   group:
     name:  elastic
     state: present
-    gid: "{{ elastic_gid }}"
+    gid: "{{ elastic_gid | default(1234) }}"
   when: "'elastic' not in ansible_facts.getent_group"
 
-- name: Add group docker
+- name: Add group {{ container_engine }}
   group:
-    name:  docker
+    name:  "{{ container_engine | lower }}"
     state: present
-  when: "'docker' not in ansible_facts.getent_group"
+  when: container_engine | lower not in ansible_facts.getent_group
 
-- name: Add user elastic
+- name: Add user elastic to {{ container_engine }} group
   user:
     name: elastic
     group: elastic
-    groups: docker
-    uid: "{{ elastic_uid }}"
+    groups: "{{ container_engine | lower }}"
+    uid: "{{ elastic_uid | default(1234) }}"
     append: yes
     state: present
     generate_ssh_key: true
@@ -36,7 +50,7 @@
 - name: Modify user elastic to be included in groups
   user:
     name: elastic
-    groups: docker
+    groups: "{{ container_engine | lower }}"
     append: yes
   when: getent_passwd["elastic"] != none
 

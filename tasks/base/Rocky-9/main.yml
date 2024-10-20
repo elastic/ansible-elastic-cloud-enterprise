@@ -1,12 +1,14 @@
 ---
 - name: Disable firewalld
-  systemd:
+  ansible.builtin.systemd:
     name: firewalld
     state: stopped
     enabled: no
   ignore_errors: true
 
-- include_tasks: install_dependencies.yml
-- include_tasks: install_docker.yml
+- ansible.builtin.include_tasks: install_dependencies.yml
+- ansible.builtin.include_tasks: install_podman.yml
   tags: [install_docker, destructive]
+  when: container_engine == "Podman"
+  
 
