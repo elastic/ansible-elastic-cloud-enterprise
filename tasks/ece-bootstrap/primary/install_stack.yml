@@ -27,7 +27,7 @@
 
 - name: Monitor installer progress
   ansible.builtin.shell: 
-    cmd: tail -n 5 /mnt/data/elastic/logs/bootstrap-logs/bootstrap.log
+    cmd: "tail -n 5 {{ data_dir }}/elastic/logs/bootstrap-logs/bootstrap.log"
   until: "'[no.found.util.LogApplicationExit$] Application is exiting {}' in ece_installer_result_text.stdout"
   register: ece_installer_result_text
   retries: 192
