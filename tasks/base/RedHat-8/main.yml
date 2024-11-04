@@ -8,5 +8,5 @@
 
 - include_tasks: install_dependencies.yml
 - ansible.builtin.include_tasks: install_podman.yml
-  tags: [install_docker, destructive]
+  tags: [install_podman, destructive]
   when: container_engine == "Podman"
