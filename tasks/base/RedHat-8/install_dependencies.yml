@@ -6,3 +6,4 @@
   with_items:
   - lvm2
   - iptables
+  - policycoreutils-python-utils

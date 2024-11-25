@@ -4,6 +4,7 @@
     name: docker
     state: stopped
     enabled: no
+  when: container_engine == "Docker"
 
 - include_tasks: ../base/general/setup_mount_permissions.yml
 
