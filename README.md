@@ -215,6 +215,9 @@ all:
 
 You only need to run the upgrade on a single host, it will then automatically propagate to all other hosts.
 An upgrade is usually performed on the first host you installed Elastic Cloud Enterprise on, but it can also be run from any host that holds the director role.
+ 
+- `ece_version`: The target version you want to upgrade to
+- `adminconsole_root_password`: The adminconsole root password
 
 Assuming you have an installation of Elastic Cloud Enterprise 2.1.0 and want to upgrade to 2.2.0 `site.yml` could then look like:
 ```yaml
@@ -223,6 +226,7 @@ Assuming you have an installation of Elastic Cloud Enterprise 2.1.0 and want to 
     - ansible-elastic-cloud-enterprise
   vars:
     ece_version: 2.2.0
+    adminconsole_root_password: secret_password
 ```
 
 with `inventory.yml`
