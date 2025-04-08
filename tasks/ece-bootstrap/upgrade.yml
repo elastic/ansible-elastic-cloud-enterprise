@@ -1,6 +1,15 @@
 ---
 - name: Execute upgrade
-  shell: /home/elastic/elastic-cloud-enterprise.sh upgrade --cloud-enterprise-version {{ ece_version }} --docker-registry {{ ece_docker_registry }} --ece-docker-repository {{ ece_docker_repository }}
+  shell: |
+    /home/elastic/elastic-cloud-enterprise.sh \
+    upgrade \
+    --cloud-enterprise-version {{ ece_version }} \
+    --docker-registry {{ ece_docker_registry }} \
+    --ece-docker-repository {{ ece_docker_repository }} \
+    {% if ece_version is version("3.8.0", '>=', strict=True) -%}
+    --user admin \
+    --pass {{ adminconsole_root_password }}
+    {% endif %}
   become: yes
   become_method: sudo
   become_user: elastic
