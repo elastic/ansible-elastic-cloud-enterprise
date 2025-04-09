@@ -64,3 +64,4 @@
   loop:
     - podman.service
     - podman.socket
+    - podman-restart.service

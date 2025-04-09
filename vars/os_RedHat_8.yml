@@ -1,29 +1,12 @@
 ---
-docker_unit_after: "multi-user.target"
-docker_storage_driver: overlay2
 bootloader_update_command: grub2-mkconfig -o /etc/grub2.cfg
 conntrack_module: ip_conntrack
-container_engine: Docker
+container_engine: Podman
 
-# Docker version mapping
-docker_version_map:
-  "19.03":
-    name: 'Docker-CE'
+# Podman version mapping
+podman_version_map:
+  "4.9.4":
+    name: "podman"
     package:
-      - docker-ce-19.03.13
-      - docker-ce-cli-19.03.13
-      - containerd.io-1.5.11
-    repo: https://download.docker.com/linux/centos/docker-ce.repo
-    keys:
-      server: https://download.docker.com/linux/centos/gpg
-      id: 060A 61C5 1B55 8A7F 742B 77AA C52F EB6B 621E 9F35
-  "20.10":
-    name: 'Docker-CE'
-    package:
-      - docker-ce-20.10.8
-      - docker-ce-cli-20.10.8
-      - containerd.io-1.5.11
-    repo: https://download.docker.com/linux/centos/docker-ce.repo
-    keys:
-      server: https://download.docker.com/linux/centos/gpg
-      id: 060A 61C5 1B55 8A7F 742B 77AA C52F EB6B 621E 9F35
+      - podman-4.9.4
+      - podman-remote-4.9.4
