@@ -10,7 +10,7 @@ This role is tested against Ansible 2.8.7.
 
 ## Contents of this role
 
-A minimal example of a [small playbook](https://www.elastic.co/guide/en/cloud-enterprise/current/ece-install-small-cloud.html) might look like this:
+A minimal example of a [small playbook](https://www.elastic.co/docs/deploy-manage/deploy/cloud-enterprise/deploy-small-installation) might look like this:
 
 ```yaml
 ---
@@ -45,7 +45,7 @@ At least three hosts are needed for this example, a primary, a secondary, and te
   - Create a xfs partition and configure it
   - Configure docker
 
-More information about the prerequisites can be found in the following [page](https://www.elastic.co/guide/en/cloud-enterprise/current/ece-prereqs.html).
+More information about the prerequisites can be found in the following [page](https://www.elastic.co/docs/deploy-manage/deploy/cloud-enterprise/prepare-environment).
 - On the primary host:
   - Make the primary installation of Elastic Cloud Enterprise
 - On the secondary host:
@@ -71,11 +71,11 @@ The following variables are avaible:
     - Default: `/mnt/data`
 - `ece_roles`: Elastic Cloud Enterprise roles that successive hosts should assume
     - Default: [director, coordinator, proxy, allocator]
-- `capacity`: [Amount of memory to grant to the allocator](https://www.elastic.co/guide/en/cloud-enterprise/current/ece-manage-capacity.html#ece-alloc-memory)
+- `capacity`: [Amount of memory to grant to the allocator](https://www.elastic.co/docs/deploy-manage/deploy/cloud-enterprise/ece-manage-capacity#ece-alloc-memory)
     - Default: left empty, installer default behavior will be applied
 - `availability_zone`: The availability zone this group of hosts belongs to
 - `ece_version`: The Elastic Cloud Enterprise version that should get installed
-    - Default: 2.8.1
+    - Default: 4.0.0
 - `ece_docker_registry`: The docker registry from where to pull the Elastic Cloud Enterprise images. This is only relevant if you have a private mirror
     - Default: docker.elastic.co
 - `ece_docker_repository`: The docker repository in the given registry. This is only relevant if you have a private mirror
@@ -86,13 +86,13 @@ The following variables are avaible:
 - `ece_installer_path`: The location of the installation script on the controller machine. It will be copied to remote host. 
     - Default: left empty, it will download it from internet (cf. `ece_installer_url`)
 - `docker_config`: If specified as a path to a docker config, copies it to the target hosts
-- [Supported Docker Versions](https://www.elastic.co/guide/en/cloud-enterprise/2.7/ece-software-prereq.html#ece-linux-docker)
+- [Supported Docker Versions](https://www.elastic.co/support/matrix#elastic-cloud-enterprise)
   - `docker_version`: Last supported version on Centos 7/8 and RHEL 7/8 is 20.0, Ubuntu 16, Ubuntu 18 and SLES 12 is 19.03.
 - `docker_bridge_ip `: The default IP of the docker bridge. Configurable to avoid overlapping with the current host subnet.
 - `force_xfc`: By default if the `lxc` xfc volume already exists, the `setup_xfc` step is skipped, if this is set to true, creation of the volume is forced
     - Default: false
 - `elastic_authorized_keys_file`: Defines a local path to an `authorized_keys` file that should be copied to the `elastic` user. If not set, the keys from the default user that is used with ansible will be copied over.
-- `memory`: Defines the JVM heap size to be used for different services running in ece. See https://www.elastic.co/guide/en/cloud-enterprise/2.7/ece-jvm.html for example values and [defaults/main.yml](defaults/main.yml) for the default values.
+- `memory`: Defines the JVM heap size to be used for different services running in ece. See https://www.elastic.co/docs/deploy-manage/deploy/cloud-enterprise/ece-jvm for example values and [defaults/main.yml](defaults/main.yml) for the default values.
 
 - `fetch_diagnostics`: Determines if Elastic Cloud Enterprise Support Diagnostics should be downloaded and executed
 - `ece_supportdiagnostics_url`: THe location of the diagnostics tool. Can be a local file for offline installation.
@@ -126,7 +126,7 @@ In order to use this ansible playbook for building a VM image, the following tag
 
 ### Medium sized first installation of Elastic Cloud Enterprise
 
-This example installs Elastic Cloud Enterprise as detailed in "A medium installation with separate management services" [in the official documentation](https://www.elastic.co/guide/en/cloud-enterprise/current/ece-install-medium-cloud.html) and brings you up to *step 5 - Modify the first host you installed Elastic Cloud Enterprise on*
+This example installs Elastic Cloud Enterprise as detailed in "A medium installation with separate management services" [in the official documentation](https://www.elastic.co/docs/deploy-manage/deploy/cloud-enterprise/deploy-medium-installation) and brings you up to *step 5 - Modify the first host you installed Elastic Cloud Enterprise on*
 
 `site.yml`:
 ```yaml
