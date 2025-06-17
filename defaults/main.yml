@@ -1,6 +1,6 @@
 ---
 # General Elastic Cloud Enterprise relevant settings
-ece_version: 4.0.0
+ece_version: 4.0.1
 ece_docker_registry: docker.elastic.co
 ece_docker_repository: cloud-enterprise
 docker_config: ""
