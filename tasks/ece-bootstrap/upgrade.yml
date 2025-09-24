@@ -11,7 +11,7 @@
     {% if container_engine == "Podman" %}
     --podman \
     --host-docker-host /run/podman/podman.sock \
-    --force \
+    --force
     {% endif %}
   become: yes
   become_method: sudo
