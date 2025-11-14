@@ -35,4 +35,11 @@
     state: present
 
 - name: Pin docker-engine packet
-  shell: echo "docker-engine hold" | sudo dpkg --set-selections
+  ansible.builtin.dpkg_selections:
+    name: "{{ item }}"
+    selection: hold
+  loop:
+    - docker-engine #backward compatibility
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
