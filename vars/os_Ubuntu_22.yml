@@ -16,3 +16,12 @@ docker_version_map:
     keys:
       server: https://download.docker.com/linux/ubuntu/gpg
       id: 0EBFCD88
+  "25.0":
+    package:
+      - docker-ce=5:25.0.*
+      - docker-ce-cli=5:25.0.*
+      - containerd.io
+    repo: deb https://download.docker.com/linux/ubuntu focal stable
+    keys:
+      server: https://download.docker.com/linux/ubuntu/gpg
+      id: 0EBFCD88
