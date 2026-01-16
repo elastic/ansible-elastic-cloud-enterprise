@@ -16,5 +16,9 @@ galaxy_info:
     versions:
     - 8
     - 9
+  - name: RedHat Enterprise Linux
+    versions:
+    - 8
+    - 9
 
 dependencies: []
