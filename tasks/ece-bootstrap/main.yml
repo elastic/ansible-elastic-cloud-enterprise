@@ -13,12 +13,15 @@
     mode: 0755
   when: ece_installer_path is not defined
 
+# ~/.docker/config.json carries the registry credentials needed to pull ECE
+# images. Podman reads it via its auth fallback chain, so provision it for both
+# Docker and Podman whenever a docker_config is supplied.
 - name: Ensure ~/.docker is present
   file:
     path: /home/elastic/.docker/
     state: directory
     owner: elastic
-  when: container_engine == "Docker"
+  when: docker_config != ""
 
 - name: Ensure ~/.config/containers/containers.conf is present
   file:
@@ -32,7 +35,7 @@
     src: "{{ docker_config }}"
     dest: /home/elastic/.docker/config.json
     owner: elastic
-  when: docker_config != "" and container_engine == "Docker"
+  when: docker_config != ""
 
 - name: Copy local Podman config
   copy:
