@@ -9,7 +9,22 @@ ece_installer_url: "https://download.elastic.co/cloud/elastic-cloud-enterprise.s
 ece_runner_id: "{{ ansible_default_ipv4.address }}"
 
 # Overall setup variables (like package versions)
-device_name: xvdb
+#
+# device_name: block device that will be wiped and turned into the ECE data
+# volume ({{ data_dir }}). This is a DESTRUCTIVE operation, so there is
+# intentionally no default: an install fails fast unless you set it explicitly
+# or opt into auto-detection below. Prefer a stable identifier that survives
+# reboots and hardware changes, e.g. /dev/disk/by-id/nvme-... or a /dev/disk/by-path
+# entry, rather than a kernel name like nvme1n1/sdb (those can be reassigned by
+# the kernel, especially on AWS Nitro/NVMe). Absolute paths are used as-is; a
+# bare name is resolved under /dev/.
+device_name: ""
+# ece_data_device_autodetect: opt-in convenience for hosts that have exactly one
+# unused whole disk (no partitions, not part of any LVM/MD/mapper stack), such
+# as a single blank data volume. When device_name is unset and this is true, the
+# role selects that disk automatically. Left off by default because formatting
+# the wrong disk destroys data.
+ece_data_device_autodetect: false
 data_dir: /mnt/data
 force_xfc: false
 

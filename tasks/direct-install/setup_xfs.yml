@@ -1,4 +1,38 @@
 ---
+# Resolve which block device becomes the ECE data volume. Kernel names such as
+# nvme1n1 are not stable (on AWS Nitro the data EBS volume can enumerate as
+# nvme1n1 on one host and nvme2n1 on another, and nvme1n1 may even be the
+# partitioned root disk), so we never guess: use the operator-provided
+# device_name, or an explicitly opted-in single unused disk, and fail otherwise.
+- name: Auto-detect the ECE data device (opt-in, single unused disk)
+  set_fact:
+    device_name: >-
+      {{ (ansible_devices | dict2items
+          | rejectattr('key', 'match', '^(loop|sr|dm-|md|fd|ram|zram)')
+          | selectattr('value.partitions', 'equalto', {})
+          | selectattr('value.holders', 'equalto', [])
+          | map(attribute='key') | list | first) | default('', true) }}
+  when:
+    - device_name | default('', true) | length == 0
+    - ece_data_device_autodetect | bool
+
+- name: Assert the ECE data device is defined
+  assert:
+    that: device_name | default('', true) | length > 0
+    fail_msg: >-
+      No ECE data device configured. Set 'device_name' to the block device that
+      should back {{ data_dir }} (ideally a stable path such as
+      /dev/disk/by-id/nvme-...), or set ece_data_device_autodetect=true when the
+      host has exactly one unused whole disk. Refusing to guess which disk to
+      format.
+    success_msg: "Using '{{ device_name }}' for the ECE data volume ({{ data_dir }})."
+
+# Absolute paths (stable /dev/disk/by-id, /dev/disk/by-path, ...) are used
+# verbatim; a bare kernel name is resolved under /dev/.
+- name: Resolve the ECE data device path
+  set_fact:
+    ece_data_device: "{{ device_name if device_name.startswith('/') else '/dev/' ~ device_name }}"
+
 - name: Make sure {{ data_dir }} exists
   file:
     path: "{{ data_dir }}"
@@ -7,7 +41,7 @@
 - name: Create the volume
   lvg:
     vg: lxc
-    pvs: /dev/{{ device_name }}
+    pvs: "{{ ece_data_device }}"
     force: true
 
 - name: Define size of swap
