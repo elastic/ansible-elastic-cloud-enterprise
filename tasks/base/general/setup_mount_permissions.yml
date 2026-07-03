@@ -23,3 +23,18 @@
     group: elastic
     mode: 0700
   when: container_engine == "Docker"
+
+# Podman's graphroot/runroot are relocated here (see configure_podman.yml). Create
+# the directory now that the data volume is mounted so rootful Podman stores stack
+# images on the large volume instead of the root disk.
+- name: Create {{ data_dir }}/docker for Podman image storage
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0711
+  loop:
+    - "{{ data_dir }}/docker"
+    - "{{ data_dir }}/docker/runroot"
+  when: container_engine == "Podman"
