@@ -31,8 +31,8 @@
 
 - name: Assert Podman version is supported
   assert:
-    that: "podman_version in podman_version_map.keys()"
-    msg: "Podman version must be one of {{ podman_version_map.keys() }}"
+    that: "podman_version in podman_version_map.keys() or podman_version is match('^[0-9][0-9.]*$')"
+    msg: "Podman version must be one of {{ podman_version_map.keys() }} (latest patch of that major) or an explicit version such as 5.2.3"
   when: container_engine == "Podman"
 
 - name: execute os specific tasks
