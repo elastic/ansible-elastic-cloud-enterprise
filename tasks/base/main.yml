@@ -10,14 +10,17 @@
     msg: "ERROR: OS {{ ansible_distribution }} {{ ansible_distribution_major_version}} is not supported!"
   when: unsupported_version is defined and unsupported_version
 
+# default(..., true) so an empty string (e.g. docker_version= passed through from
+# an unset CI variable) also falls back to the map default, not just an undefined
+# value.
 - name: Set Docker version
   set_fact:
-    docker_version: "{{ docker_version | default(docker_version_map.keys()|list|last) }}"
+    docker_version: "{{ docker_version | default(docker_version_map.keys()|list|last, true) }}"
   when: container_engine == "Docker"
 
 - name: Set Podman version
   set_fact:
-    podman_version: "{{ podman_version | default(podman_version_map.keys()|list|last) }}"
+    podman_version: "{{ podman_version | default(podman_version_map.keys()|list|last, true) }}"
   when: container_engine == "Podman"
 
 - name: Assert Docker version is supported
