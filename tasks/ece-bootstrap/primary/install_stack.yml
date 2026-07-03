@@ -24,14 +24,58 @@
   become_user: elastic
   async: 960
   poll: 0
+  register: ece_primary_install
 
-- name: Monitor installer progress
-  ansible.builtin.shell: 
-    cmd: tail -n 5 /mnt/data/elastic/logs/bootstrap-logs/bootstrap.log
-  until: "'[no.found.util.LogApplicationExit$] Application is exiting {}' in ece_installer_result_text.stdout"
-  register: ece_installer_result_text
-  retries: 192
-  delay: 5
+# The installer runs asynchronously and writes to bootstrap.log; we poll that
+# file for the completion marker. If it never completes (or never even creates
+# the log, e.g. the installer aborts during its preflight checks), surface the
+# installer's own output and any on-disk logs before failing, otherwise the only
+# symptom is an opaque "tail: cannot open .../bootstrap.log" after 192 retries.
+- name: Monitor and complete the ECE installation
+  block:
+    - name: Monitor installer progress
+      ansible.builtin.shell:
+        cmd: tail -n 5 /mnt/data/elastic/logs/bootstrap-logs/bootstrap.log
+      until: "'[no.found.util.LogApplicationExit$] Application is exiting {}' in ece_installer_result_text.stdout"
+      register: ece_installer_result_text
+      retries: 192
+      delay: 5
+  rescue:
+    - name: Collect the installer async result
+      ansible.builtin.async_status:
+        jid: "{{ ece_primary_install.ansible_job_id }}"
+      register: ece_primary_install_status
+      become: yes
+      become_method: sudo
+      become_user: elastic
+      ignore_errors: true
+
+    - name: Show the installer async result (stdout/stderr/rc)
+      ansible.builtin.debug:
+        var: ece_primary_install_status
+
+    - name: Collect any on-disk bootstrap logs
+      ansible.builtin.shell: |
+        set +e
+        echo "== ls bootstrap-logs =="
+        ls -la {{ data_dir }}/elastic/logs/bootstrap-logs/ 2>&1
+        echo "== *.log under {{ data_dir }}/elastic =="
+        find {{ data_dir }}/elastic -maxdepth 4 -name '*.log' 2>/dev/null
+        echo "== tail bootstrap logs =="
+        tail -n 80 {{ data_dir }}/elastic/logs/bootstrap-logs/*.log 2>&1
+      register: ece_bootstrap_debug
+      changed_when: false
+      ignore_errors: true
+
+    - name: Show on-disk bootstrap logs
+      ansible.builtin.debug:
+        var: ece_bootstrap_debug.stdout_lines
+
+    - name: Fail after collecting installer diagnostics
+      ansible.builtin.fail:
+        msg: >-
+          ECE primary installation did not complete. See the installer async
+          result and bootstrap logs above for the underlying error.
 
 - name: Remember the bootstrap secrets
   command: cat {{ data_dir }}/elastic/bootstrap-state/bootstrap-secrets.json
