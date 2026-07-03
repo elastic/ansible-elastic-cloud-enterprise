@@ -43,6 +43,22 @@
     - SocketGroup=podman
     - DirectoryMode=0777
 
+# ECE itself drives Podman over the socket above (installed with
+# `--host-docker-host /run/podman/podman.sock`), so it does not need the `docker`
+# CLI. The ECE Podman docs still require a `/usr/bin/docker` shim, however, so
+# that operators and ECE support/diagnostic tooling can run `docker ...` on the
+# host. Point it at the same rootful socket ECE uses (via podman-remote) so those
+# commands target the containers ECE actually manages, not a rootless podman.
+- name: Install a docker -> podman shim so `docker` resolves to the ECE Podman socket
+  ansible.builtin.copy:
+    dest: /usr/bin/docker
+    mode: "0755"
+    owner: root
+    group: root
+    content: |
+      #!/bin/bash
+      podman-remote --url unix:///run/podman/podman.sock "$@"
+
 # Not strictly needed, included out of caution for some configurations.
 # Containers spawned should retain elastic's uid
 - name: Add subuid and subgid to elastic user
