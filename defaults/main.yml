@@ -53,6 +53,13 @@ fetch_diagnostics: false
 
 # General settings for docker environment
 docker_bridge_ip: "172.17.42.1/16"
+# Default open-file-descriptor (nofile) ulimit applied to every container the
+# Docker daemon starts (soft:hard). ECE's bootstrap and stack containers require
+# a high nofile limit (>= 65536). Docker <= 24 injected a large default (1048576)
+# implicitly, but Docker 25.0 removed that, so containers otherwise inherit the
+# host's 1024 soft limit and ECE's preflight check fails. Matches the host pam
+# limit set in set_limits.yml.
+docker_default_nofile: 1024000
 
 
 # User and group id, uncomment if needed to override.
