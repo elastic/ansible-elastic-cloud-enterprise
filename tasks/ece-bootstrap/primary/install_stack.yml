@@ -12,7 +12,8 @@
     --ece-docker-repository {{ ece_docker_repository }} 
     --memory-settings '{{ memory_settings }}' 
     --runner-id {{ ece_runner_id }} 
-    --host-storage-path {{ data_dir }}/elastic 
+    --host-storage-path {{ data_dir }}/elastic{% if capacity is defined %}
+    --capacity {{ capacity }}{% endif %}
     {% if container_engine == "Podman" %}
     --podman
     --host-docker-host /run/podman/podman.sock
