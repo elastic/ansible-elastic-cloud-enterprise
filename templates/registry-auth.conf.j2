@@ -11,9 +11,20 @@
 # directory into the runner and allocator containers so their runtime pulls can
 # authenticate. It is passed to the installer via --config-file and is only
 # staged/used when a docker_config is supplied.
+#
+# NOTE: each create-payload must carry a recognised payload section in addition
+# to HostConfig (e.g. Env). ECE's SharedSettings parser returns "No result when
+# parsing failed" for a create-payload that contains only HostConfig, so we add a
+# benign marker env var to give the parser a result. This mirrors the shape of
+# the built-in container mutations (which always pair HostConfig with Env/Ports).
 found.bootstrap.shared.containers.mutations."REGISTRY_AUTH" {
   runners.runner {
     create-payload {
+      Env {
+        add = [
+          "ECE_REGISTRY_AUTH_MUTATION=applied"
+        ]
+      }
       HostConfig {
         Binds {
           add = {
@@ -25,6 +36,11 @@ found.bootstrap.shared.containers.mutations."REGISTRY_AUTH" {
   }
   allocators.allocator {
     create-payload {
+      Env {
+        add = [
+          "ECE_REGISTRY_AUTH_MUTATION=applied"
+        ]
+      }
       HostConfig {
         Binds {
           add = {
