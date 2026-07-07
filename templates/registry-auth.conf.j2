@@ -12,19 +12,15 @@
 # authenticate. It is passed to the installer via --config-file and is only
 # staged/used when a docker_config is supplied.
 #
-# NOTE: each create-payload must carry a recognised payload section in addition
-# to HostConfig (e.g. Env). ECE's SharedSettings parser returns "No result when
-# parsing failed" for a create-payload that contains only HostConfig, so we add a
-# benign marker env var to give the parser a result. This mirrors the shape of
-# the built-in container mutations (which always pair HostConfig with Env/Ports).
-found.bootstrap.shared.containers.mutations."REGISTRY_AUTH" {
+# The mutation key MUST be "DEV": ECE's SharedSettings.fromConfig treats every
+# mutation key other than the special "DEV" bucket as a platform version and runs
+# it through PlatformVersion.fromString(...), which fails for an arbitrary name
+# with "No result when parsing failed" and aborts the install. The "DEV" bucket
+# is the version-agnostic mutation that is always applied, which is exactly what
+# we want for a persistent credential bind-mount.
+found.bootstrap.shared.containers.mutations."DEV" {
   runners.runner {
     create-payload {
-      Env {
-        add = [
-          "ECE_REGISTRY_AUTH_MUTATION=applied"
-        ]
-      }
       HostConfig {
         Binds {
           add = {
@@ -36,11 +32,6 @@ found.bootstrap.shared.containers.mutations."REGISTRY_AUTH" {
   }
   allocators.allocator {
     create-payload {
-      Env {
-        add = [
-          "ECE_REGISTRY_AUTH_MUTATION=applied"
-        ]
-      }
       HostConfig {
         Binds {
           add = {
