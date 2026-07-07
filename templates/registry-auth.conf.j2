@@ -1,0 +1,37 @@
+# Registry-auth container-config mutation.
+#
+# ECE reads private-registry credentials from a docker config.json, but the
+# installer only mounts that file for the initial host-side image pull -- it is
+# NOT visible inside the long-lived runner/allocator containers that pull images
+# at runtime (e.g. stack images, or the vacate-data-copier during a move). Those
+# runtime pulls therefore fail with PullAccessDenied against private registries
+# unless the credentials are mounted into the containers.
+#
+# This container-config mutation bind-mounts the elastic user's docker config
+# directory into the runner and allocator containers so their runtime pulls can
+# authenticate. It is passed to the installer via --config-file and is only
+# staged/used when a docker_config is supplied.
+found.bootstrap.shared.containers.mutations."REGISTRY_AUTH" {
+  runners.runner {
+    create-payload {
+      HostConfig {
+        Binds {
+          add = {
+            "/home/elastic/.docker" = "/home/elastic/.docker"
+          }
+        }
+      }
+    }
+  }
+  allocators.allocator {
+    create-payload {
+      HostConfig {
+        Binds {
+          add = {
+            "/home/elastic/.docker" = "/home/elastic/.docker"
+          }
+        }
+      }
+    }
+  }
+}

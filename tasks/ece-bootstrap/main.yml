@@ -37,6 +37,19 @@
     owner: elastic
   when: docker_config != ""
 
+# The installer only exposes the host docker config for the initial host-side
+# image pull; the long-lived runner/allocator containers that pull images at
+# runtime never see it, so private-registry runtime pulls fail with
+# PullAccessDenied. Stage a container-config mutation that bind-mounts the
+# elastic docker config into those containers and pass it to the installer via
+# --config-file (see install_stack.yml). Only needed when credentials are set.
+- name: Stage registry-auth container-config mutation
+  template:
+    src: registry-auth.conf.j2
+    dest: /home/elastic/registry-auth.conf
+    owner: elastic
+  when: docker_config != ""
+
 - name: Copy local Podman config
   copy:
     src: "{{ podman_config }}"
