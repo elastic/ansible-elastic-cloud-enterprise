@@ -7,10 +7,16 @@
 # runtime pulls therefore fail with PullAccessDenied against private registries
 # unless the credentials are mounted into the containers.
 #
-# This container-config mutation bind-mounts the elastic user's docker config
-# directory into the runner and allocator containers so their runtime pulls can
-# authenticate. It is passed to the installer via --config-file and is only
-# staged/used when a docker_config is supplied.
+# This container-config mutation bind-mounts the host's docker config directory
+# ({{ ece_docker_config_dir }}) into the runner and allocator containers so their
+# runtime pulls can authenticate. It is passed to the installer via --config-file
+# and is only staged/used when a docker_config is supplied.
+#
+# The bind is "<host path>" = "<container path>". The host path is
+# ece_docker_config_dir (where the role staged config.json). The container path is
+# always /home/elastic/.docker: inside the ECE images the process runs as the
+# elastic user with HOME=/home/elastic, so it reads $HOME/.docker/config.json
+# regardless of which host user installed ECE.
 #
 # The mutation key MUST be "DEV": ECE's SharedSettings.fromConfig treats every
 # mutation key other than the special "DEV" bucket as a platform version and runs
@@ -24,7 +30,7 @@ found.bootstrap.shared.containers.mutations."DEV" {
       HostConfig {
         Binds {
           add = {
-            "/home/elastic/.docker" = "/home/elastic/.docker"
+            "{{ ece_docker_config_dir }}" = "/home/elastic/.docker"
           }
         }
       }
@@ -35,7 +41,7 @@ found.bootstrap.shared.containers.mutations."DEV" {
       HostConfig {
         Binds {
           add = {
-            "/home/elastic/.docker" = "/home/elastic/.docker"
+            "{{ ece_docker_config_dir }}" = "/home/elastic/.docker"
           }
         }
       }

@@ -4,6 +4,14 @@ ece_version: 4.1.1
 ece_docker_registry: docker.elastic.co
 ece_docker_repository: cloud-enterprise
 docker_config: ""
+# Directory on the host where the elastic user's Docker registry credentials
+# (config.json) are staged from `docker_config`. ECE reads these to authenticate
+# image pulls, and they are bind-mounted into the runner/allocator containers via
+# the registry-auth container-config mutation so runtime stack-image pulls can
+# authenticate against a private registry. Override only if you install ECE as a
+# user other than `elastic`; the container-side mount target is always
+# /home/elastic/.docker (the elastic user's home inside the ECE images).
+ece_docker_config_dir: /home/elastic/.docker
 podman_config: "templates/podman.conf"
 ece_installer_url: "https://download.elastic.co/cloud/elastic-cloud-enterprise.sh"
 ece_runner_id: "{{ ansible_default_ipv4.address }}"
