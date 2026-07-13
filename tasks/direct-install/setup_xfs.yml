@@ -4,14 +4,39 @@
 # nvme1n1 on one host and nvme2n1 on another, and nvme1n1 may even be the
 # partitioned root disk), so we never guess: use the operator-provided
 # device_name, or an explicitly opted-in single unused disk, and fail otherwise.
-- name: Auto-detect the ECE data device (opt-in, single unused disk)
+- name: Enumerate candidate unused whole disks
   set_fact:
-    device_name: >-
-      {{ (ansible_devices | dict2items
-          | rejectattr('key', 'match', '^(loop|sr|dm-|md|fd|ram|zram)')
-          | selectattr('value.partitions', 'equalto', {})
-          | selectattr('value.holders', 'equalto', [])
-          | map(attribute='key') | list | first) | default('', true) }}
+    ece_data_device_candidates: >-
+      {{ ansible_devices | dict2items
+         | rejectattr('key', 'match', '^(loop|sr|dm-|md|fd|ram|zram)')
+         | selectattr('value.partitions', 'equalto', {})
+         | selectattr('value.holders', 'equalto', [])
+         | map(attribute='key') | list }}
+  when:
+    - device_name | default('', true) | length == 0
+    - ece_data_device_autodetect | bool
+
+# Auto-detect is only safe when there is exactly one unused disk. Refuse to pick
+# from several, otherwise we would silently format whichever sorts first -- the
+# same "guess which disk to format" failure this resolution logic exists to
+# prevent. The operator must set device_name explicitly to disambiguate.
+- name: Assert auto-detection found exactly one unused disk
+  assert:
+    that: ece_data_device_candidates | length == 1
+    fail_msg: >-
+      ece_data_device_autodetect found {{ ece_data_device_candidates | length }}
+      candidate unused disks ({{ ece_data_device_candidates | join(', ') | default('none', true) }}).
+      Auto-detection only supports exactly one unused whole disk. Set 'device_name'
+      explicitly (ideally a stable path such as /dev/disk/by-id/nvme-...) to choose
+      which disk backs {{ data_dir }}.
+    success_msg: "Auto-detected the ECE data device: {{ ece_data_device_candidates | first }}."
+  when:
+    - device_name | default('', true) | length == 0
+    - ece_data_device_autodetect | bool
+
+- name: Use the single auto-detected unused disk
+  set_fact:
+    device_name: "{{ ece_data_device_candidates | first }}"
   when:
     - device_name | default('', true) | length == 0
     - ece_data_device_autodetect | bool
