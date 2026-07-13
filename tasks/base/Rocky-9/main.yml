@@ -12,7 +12,7 @@
   when: container_engine == "Podman"
 
 - ansible.builtin.include_tasks: configure_cni_network.yml
-  tags: [install_podman, destructive]
+  tags: [install_docker, destructive]
   when: container_engine == "Podman"
 
 
