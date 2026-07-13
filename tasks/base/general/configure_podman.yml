@@ -4,23 +4,24 @@
     name: podman
     state: stopped
 
-# Store Podman's images and runtime state on the ECE data volume ({{ data_dir }})
-# instead of the OS root disk. Podman defaults to /var/lib/containers (graphroot)
-# and stages image copies under /var/tmp, both on the small root filesystem; the
-# large ECE stack images quickly exhaust it, so pulls fail with
-# "no space left on device" and instances never boot. The Docker path already
-# relocates storage via `--data-root {{ data_dir }}/docker`; this is the Podman
-# equivalent and matches the ECE on-prem docs. The {{ data_dir }}/docker
+# Store Podman's image store (graphroot) on the ECE data volume ({{ data_dir }})
+# instead of the OS root disk. Podman defaults graphroot to /var/lib/containers on
+# the small root filesystem; the large ECE stack images quickly exhaust it, so
+# pulls fail with "no space left on device" and instances never boot. The Docker
+# path already relocates storage via `--data-root {{ data_dir }}/docker`; this is
+# the Podman equivalent and matches the ECE on-prem docs. The {{ data_dir }}/docker
 # directory is created after the data volume is mounted (setup_mount_permissions).
-- name: Store Podman images/runtime on the data volume (avoids filling the root disk)
+#
+# runroot is intentionally left at Podman's default (/run/containers/storage, a
+# tmpfs): it holds ephemeral runtime state (locks, mounts) that must be cleared on
+# reboot. Putting it on the persistent data volume can leave stale state across
+# reboots. graphroot and runroot may live on different filesystems.
+- name: Store Podman's image store on the data volume (avoids filling the root disk)
   ansible.builtin.ini_file:
     path: /etc/containers/storage.conf
     section: storage
-    option: "{{ item.option }}"
-    value: '"{{ item.value }}"'
-  loop:
-    - { option: graphroot, value: "{{ data_dir }}/docker" }
-    - { option: runroot, value: "{{ data_dir }}/docker/runroot/" }
+    option: graphroot
+    value: '"{{ data_dir }}/docker"'
 
 # Not strictly needed, allows containers to run after user logout in some situations.
 - name: Enable lingering for Elastic user
