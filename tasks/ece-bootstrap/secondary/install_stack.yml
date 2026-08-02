@@ -29,7 +29,7 @@
     --docker-registry {{ ece_docker_registry }}
     --ece-docker-repository {{ ece_docker_repository }}
     --host-storage-path {{ data_dir }}/elastic
-    --memory-settings '{{ memory_settings }}'
+    --memory-settings {{ memory_settings | quote }}
     --runner-id {{ ece_runner_id }}{% if capacity is defined %}
     --capacity {{ capacity }}{% endif %}
     {% if container_engine == "Podman" %}
