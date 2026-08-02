@@ -10,18 +10,18 @@
     fail_key: false
 
 # Needed when elastic user created manually and used for Ansible
-- name: Set elastic_uid from ansible_user 
+- name: Set elastic_uid from ansible_user_id 
   ansible.builtin.set_fact:
-    elastic_uid: "{{ getent_passwd[ansible_user].1 }}"
+    elastic_uid: "{{ getent_passwd[ansible_user_id].1 }}"
     cacheable: true
-  when: ansible_user == "elastic"
+  when: ansible_user_id == "elastic"
 
 # Needed when elastic user created manually and used for Ansible
-- name: Set elastic_gid from ansible_user 
+- name: Set elastic_gid from ansible_user_id 
   ansible.builtin.set_fact:
-    elastic_gid: "{{ getent_passwd[ansible_user].2 }}"
+    elastic_gid: "{{ getent_passwd[ansible_user_id].2 }}"
     cacheable: true
-  when: ansible_user == "elastic"
+  when: ansible_user_id == "elastic"
 
 - name: Add group elastic
   group:
