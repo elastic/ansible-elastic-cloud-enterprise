@@ -65,7 +65,7 @@ The following variables are avaible:
 - `device_name`: The block device that is wiped and turned into the ECE data volume (the xfs partition mounted at `data_dir`)
     - **Required** (no default) unless `ece_data_device_autodetect` is enabled or the filesystem tasks are skipped via tags. The install fails fast rather than guessing which disk to format.
     - Prefer a stable identifier that survives reboots/hardware changes, e.g. `/dev/disk/by-id/nvme-...` or a `/dev/disk/by-path/...` entry, instead of a kernel name like `nvme1n1`/`sdb` (those can be reassigned by the kernel, notably on AWS Nitro/NVMe instances). Absolute paths are used as-is; a bare name is resolved under `/dev/`.
-- `ece_data_device_autodetect`: When `true` and `device_name` is unset, automatically select the single whole disk that has no partitions and no holders (e.g. a lone blank data volume). Off by default because auto-formatting the wrong disk is destructive.
+- `ece_data_device_autodetect`: When `true` and `device_name` is unset, automatically select the single whole disk that has no partitions, no holders, and no existing filesystem signature (via `blkid`) — e.g. a lone blank data volume. Disks that already carry a filesystem are skipped so autodetect will not wipe reused volumes; set `device_name` explicitly if you intend to reformat such a disk. Off by default because auto-formatting the wrong disk is destructive.
     - Default: `false`
 - `ece_primary`: Whether this host should be the primary (first) host where Elastic Cloud Enterprise is installed
     - **Required** on a single host

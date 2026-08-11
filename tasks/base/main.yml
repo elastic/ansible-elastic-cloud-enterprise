@@ -50,7 +50,7 @@
   tags: [install_docker, destructive]
   when: container_engine == "Docker"
 - include_tasks: general/configure_podman.yml
-  tags: [install_podman, destructive]
+  tags: [install_podman, install_docker, destructive]
   when: container_engine == "Podman"
 - include_tasks: general/sysctl_scripts.yml
 - include_tasks: general/kernel_modules.yml

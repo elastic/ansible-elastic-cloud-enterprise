@@ -28,10 +28,11 @@ ece_runner_id: "{{ ansible_default_ipv4.address }}"
 # bare name is resolved under /dev/.
 device_name: ""
 # ece_data_device_autodetect: opt-in convenience for hosts that have exactly one
-# unused whole disk (no partitions, not part of any LVM/MD/mapper stack), such
-# as a single blank data volume. When device_name is unset and this is true, the
-# role selects that disk automatically. Left off by default because formatting
-# the wrong disk destroys data.
+# unused whole disk (no partitions, not part of any LVM/MD/mapper stack, and no
+# existing filesystem signature via blkid), such as a single blank data volume.
+# When device_name is unset and this is true, the role selects that disk
+# automatically. Left off by default because formatting the wrong disk destroys
+# data.
 ece_data_device_autodetect: false
 data_dir: /mnt/data
 force_xfc: false

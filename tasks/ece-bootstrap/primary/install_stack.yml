@@ -39,7 +39,7 @@
   block:
     - name: Monitor installer progress
       ansible.builtin.shell:
-        cmd: tail -n 5 /mnt/data/elastic/logs/bootstrap-logs/bootstrap.log
+        cmd: tail -n 5 {{ data_dir }}/elastic/logs/bootstrap-logs/bootstrap.log
       until: "'[no.found.util.LogApplicationExit$] Application is exiting {}' in ece_installer_result_text.stdout"
       register: ece_installer_result_text
       retries: 192
@@ -58,6 +58,8 @@
       ansible.builtin.debug:
         var: ece_primary_install_status
 
+    # List log paths and dump credential-filtered excerpts only — raw tails can
+    # contain installer tokens/passwords on a failed bootstrap.
     - name: Collect any on-disk bootstrap logs
       ansible.builtin.shell: |
         set +e
@@ -65,8 +67,14 @@
         ls -la {{ data_dir }}/elastic/logs/bootstrap-logs/ 2>&1
         echo "== *.log under {{ data_dir }}/elastic =="
         find {{ data_dir }}/elastic -maxdepth 4 -name '*.log' 2>/dev/null
-        echo "== tail bootstrap logs =="
-        tail -n 80 {{ data_dir }}/elastic/logs/bootstrap-logs/*.log 2>&1
+        echo "== filtered bootstrap log excerpts =="
+        for f in {{ data_dir }}/elastic/logs/bootstrap-logs/*.log; do
+          [ -f "$f" ] || continue
+          echo "-- $f --"
+          grep -iE 'exception|error|caused by|invalid|failed|no such file|denied' "$f" \
+            | grep -ivE 'password|secret|token|authorization|bearer|api[_-]?key' \
+            | tail -n 80
+        done
       register: ece_bootstrap_debug
       changed_when: false
       ignore_errors: true

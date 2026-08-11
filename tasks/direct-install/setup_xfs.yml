@@ -16,6 +16,34 @@
     - device_name | default('', true) | length == 0
     - ece_data_device_autodetect | bool
 
+# Whole-disk filesystems (no partition table) still look "unused" in
+# ansible_devices. Reject anything blkid already recognizes so autodetect does
+# not wipe an existing volume; operators with intentional reuse must set
+# device_name explicitly.
+- name: Probe auto-detect candidates for existing filesystem signatures
+  ansible.builtin.command: blkid /dev/{{ item }}
+  register: ece_data_device_blkid
+  changed_when: false
+  failed_when: false
+  loop: "{{ ece_data_device_candidates }}"
+  when:
+    - device_name | default('', true) | length == 0
+    - ece_data_device_autodetect | bool
+    - ece_data_device_candidates | length > 0
+
+- name: Drop candidates that already have a filesystem signature
+  set_fact:
+    ece_data_device_candidates: >-
+      {{ ece_data_device_blkid.results
+         | selectattr('rc', 'ne', 0)
+         | map(attribute='item')
+         | list }}
+  when:
+    - device_name | default('', true) | length == 0
+    - ece_data_device_autodetect | bool
+    - ece_data_device_blkid is defined
+    - ece_data_device_blkid.results is defined
+
 # Auto-detect is only safe when there is exactly one unused disk. Refuse to pick
 # from several, otherwise we would silently format whichever sorts first -- the
 # same "guess which disk to format" failure this resolution logic exists to
@@ -25,10 +53,11 @@
     that: ece_data_device_candidates | length == 1
     fail_msg: >-
       ece_data_device_autodetect found {{ ece_data_device_candidates | length }}
-      candidate unused disks ({{ ece_data_device_candidates | join(', ') | default('none', true) }}).
-      Auto-detection only supports exactly one unused whole disk. Set 'device_name'
-      explicitly (ideally a stable path such as /dev/disk/by-id/nvme-...) to choose
-      which disk backs {{ data_dir }}.
+      candidate unused blank disks ({{ ece_data_device_candidates | join(', ') | default('none', true) }}).
+      Auto-detection only supports exactly one unused whole disk with no
+      existing filesystem signature. Set 'device_name' explicitly (ideally a
+      stable path such as /dev/disk/by-id/nvme-...) to choose which disk backs
+      {{ data_dir }}.
     success_msg: "Auto-detected the ECE data device: {{ ece_data_device_candidates | first }}."
   when:
     - device_name | default('', true) | length == 0
