@@ -12,11 +12,15 @@
     --ece-docker-repository {{ ece_docker_repository }} 
     --memory-settings '{{ memory_settings }}' 
     --runner-id {{ ece_runner_id }} 
-    --host-storage-path {{ data_dir }}/elastic 
+    --host-storage-path {{ data_dir }}/elastic{% if capacity is defined %}
+    --capacity {{ capacity }}{% endif %}
     {% if container_engine == "Podman" %}
     --podman
     --host-docker-host /run/podman/podman.sock
     --force
+    {% endif %}
+    {% if docker_config != "" %}
+    --config-file /home/elastic/registry-auth.conf
     {% endif %}
     {{ extra_installer_args }}
   become: yes
@@ -24,14 +28,93 @@
   become_user: elastic
   async: 960
   poll: 0
+  register: ece_primary_install
 
-- name: Monitor installer progress
-  ansible.builtin.shell: 
-    cmd: tail -n 5 /mnt/data/elastic/logs/bootstrap-logs/bootstrap.log
-  until: "'[no.found.util.LogApplicationExit$] Application is exiting {}' in ece_installer_result_text.stdout"
-  register: ece_installer_result_text
-  retries: 192
-  delay: 5
+# The installer runs asynchronously and writes to bootstrap.log; we poll that
+# file for the completion marker. If it never completes (or never even creates
+# the log, e.g. the installer aborts during its preflight checks), surface the
+# installer's own output and any on-disk logs before failing, otherwise the only
+# symptom is an opaque "tail: cannot open .../bootstrap.log" after 192 retries.
+- name: Monitor and complete the ECE installation
+  block:
+    - name: Monitor installer progress
+      ansible.builtin.shell:
+        cmd: tail -n 5 {{ data_dir }}/elastic/logs/bootstrap-logs/bootstrap.log
+      until: "'[no.found.util.LogApplicationExit$] Application is exiting {}' in ece_installer_result_text.stdout"
+      register: ece_installer_result_text
+      retries: 192
+      delay: 5
+  rescue:
+    - name: Collect the installer async result
+      ansible.builtin.async_status:
+        jid: "{{ ece_primary_install.ansible_job_id }}"
+      register: ece_primary_install_status
+      become: yes
+      become_method: sudo
+      become_user: elastic
+      ignore_errors: true
+
+    - name: Show the installer async result (stdout/stderr/rc)
+      ansible.builtin.debug:
+        var: ece_primary_install_status
+
+    # List log paths and dump credential-filtered excerpts only — raw tails can
+    # contain installer tokens/passwords on a failed bootstrap.
+    - name: Collect any on-disk bootstrap logs
+      ansible.builtin.shell: |
+        set +e
+        echo "== ls bootstrap-logs =="
+        ls -la {{ data_dir }}/elastic/logs/bootstrap-logs/ 2>&1
+        echo "== *.log under {{ data_dir }}/elastic =="
+        find {{ data_dir }}/elastic -maxdepth 4 -name '*.log' 2>/dev/null
+        echo "== filtered bootstrap log excerpts =="
+        for f in {{ data_dir }}/elastic/logs/bootstrap-logs/*.log; do
+          [ -f "$f" ] || continue
+          echo "-- $f --"
+          grep -iE 'exception|error|caused by|invalid|failed|no such file|denied' "$f" \
+            | grep -ivE 'password|secret|token|authorization|bearer|api[_-]?key' \
+            | tail -n 80
+        done
+      register: ece_bootstrap_debug
+      changed_when: false
+      ignore_errors: true
+
+    - name: Show on-disk bootstrap logs
+      ansible.builtin.debug:
+        var: ece_bootstrap_debug.stdout_lines
+
+    - name: Fail after collecting installer diagnostics
+      ansible.builtin.fail:
+        msg: >-
+          ECE primary installation did not complete. See the installer async
+          result and bootstrap logs above for the underlying error.
+
+# If the monitor saw the exit marker but bootstrap-secrets.json was never
+# written, dump credential-filtered bootstrap log context instead of failing
+# later with an opaque "secrets file missing".
+- name: Ensure bootstrap secrets were written
+  ansible.builtin.stat:
+    path: "{{ data_dir }}/elastic/bootstrap-state/bootstrap-secrets.json"
+  register: bootstrap_secrets_stat
+
+- name: Explain missing secrets using bootstrap log
+  when: not bootstrap_secrets_stat.stat.exists
+  block:
+    - name: Collect installer errors from the bootstrap log
+      ansible.builtin.shell: >-
+        grep -iE 'exception|error|caused by|invalid|failed|no such file|denied'
+        {{ data_dir }}/elastic/logs/bootstrap-logs/bootstrap.log
+        | grep -ivE 'password|secret|token|authorization|bearer|api[_-]?key'
+        | tail -n 60
+      register: bootstrap_errors
+      changed_when: false
+      failed_when: false
+
+    - name: Fail without bootstrap secrets
+      ansible.builtin.fail:
+        msg: >-
+          Install finished without bootstrap-secrets.json.
+          Matching log lines: {{ bootstrap_errors.stdout_lines }}
 
 - name: Remember the bootstrap secrets
   command: cat {{ data_dir }}/elastic/bootstrap-state/bootstrap-secrets.json

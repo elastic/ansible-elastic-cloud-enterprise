@@ -10,14 +10,17 @@
     msg: "ERROR: OS {{ ansible_distribution }} {{ ansible_distribution_major_version}} is not supported!"
   when: unsupported_version is defined and unsupported_version
 
+# default(..., true) so an empty string (e.g. docker_version= passed through from
+# an unset CI variable) also falls back to the map default, not just an undefined
+# value.
 - name: Set Docker version
   set_fact:
-    docker_version: "{{ docker_version | default(docker_version_map.keys()|list|last) }}"
+    docker_version: "{{ docker_version | default(docker_version_map.keys()|list|last, true) }}"
   when: container_engine == "Docker"
 
 - name: Set Podman version
   set_fact:
-    podman_version: "{{ podman_version | default(podman_version_map.keys()|list|last) }}"
+    podman_version: "{{ podman_version | default(podman_version_map.keys()|list|last, true) }}"
   when: container_engine == "Podman"
 
 - name: Assert Docker version is supported
@@ -28,8 +31,8 @@
 
 - name: Assert Podman version is supported
   assert:
-    that: "podman_version in podman_version_map.keys()"
-    msg: "Podman version must be one of {{ podman_version_map.keys() }}"
+    that: "podman_version in podman_version_map.keys() or podman_version is match('^[0-9][0-9.]*$')"
+    msg: "Podman version must be one of {{ podman_version_map.keys() }} (latest patch of that major) or an explicit version such as 5.2.3"
   when: container_engine == "Podman"
 
 - name: execute os specific tasks
@@ -47,7 +50,7 @@
   tags: [install_docker, destructive]
   when: container_engine == "Docker"
 - include_tasks: general/configure_podman.yml
-  tags: [install_podman, destructive]
+  tags: [install_podman, install_docker, destructive]
   when: container_engine == "Podman"
 - include_tasks: general/sysctl_scripts.yml
 - include_tasks: general/kernel_modules.yml

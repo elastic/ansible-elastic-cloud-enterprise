@@ -4,12 +4,36 @@ ece_version: 4.1.1
 ece_docker_registry: docker.elastic.co
 ece_docker_repository: cloud-enterprise
 docker_config: ""
+# Directory on the host where the elastic user's Docker registry credentials
+# (config.json) are staged from `docker_config`. ECE reads these to authenticate
+# image pulls, and they are bind-mounted into the runner/allocator containers via
+# the registry-auth container-config mutation so runtime stack-image pulls can
+# authenticate against a private registry. Override only if you install ECE as a
+# user other than `elastic`; the container-side mount target is always
+# /home/elastic/.docker (the elastic user's home inside the ECE images).
+ece_docker_config_dir: /home/elastic/.docker
 podman_config: "templates/podman.conf"
 ece_installer_url: "https://download.elastic.co/cloud/elastic-cloud-enterprise.sh"
 ece_runner_id: "{{ ansible_default_ipv4.address }}"
 
 # Overall setup variables (like package versions)
-device_name: xvdb
+#
+# device_name: block device that will be wiped and turned into the ECE data
+# volume ({{ data_dir }}). This is a DESTRUCTIVE operation, so there is
+# intentionally no default: an install fails fast unless you set it explicitly
+# or opt into auto-detection below. Prefer a stable identifier that survives
+# reboots and hardware changes, e.g. /dev/disk/by-id/nvme-... or a /dev/disk/by-path
+# entry, rather than a kernel name like nvme1n1/sdb (those can be reassigned by
+# the kernel, especially on AWS Nitro/NVMe). Absolute paths are used as-is; a
+# bare name is resolved under /dev/.
+device_name: ""
+# ece_data_device_autodetect: opt-in convenience for hosts that have exactly one
+# unused whole disk (no partitions, not part of any LVM/MD/mapper stack, and no
+# existing filesystem signature via blkid), such as a single blank data volume.
+# When device_name is unset and this is true, the role selects that disk
+# automatically. Left off by default because formatting the wrong disk destroys
+# data.
+ece_data_device_autodetect: false
 data_dir: /mnt/data
 force_xfc: false
 
@@ -38,6 +62,13 @@ fetch_diagnostics: false
 
 # General settings for docker environment
 docker_bridge_ip: "172.17.42.1/16"
+# Default open-file-descriptor (nofile) ulimit applied to every container the
+# Docker daemon starts (soft:hard). ECE's bootstrap and stack containers require
+# a high nofile limit (>= 65536). Docker <= 24 injected a large default (1048576)
+# implicitly, but Docker 25.0 removed that, so containers otherwise inherit the
+# host's 1024 soft limit and ECE's preflight check fails. Matches the host pam
+# limit set in set_limits.yml.
+docker_default_nofile: 1024000
 
 
 # User and group id, uncomment if needed to override.

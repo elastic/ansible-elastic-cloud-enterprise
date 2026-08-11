@@ -3,10 +3,20 @@ bootloader_update_command: grub2-mkconfig -o /etc/grub2.cfg
 conntrack_module: ip_conntrack
 container_engine: Podman
 
-# Podman version mapping
+# Podman version mapping. Package specs are dnf globs so the latest available
+# patch release for the chosen major is installed (matching the ECE docs
+# `dnf install podman-<major>.* podman-remote-<major>.*`). This also avoids the
+# podman 5.2.2-11/5.2.2-13 memory-leak releases, since current Rocky 9 repos ship
+# a later 5.x. Default (last key) is Podman 5, the recommended runtime for new
+# Rocky 9 installs.
 podman_version_map:
-  "4.9.4":
+  "4":
     name: "podman"
     package:
-      - podman-4.9.4
-      - podman-remote-4.9.4
+      - podman-4.*
+      - podman-remote-4.*
+  "5":
+    name: "podman"
+    package:
+      - podman-5.*
+      - podman-remote-5.*

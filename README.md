@@ -62,9 +62,11 @@ For example in many cases you might want to install Elastic Coud Enterprise with
 
 The following variables are avaible:
 
-- `device_name`: The name of the device on which the xfs partition should be created
-    - **Required** unless filesystem tasks are skipped via tags
-    - Default: xvdb
+- `device_name`: The block device that is wiped and turned into the ECE data volume (the xfs partition mounted at `data_dir`)
+    - **Required** (no default) unless `ece_data_device_autodetect` is enabled or the filesystem tasks are skipped via tags. The install fails fast rather than guessing which disk to format.
+    - Prefer a stable identifier that survives reboots/hardware changes, e.g. `/dev/disk/by-id/nvme-...` or a `/dev/disk/by-path/...` entry, instead of a kernel name like `nvme1n1`/`sdb` (those can be reassigned by the kernel, notably on AWS Nitro/NVMe instances). Absolute paths are used as-is; a bare name is resolved under `/dev/`.
+- `ece_data_device_autodetect`: When `true` and `device_name` is unset, automatically select the single whole disk that has no partitions, no holders, and no existing filesystem signature (via `blkid`) — e.g. a lone blank data volume. Disks that already carry a filesystem are skipped so autodetect will not wipe reused volumes; set `device_name` explicitly if you intend to reformat such a disk. Off by default because auto-formatting the wrong disk is destructive.
+    - Default: `false`
 - `ece_primary`: Whether this host should be the primary (first) host where Elastic Cloud Enterprise is installed
     - **Required** on a single host
 - `data_dir`: Which directory to mount the xfs partition under
@@ -85,7 +87,10 @@ The following variables are avaible:
     - This will use the local script if existing in `/home/elastic/elastic-cloud-enterprise.sh`
 - `ece_installer_path`: The location of the installation script on the controller machine. It will be copied to remote host. 
     - Default: left empty, it will download it from internet (cf. `ece_installer_url`)
-- `docker_config`: If specified as a path to a docker config, copies it to the target hosts
+- `docker_config`: Path (on the controller) to a docker `config.json` with registry credentials. When set, it is copied to the host's `ece_docker_config_dir` (owned by `elastic`) so ECE can authenticate image pulls against a private registry. It also enables the registry-auth container-config mutation described in [Private Docker registry authentication](#private-docker-registry-authentication) below. Leave empty (default) for public/unauthenticated registries.
+- `ece_docker_config_dir`: Host directory where the `docker_config` credentials are staged and which is bind-mounted into the runner/allocator containers for runtime pulls.
+    - Default: `/home/elastic/.docker`
+    - Override only if you install ECE as a user other than `elastic`. The container-side mount target is always `/home/elastic/.docker` (the `elastic` user's home inside the ECE images).
 - [Supported Docker Versions](https://www.elastic.co/guide/en/cloud-enterprise/2.7/ece-software-prereq.html#ece-linux-docker)
   - `docker_version`: Last supported version on Centos 7/8 and RHEL 7/8 is 20.0, Ubuntu 16, Ubuntu 18 and SLES 12 is 19.03.
 - `docker_bridge_ip `: The default IP of the docker bridge. Configurable to avoid overlapping with the current host subnet.
@@ -106,6 +111,20 @@ If more hosts should join an Elastic Cloud Enterpise installation when a primary
 - `primary_hostname`: The (reachable) hostname of the primary host
 - `adminconsole_root_password`: The adminconsole root password
 
+
+## Private Docker registry authentication
+
+If you pull ECE and Elastic Stack images from a **private registry that requires authentication**, set `docker_config` to a docker `config.json` containing the credentials. The role then:
+
+1. Stages that `config.json` at `ece_docker_config_dir` (default `/home/elastic/.docker`), owned by `elastic`, and installs ECE with `--docker-registry`. This is the [documented ECE host configuration](https://www.elastic.co/docs/deploy-manage/deploy/cloud-enterprise/configure-host-rhel) and is sufficient for the initial, host-side platform-image pull.
+2. Passes an additional ECE container-config mutation to the installer (`--config-file`, generated from `templates/registry-auth.conf.j2`) that bind-mounts `ece_docker_config_dir` into the long-lived **runner** and **allocator** containers.
+
+Step 2 exists because the host `config.json` is only used for the initial pull; it is **not** visible inside the runner/allocator containers that pull Elastic Stack images (and helper images such as the vacate-data-copier) at runtime. Without the mount, those runtime pulls authenticate anonymously and fail with `PullAccessDenied` against a private registry. The mount lets them reuse the same credentials.
+
+Notes:
+
+- This behaviour is only active when `docker_config` is set. For public or unauthenticated registries (including the common air-gapped setup where images are pre-loaded onto each host, or a mirror without auth), leave `docker_config` empty and neither the credential file nor the mutation is applied.
+- The mutation uses ECE's container-config mutation mechanism, which is an internal ECE facility rather than a documented installer flag, so its exact behaviour may vary between ECE versions.
 
 ## Role Tags
 

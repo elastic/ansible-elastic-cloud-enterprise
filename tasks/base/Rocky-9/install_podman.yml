@@ -3,12 +3,21 @@
   selinux:
     state: disabled
 
+# A podman_version that matches a podman_version_map key installs the latest
+# patch of that major via a dnf glob (e.g. "5" -> podman-5.* / podman-remote-5.*).
+# Any other value is treated as an explicit version so a specific release can be
+# pinned, e.g. podman_version=5.2.3 -> podman-5.2.3* / podman-remote-5.2.3*.
+- name: Resolve Podman packages
+  set_fact:
+    podman_packages: >-
+      {{ podman_version_map[podman_version]['package']
+         if podman_version in podman_version_map
+         else ['podman-' ~ podman_version ~ '*', 'podman-remote-' ~ podman_version ~ '*'] }}
+
 - name: Install Podman
   package:
-    name: "{{ podman_version_map[podman_version]['package'] }}"
+    name: "{{ podman_packages }}"
     state: present
-  loop:
-    - "{{ podman_version_map[podman_version]['package'] }}"
 
 - name: Verify that fs.may_detach_mounts is enabled
   lineinfile:

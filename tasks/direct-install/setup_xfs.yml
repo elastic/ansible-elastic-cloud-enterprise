@@ -1,4 +1,92 @@
 ---
+# Resolve which block device becomes the ECE data volume. Kernel names such as
+# nvme1n1 are not stable (on AWS Nitro the data EBS volume can enumerate as
+# nvme1n1 on one host and nvme2n1 on another, and nvme1n1 may even be the
+# partitioned root disk), so we never guess: use the operator-provided
+# device_name, or an explicitly opted-in single unused disk, and fail otherwise.
+- name: Enumerate candidate unused whole disks
+  set_fact:
+    ece_data_device_candidates: >-
+      {{ ansible_devices | dict2items
+         | rejectattr('key', 'match', '^(loop|sr|dm-|md|fd|ram|zram)')
+         | selectattr('value.partitions', 'equalto', {})
+         | selectattr('value.holders', 'equalto', [])
+         | map(attribute='key') | list }}
+  when:
+    - device_name | default('', true) | length == 0
+    - ece_data_device_autodetect | bool
+
+# Whole-disk filesystems (no partition table) still look "unused" in
+# ansible_devices. Reject anything blkid already recognizes so autodetect does
+# not wipe an existing volume; operators with intentional reuse must set
+# device_name explicitly.
+- name: Probe auto-detect candidates for existing filesystem signatures
+  ansible.builtin.command: blkid /dev/{{ item }}
+  register: ece_data_device_blkid
+  changed_when: false
+  failed_when: false
+  loop: "{{ ece_data_device_candidates }}"
+  when:
+    - device_name | default('', true) | length == 0
+    - ece_data_device_autodetect | bool
+    - ece_data_device_candidates | length > 0
+
+- name: Drop candidates that already have a filesystem signature
+  set_fact:
+    ece_data_device_candidates: >-
+      {{ ece_data_device_blkid.results
+         | selectattr('rc', 'ne', 0)
+         | map(attribute='item')
+         | list }}
+  when:
+    - device_name | default('', true) | length == 0
+    - ece_data_device_autodetect | bool
+    - ece_data_device_blkid is defined
+    - ece_data_device_blkid.results is defined
+
+# Auto-detect is only safe when there is exactly one unused disk. Refuse to pick
+# from several, otherwise we would silently format whichever sorts first -- the
+# same "guess which disk to format" failure this resolution logic exists to
+# prevent. The operator must set device_name explicitly to disambiguate.
+- name: Assert auto-detection found exactly one unused disk
+  assert:
+    that: ece_data_device_candidates | length == 1
+    fail_msg: >-
+      ece_data_device_autodetect found {{ ece_data_device_candidates | length }}
+      candidate unused blank disks ({{ ece_data_device_candidates | join(', ') | default('none', true) }}).
+      Auto-detection only supports exactly one unused whole disk with no
+      existing filesystem signature. Set 'device_name' explicitly (ideally a
+      stable path such as /dev/disk/by-id/nvme-...) to choose which disk backs
+      {{ data_dir }}.
+    success_msg: "Auto-detected the ECE data device: {{ ece_data_device_candidates | first }}."
+  when:
+    - device_name | default('', true) | length == 0
+    - ece_data_device_autodetect | bool
+
+- name: Use the single auto-detected unused disk
+  set_fact:
+    device_name: "{{ ece_data_device_candidates | first }}"
+  when:
+    - device_name | default('', true) | length == 0
+    - ece_data_device_autodetect | bool
+
+- name: Assert the ECE data device is defined
+  assert:
+    that: device_name | default('', true) | length > 0
+    fail_msg: >-
+      No ECE data device configured. Set 'device_name' to the block device that
+      should back {{ data_dir }} (ideally a stable path such as
+      /dev/disk/by-id/nvme-...), or set ece_data_device_autodetect=true when the
+      host has exactly one unused whole disk. Refusing to guess which disk to
+      format.
+    success_msg: "Using '{{ device_name }}' for the ECE data volume ({{ data_dir }})."
+
+# Absolute paths (stable /dev/disk/by-id, /dev/disk/by-path, ...) are used
+# verbatim; a bare kernel name is resolved under /dev/.
+- name: Resolve the ECE data device path
+  set_fact:
+    ece_data_device: "{{ device_name if device_name.startswith('/') else '/dev/' ~ device_name }}"
+
 - name: Make sure {{ data_dir }} exists
   file:
     path: "{{ data_dir }}"
@@ -7,7 +95,7 @@
 - name: Create the volume
   lvg:
     vg: lxc
-    pvs: /dev/{{ device_name }}
+    pvs: "{{ ece_data_device }}"
     force: true
 
 - name: Define size of swap

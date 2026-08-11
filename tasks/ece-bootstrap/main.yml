@@ -13,12 +13,17 @@
     mode: 0755
   when: ece_installer_path is not defined
 
+# ~/.docker/config.json carries the registry credentials needed to pull ECE
+# images. Podman reads it via its auth fallback chain, so provision it for both
+# Docker and Podman whenever a docker_config is supplied.
 - name: Ensure ~/.docker is present
   file:
-    path: /home/elastic/.docker/
+    path: "{{ ece_docker_config_dir }}"
     state: directory
     owner: elastic
-  when: container_engine == "Docker"
+    group: elastic
+    mode: "0700"
+  when: docker_config != ""
 
 - name: Ensure ~/.config/containers/containers.conf is present
   file:
@@ -30,9 +35,24 @@
 - name: Copy local Docker config
   copy:
     src: "{{ docker_config }}"
-    dest: /home/elastic/.docker/config.json
+    dest: "{{ ece_docker_config_dir }}/config.json"
     owner: elastic
-  when: docker_config != "" and container_engine == "Docker"
+    group: elastic
+    mode: "0600"
+  when: docker_config != ""
+
+# The installer only exposes the host docker config for the initial host-side
+# image pull; the long-lived runner/allocator containers that pull images at
+# runtime never see it, so private-registry runtime pulls fail with
+# PullAccessDenied. Stage a container-config mutation that bind-mounts the
+# elastic docker config into those containers and pass it to the installer via
+# --config-file (see install_stack.yml). Only needed when credentials are set.
+- name: Stage registry-auth container-config mutation
+  template:
+    src: registry-auth.conf.j2
+    dest: /home/elastic/registry-auth.conf
+    owner: elastic
+  when: docker_config != ""
 
 - name: Copy local Podman config
   copy:

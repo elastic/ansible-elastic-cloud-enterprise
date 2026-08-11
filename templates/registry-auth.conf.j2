@@ -1,0 +1,50 @@
+# Registry-auth container-config mutation.
+#
+# ECE reads private-registry credentials from a docker config.json, but the
+# installer only mounts that file for the initial host-side image pull -- it is
+# NOT visible inside the long-lived runner/allocator containers that pull images
+# at runtime (e.g. stack images, or the vacate-data-copier during a move). Those
+# runtime pulls therefore fail with PullAccessDenied against private registries
+# unless the credentials are mounted into the containers.
+#
+# This container-config mutation bind-mounts the host's docker config directory
+# ({{ ece_docker_config_dir }}) into the runner and allocator containers so their
+# runtime pulls can authenticate. It is passed to the installer via --config-file
+# and is only staged/used when a docker_config is supplied.
+#
+# The bind is "<host path>" = "<container path>". The host path is
+# ece_docker_config_dir (where the role staged config.json). The container path is
+# always /home/elastic/.docker: inside the ECE images the process runs as the
+# elastic user with HOME=/home/elastic, so it reads $HOME/.docker/config.json
+# regardless of which host user installed ECE.
+#
+# The mutation key MUST be "DEV": ECE's SharedSettings.fromConfig treats every
+# mutation key other than the special "DEV" bucket as a platform version and runs
+# it through PlatformVersion.fromString(...), which fails for an arbitrary name
+# with "No result when parsing failed" and aborts the install. The "DEV" bucket
+# is the version-agnostic mutation that is always applied, which is exactly what
+# we want for a persistent credential bind-mount.
+found.bootstrap.shared.containers.mutations."DEV" {
+  runners.runner {
+    create-payload {
+      HostConfig {
+        Binds {
+          add = {
+            "{{ ece_docker_config_dir }}" = "/home/elastic/.docker"
+          }
+        }
+      }
+    }
+  }
+  allocators.allocator {
+    create-payload {
+      HostConfig {
+        Binds {
+          add = {
+            "{{ ece_docker_config_dir }}" = "/home/elastic/.docker"
+          }
+        }
+      }
+    }
+  }
+}

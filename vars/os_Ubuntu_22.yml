@@ -5,14 +5,26 @@ bootloader_update_command: update-grub
 conntrack_module: xt_conntrack
 container_engine: Docker
 
-# Docker version mapping
+# Docker version mapping. Ubuntu 22.04 is "jammy" (the repo previously pointed at
+# "focal"/20.04). Package specs pin the major via apt globs so the latest patch
+# release is installed. The last key is the default when no docker_version is
+# requested.
 docker_version_map:
   "24.0":
     package:
       - docker-ce=5:24.0.*
       - docker-ce-cli=5:24.0.*
       - containerd.io
-    repo: deb https://download.docker.com/linux/ubuntu focal stable
+    repo: deb https://download.docker.com/linux/ubuntu jammy stable
+    keys:
+      server: https://download.docker.com/linux/ubuntu/gpg
+      id: 0EBFCD88
+  "25.0":
+    package:
+      - docker-ce=5:25.0.*
+      - docker-ce-cli=5:25.0.*
+      - containerd.io
+    repo: deb https://download.docker.com/linux/ubuntu jammy stable
     keys:
       server: https://download.docker.com/linux/ubuntu/gpg
       id: 0EBFCD88
