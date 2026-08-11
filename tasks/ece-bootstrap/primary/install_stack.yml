@@ -81,21 +81,32 @@
           ECE primary installation did not complete. See the installer async
           result and bootstrap logs above for the underlying error.
 
-# Surface any installer errors from the bootstrap log so a failed/aborted
-# install produces an actionable message instead of an opaque "secrets file
-# missing" further down. Filters to error-ish lines and explicitly drops any
-# line that could carry a credential (password/secret/token).
-- name: Surface installer errors from the bootstrap log
-  ansible.builtin.shell: >-
-    grep -iE 'exception|error|caused by|invalid|failed|no such file|denied|config' {{ data_dir }}/elastic/logs/bootstrap-logs/bootstrap.log
-    | grep -ivE 'password|secret|token' | tail -n 60
-  register: bootstrap_errors
-  changed_when: false
-  failed_when: false
+# If the monitor saw the exit marker but bootstrap-secrets.json was never
+# written, dump credential-filtered bootstrap log context instead of failing
+# later with an opaque "secrets file missing".
+- name: Ensure bootstrap secrets were written
+  ansible.builtin.stat:
+    path: "{{ data_dir }}/elastic/bootstrap-state/bootstrap-secrets.json"
+  register: bootstrap_secrets_stat
 
-- name: Show installer errors from the bootstrap log
-  ansible.builtin.debug:
-    var: bootstrap_errors.stdout_lines
+- name: Explain missing secrets using bootstrap log
+  when: not bootstrap_secrets_stat.stat.exists
+  block:
+    - name: Collect installer errors from the bootstrap log
+      ansible.builtin.shell: >-
+        grep -iE 'exception|error|caused by|invalid|failed|no such file|denied'
+        {{ data_dir }}/elastic/logs/bootstrap-logs/bootstrap.log
+        | grep -ivE 'password|secret|token|authorization|bearer|api[_-]?key'
+        | tail -n 60
+      register: bootstrap_errors
+      changed_when: false
+      failed_when: false
+
+    - name: Fail without bootstrap secrets
+      ansible.builtin.fail:
+        msg: >-
+          Install finished without bootstrap-secrets.json.
+          Matching log lines: {{ bootstrap_errors.stdout_lines }}
 
 - name: Remember the bootstrap secrets
   command: cat {{ data_dir }}/elastic/bootstrap-state/bootstrap-secrets.json

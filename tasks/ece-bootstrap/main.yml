@@ -21,6 +21,8 @@
     path: "{{ ece_docker_config_dir }}"
     state: directory
     owner: elastic
+    group: elastic
+    mode: "0700"
   when: docker_config != ""
 
 - name: Ensure ~/.config/containers/containers.conf is present
@@ -35,6 +37,8 @@
     src: "{{ docker_config }}"
     dest: "{{ ece_docker_config_dir }}/config.json"
     owner: elastic
+    group: elastic
+    mode: "0600"
   when: docker_config != ""
 
 # The installer only exposes the host docker config for the initial host-side
