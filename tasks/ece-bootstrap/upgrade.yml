@@ -7,7 +7,12 @@
     --docker-registry {{ ece_docker_registry }} \
     --ece-docker-repository {{ ece_docker_repository }} \
     --user admin \
-    --pass {{ adminconsole_root_password }}
+    --pass {{ adminconsole_root_password }} \
+    {% if container_engine == "Podman" %}
+    --podman \
+    --host-docker-host /run/podman/podman.sock \
+    --force
+    {% endif %}
   become: yes
   become_method: sudo
   become_user: elastic
