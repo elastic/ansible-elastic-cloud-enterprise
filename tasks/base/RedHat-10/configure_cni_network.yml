@@ -1,0 +1,24 @@
+---
+# RHEL 10 ships Podman 5 which default to the netavark network backend.
+# ECE's allocator networking requires the legacy CNI backend, so switch it here.
+# This mirrors the behaviour of the Terraform podman_rhel module and the ECE
+# legacy ce-aws podman_rhel module (RHEL 9/10 CI path).
+- name: Install CNI plugins (required for the cni network backend)
+  package:
+    name: containernetworking-plugins
+    state: present
+
+- name: Ensure /etc/containers/containers.conf exists
+  copy:
+    src: /usr/share/containers/containers.conf
+    dest: /etc/containers/containers.conf
+    remote_src: true
+    force: false
+
+- name: Use the CNI network backend for Podman
+  ini_file:
+    path: /etc/containers/containers.conf
+    section: network
+    option: network_backend
+    value: '"cni"'
+    no_extra_spaces: true

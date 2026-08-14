@@ -1,0 +1,15 @@
+---
+bootloader_update_command: grub2-mkconfig -o /etc/grub2.cfg
+conntrack_module: ip_conntrack
+container_engine: Podman
+
+# Podman version mapping for RHEL 10. CI uses podman-default-5 → podman_version=5.
+# Same major-glob pattern as RHEL/Rocky 9 so the latest available 5.x patch is
+# installed (and known-bad 5.2.2-11/13 memory-leak builds are skipped when a
+# later 5.x is in the repos). Default (only / last key) is Podman 5.
+podman_version_map:
+  "5":
+    name: "podman"
+    package:
+      - podman-5.*
+      - podman-remote-5.*
