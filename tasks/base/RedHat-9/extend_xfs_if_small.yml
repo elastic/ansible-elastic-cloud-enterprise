@@ -1,0 +1,120 @@
+
+---
+# This file will increase the target mount to the minimum required and extend the lvm to match
+
+# Expected variables (with defaults when not provided)
+# target_mount: "/var"
+# min_total_gb: 20
+
+- name: Validate necessary tools exist
+  ansible.builtin.package:
+    name:
+      - lvm2
+      - xfsprogs
+      - util-linux   # for findmnt/lsblk
+    state: present
+
+- name: Find mount information for target
+  ansible.builtin.set_fact:
+    mount_info: "{{ ansible_mounts | selectattr('mount', 'equalto', target_mount) | list | first }}"
+  failed_when: mount_info is not defined
+
+- name: Assert filesystem is XFS
+  ansible.builtin.assert:
+    that:
+      - mount_info.fstype == "xfs"
+    fail_msg: "The target mount {{ target_mount }} is not XFS (found {{ mount_info.fstype }}). This playbook only supports XFS."
+
+
+- name: Compute current and required sizes
+  ansible.builtin.set_fact:
+    fs_total_bytes: "{{ mount_info.size_total | int }}"
+    fs_total_gb: "{{ (mount_info.size_total | int) // (1024**3) }}"
+    min_total_bytes: "{{ min_total_gb * 1024**3 }}"
+
+- name: Show current filesystem total size
+  ansible.builtin.debug:
+    msg: "Mount {{ target_mount }} total size: {{ fs_total_gb }}; required: {{ min_total_gb }} GiB."
+
+
+# ------------------------------
+# Skip all extension work when FS is already large enough
+# ------------------------------
+
+- name: Extend filesystem only when below minimum size
+  block:
+
+    - name: Determine missing size
+      ansible.builtin.set_fact:
+        needed_gb: "{{ (min_total_gb | int) - fs_total_gb | int }}"
+        lv_extend_size: "{{ (min_total_gb | int - fs_total_gb | int) }}g"
+
+    - name: Debug required extension
+      ansible.builtin.debug:
+        msg: "Filesystem needs {{ needed_gb }} GiB more; extending LV by {{ lv_extend_size }}"
+
+    - name: Find underlying block device (LVM LV expected)
+      ansible.builtin.command: "findmnt -n -o SOURCE --target {{ target_mount }}"
+      register: findmnt_src
+      changed_when: false
+
+    - name: Set device path
+      ansible.builtin.set_fact:
+        device_path: "{{ findmnt_src.stdout | trim }}"
+
+    - name: Fail if device is not an LVM logical volume
+      ansible.builtin.fail:
+        msg: "Device {{ device_path }} is not an LVM LV (type={{ dev_type.stdout | trim }}). This play supports only LVM-backed XFS."
+      when: dev_type.stdout is not search("lvm")
+
+    - name: Get LV and VG info for the device
+      ansible.builtin.command: "lvs --noheadings -o vg_name,lv_name,lv_path {{ device_path }}"
+      register: lvs_out
+      changed_when: false
+
+    - name: Parse VG/LV info
+      ansible.builtin.set_fact:
+        vg_name: "{{ (lvs_out.stdout | trim).split()[0] }}"
+        lv_name: "{{ (lvs_out.stdout | trim).split()[1] }}"
+        lv_path: "{{ (lvs_out.stdout | trim).split()[2] | default(device_path) }}"
+
+    - name: Check free space in VG
+      ansible.builtin.command: "vgs --noheadings -o vg_free --units g --nosuffix {{ vg_name }}"
+      register: vg_free_out
+      changed_when: false
+
+    - name: Compute VG free space
+      ansible.builtin.set_fact:
+        vg_free_gb: "{{ vg_free_out.stdout | trim | float }}"
+
+    - name: Fail if VG has insufficient free space
+      ansible.builtin.fail:
+        msg: "VG {{ vg_name }} has only {{ vg_free_gb }} GiB free; required {{ needed_gb }} GiB."
+      when: vg_free_gb < needed_gb
+
+    - name: Extend LV by exactly the missing amount
+      community.general.lvol:
+        vg: "{{ vg_name }}"
+        lv: "{{ lv_name }}"
+        size: "+{{ lv_extend_size }}"
+        resizefs: false
+      register: lv_extend_result
+
+    - name: Grow XFS filesystem
+      ansible.builtin.command: "xfs_growfs {{ target_mount }}"
+      when: lv_extend_result is changed
+
+    - name: Re-gather mount facts to confirm new size
+      ansible.builtin.setup:
+        filter: ansible_mounts
+
+    - name: Report new size
+      ansible.builtin.set_fact:
+        new_mount_info: "{{ ansible_mounts | selectattr('mount', 'equalto', target_mount) | list | first }}"
+
+    - name: Show final result
+      ansible.builtin.debug:
+        msg: "SUCCESS: filesystem grew to {{ (new_mount_info.size_total | int) // (1024**3) }} GiB"
+
+  when: fs_total_bytes < min_total_bytes
+# End block

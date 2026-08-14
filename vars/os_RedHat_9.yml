@@ -1,0 +1,17 @@
+---
+bootloader_update_command: grub2-mkconfig -o /etc/grub2.cfg
+conntrack_module: ip_conntrack
+container_engine: Podman
+
+# Podman version mapping
+podman_version_map:
+  "4.9.4":
+    name: "podman"
+    package:
+      - podman-4.9.4
+      - podman-remote-4.9.4
+
+# Vars so that we can increase the mount point where the docker/podman images are stored
+# This is to prevent and out-of-space issue when doing deployments later on
+target_mount: "/var"
+min_total_gb: 20

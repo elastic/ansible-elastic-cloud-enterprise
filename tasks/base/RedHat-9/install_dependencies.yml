@@ -1,0 +1,12 @@
+---
+- name: Install base dependencies
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+  - lvm2
+  - iptables
+  - sysstat
+  - net-tools
+  - containernetworking-plugins
+  - policycoreutils-python-utils
