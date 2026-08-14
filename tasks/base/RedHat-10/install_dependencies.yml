@@ -1,4 +1,6 @@
 ---
+# RHEL 10 does not ship containernetworking-plugins (CNI). Podman 5 uses
+# netavark by default; do not pull CNI packages that are unavailable / unused.
 - name: Install base dependencies
   package:
     name: "{{ item }}"
@@ -8,5 +10,4 @@
   - iptables
   - sysstat
   - net-tools
-  - containernetworking-plugins
   - policycoreutils-python-utils
