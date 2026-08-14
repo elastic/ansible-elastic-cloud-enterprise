@@ -10,6 +10,14 @@
     msg: "ERROR: OS {{ ansible_distribution }} {{ ansible_distribution_major_version}} is not supported!"
   when: unsupported_version is defined and unsupported_version
 
+- name: Warn when OS support is experimental
+  debug:
+    msg: >-
+      WARNING: {{ ansible_distribution }} {{ ansible_distribution_major_version }}
+      support in this role is EXPERIMENTAL (not yet in the ECE support matrix).
+      Proceeding anyway because ece_os_experimental=true.
+  when: ece_os_experimental | default(false) | bool
+
 # default(..., true) so an empty string (e.g. docker_version= passed through from
 # an unset CI variable) also falls back to the map default, not just an undefined
 # value.

@@ -3,6 +3,11 @@ bootloader_update_command: grub2-mkconfig -o /etc/grub2.cfg
 conntrack_module: ip_conntrack
 container_engine: Podman
 
+# EXPERIMENTAL: RHEL 10 is not yet listed in the ECE support matrix (docs cover
+# RHEL 8/9). Kept in the role so ce-aws CI can exercise the path; do not treat
+# as production-supported until the matrix catches up.
+ece_os_experimental: true
+
 # Podman version mapping for RHEL 10. CI uses podman-default-5 → podman_version=5.
 # Same major-glob pattern as RHEL/Rocky 9 so the latest available 5.x patch is
 # installed (and known-bad 5.2.2-11/13 memory-leak builds are skipped when a
