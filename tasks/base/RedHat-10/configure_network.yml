@@ -14,7 +14,8 @@
     remote_src: true
     force: false
 
-- name: Do not pin network_backend (use RHEL 10 Podman default: netavark)
+# Quote the name: an unquoted "default: netavark" is invalid YAML (colon mapping).
+- name: "Leave network_backend unset so Podman uses RHEL 10 default (netavark)"
   ansible.builtin.lineinfile:
     path: /etc/containers/containers.conf
     regexp: '^\s*network_backend\s*='
