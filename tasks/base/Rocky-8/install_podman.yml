@@ -1,7 +1,9 @@
 ---
-- name: disable SELinux
-  selinux:
-    state: disabled
+- name: Configure SELinux mode for Podman hosts
+  ansible.posix.selinux:
+    state: "{{ ece_selinux_mode }}"
+    policy: "{{ 'targeted' if ece_selinux_mode != 'disabled' else omit }}"
+  when: ece_selinux_mode != "os-default"
 
 # A podman_version that matches a podman_version_map key installs that entry's
 # packages (e.g. "4.9.4" -> the pinned 4.9.4 RPMs). Any other value is treated

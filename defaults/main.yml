@@ -54,6 +54,27 @@ memory:
 # Elastic Cloud Enterprise additional installer arguments
 extra_installer_args: ""
 
+# Host security posture controls.
+# - ece_selinux_mode:
+#   - os-default: leave SELinux mode untouched (distribution default)
+#   - disabled / permissive / enforcing: explicitly set SELinux mode
+# - ece_firewalld_mode:
+#   - os-default: leave firewalld state untouched (distribution default)
+#   - disabled: stop + disable firewalld
+#   - enabled: install/start/enable firewalld and optionally open ports
+# - ece_firewalld_open_ports:
+#   Ports opened when ece_firewalld_mode=enabled. Defaults mirror the
+#   ce-aws SELinux bootstrap path and keep the role migration-compatible.
+ece_selinux_mode: os-default
+ece_firewalld_mode: os-default
+ece_firewalld_open_ports:
+  - 20000/tcp
+  - 21000/tcp
+  - 22000/tcp
+  - 2345/tcp
+  - 4567/tcp
+  - 14000/tcp
+
 
 # Elastic Cloud Enterprise - Support Diagnostics Settings
 ece_supportdiagnostics_url: "https://github.com/elastic/ece-support-diagnostics/archive/v1.3.tar.gz"

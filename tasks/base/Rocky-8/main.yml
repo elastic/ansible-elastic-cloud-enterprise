@@ -1,10 +1,5 @@
 ---
-- name: Disable firewalld
-  ansible.builtin.systemd:
-    name: firewalld
-    state: stopped
-    enabled: no
-  ignore_errors: true
+- ansible.builtin.include_tasks: "{{ role_path }}/tasks/base/general/manage_firewalld.yml"
 
 - ansible.builtin.include_tasks: install_dependencies.yml
 - ansible.builtin.include_tasks: install_podman.yml

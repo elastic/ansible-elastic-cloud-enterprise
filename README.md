@@ -71,6 +71,17 @@ The following variables are avaible:
     - **Required** on a single host
 - `data_dir`: Which directory to mount the xfs partition under
     - Default: `/mnt/data`
+- `ece_selinux_mode`: SELinux mode for host prep.
+    - `os-default` leaves the host's current/default mode unchanged.
+    - `disabled`, `permissive`, or `enforcing` explicitly set SELinux mode.
+    - Default: `os-default`
+- `ece_firewalld_mode`: firewalld behavior for host prep.
+    - `os-default` leaves firewalld untouched.
+    - `disabled` stops+disables firewalld.
+    - `enabled` installs/starts/enables firewalld and opens configured ports.
+    - Default: `os-default`
+- `ece_firewalld_open_ports`: firewalld ports opened when `ece_firewalld_mode=enabled`.
+    - Default: `20000/tcp`, `21000/tcp`, `22000/tcp`, `2345/tcp`, `4567/tcp`, `14000/tcp`
 - `ece_roles`: Elastic Cloud Enterprise roles that successive hosts should assume
     - Default: [director, coordinator, proxy, allocator]
 - `capacity`: [Amount of memory to grant to the allocator](https://www.elastic.co/guide/en/cloud-enterprise/current/ece-manage-capacity.html#ece-alloc-memory)

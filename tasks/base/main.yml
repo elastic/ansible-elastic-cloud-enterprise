@@ -43,6 +43,16 @@
     msg: "Podman version must be one of {{ podman_version_map.keys() }} (latest patch of that major) or an explicit version such as 5.2.3"
   when: container_engine == "Podman"
 
+- name: Assert SELinux mode is supported
+  assert:
+    that: ece_selinux_mode in ["os-default", "disabled", "permissive", "enforcing"]
+    msg: "ece_selinux_mode must be one of: os-default, disabled, permissive, enforcing"
+
+- name: Assert firewalld mode is supported
+  assert:
+    that: ece_firewalld_mode in ["os-default", "disabled", "enabled"]
+    msg: "ece_firewalld_mode must be one of: os-default, disabled, enabled"
+
 - name: execute os specific tasks
   include_tasks: "{{ ansible_distribution }}-{{ ansible_distribution_major_version}}/main.yml"
 

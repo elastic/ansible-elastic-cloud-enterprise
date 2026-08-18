@@ -1,12 +1,5 @@
 ---
-# RHEL 10 cloud AMIs often omit firewalld; ansible-core 2.16+ fails hard if the
-# unit is missing. Treat absence as success (same intent as ignore_errors on 2.9).
-- name: Disable firewalld if present
-  ansible.builtin.systemd:
-    name: firewalld
-    state: stopped
-    enabled: false
-  failed_when: false
+- ansible.builtin.include_tasks: "{{ role_path }}/tasks/base/general/manage_firewalld.yml"
 
 - ansible.builtin.include_tasks: install_dependencies.yml
 - ansible.builtin.include_tasks: install_podman.yml
