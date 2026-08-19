@@ -27,47 +27,27 @@
 - name: Enable lingering for Elastic user
   ansible.builtin.shell: loginctl enable-linger elastic
 
-# Default socket is created with restrictive permissions
-- name: Remove Podman Socket
+# Match the official ECE RHEL Podman host prep: expose a Docker-compatible socket at
+# /var/run/docker.sock so the installer default (and SELinux fcontext rules) work.
+# Both ListenStream= lines are required — the first clears the vendor default.
+- name: Ensure podman.socket drop-in directory exists
   ansible.builtin.file:
-    path: /run/podman
-    state: absent
-    force: true
+    path: /etc/systemd/system/podman.socket.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
 
-- name: Ensure /etc/tmpfiles.d/podman.conf exists
-  ansible.builtin.file:
-    path: /etc/tmpfiles.d/podman.conf
-    state: touch
+- name: Install podman.socket drop-in for /var/run/docker.sock
+  ansible.builtin.copy:
+    src: podman.socket.conf
+    dest: /etc/systemd/system/podman.socket.d/podman.conf
+    owner: root
+    group: root
+    mode: "0644"
 
-# Allows non-root user to interact with root socket    
-- name: Set Podman Socket Dir Permissions
-  ansible.builtin.lineinfile:
-    path: /etc/tmpfiles.d/podman.conf
-    line: d /run/podman 0777 podman podman -
-
-# Allows non-root user to interact with root socket 
-- name: Set Podman Socket Mode
-  ansible.builtin.lineinfile:
-    path: /usr/lib/systemd/system/podman.socket
-    line: SocketMode=0770
-    regexp: ^SocketMode.*
-
-# Allows non-root user to interact with root socket 
-- name: Set Podman Socket ACL
-  ansible.builtin.lineinfile:
-    path: /usr/lib/systemd/system/podman.socket
-    line: "{{ item }}"
-    insertafter: ^SocketMode=.*
-  loop: 
-    - SocketGroup=podman
-    - DirectoryMode=0777
-
-# ECE itself drives Podman over the socket above (installed with
-# `--host-docker-host /run/podman/podman.sock`), so it does not need the `docker`
-# CLI. The ECE Podman docs still require a `/usr/bin/docker` shim, however, so
-# that operators and ECE support/diagnostic tooling can run `docker ...` on the
-# host. Point it at the same rootful socket ECE uses (via podman-remote) so those
-# commands target the containers ECE actually manages, not a rootless podman.
+# ECE uses the installer default HOST_DOCKER_HOST (/var/run/docker.sock). The ECE
+# Podman docs still require a /usr/bin/docker shim for operators and diagnostics.
 - name: Install a docker -> podman shim so `docker` resolves to the ECE Podman socket
   ansible.builtin.copy:
     dest: /usr/bin/docker
@@ -76,7 +56,7 @@
     group: root
     content: |
       #!/bin/bash
-      podman-remote --url unix:///run/podman/podman.sock "$@"
+      podman-remote --url unix:///var/run/docker.sock "$@"
 
 # Not strictly needed, included out of caution for some configurations.
 # Containers spawned should retain elastic's uid
