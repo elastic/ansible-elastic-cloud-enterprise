@@ -6,12 +6,14 @@ conntrack_module: xt_conntrack
 container_engine: Docker
 
 # Docker version mapping
+# NOTE: containerd.io 1.6.21 is the last build published in Docker's bionic apt pool
+# (https://download.docker.com/linux/ubuntu/dists/bionic/pool/stable/amd64/).
 docker_version_map:
   "19.03":
     package:
       - docker-ce=5:19.03.15*
       - docker-ce-cli=5:19.03.15*
-      - containerd.io=1.4.3-1*
+      - containerd.io=1.6.21-1*
     repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable
     keys:
       server: https://download.docker.com/linux/ubuntu/gpg

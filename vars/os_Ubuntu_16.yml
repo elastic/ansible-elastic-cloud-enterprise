@@ -6,12 +6,15 @@ conntrack_module: ip_conntrack
 container_engine: Docker
 
 # Docker version mapping
+# NOTE: Ubuntu 16.04 (xenial) is EOL and Docker's xenial apt pool is frozen;
+# containerd.io 1.4.6 is the last build published for xenial
+# (https://download.docker.com/linux/ubuntu/dists/xenial/pool/stable/amd64/).
 docker_version_map:
   "18.09":
     package:
       - docker-ce=5:18.09.9*
       - docker-ce-cli=5:18.09.9*
-      - containerd.io=1.4.3-1*
+      - containerd.io=1.4.6-1*
     repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
     keys:
       server: https://download.docker.com/linux/ubuntu/gpg
@@ -20,7 +23,7 @@ docker_version_map:
     package:
       - docker-ce=5:19.03.15*
       - docker-ce-cli=5:19.03.15*
-      - containerd.io=1.4.3-1*
+      - containerd.io=1.4.6-1*
     repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
     keys:
       server: https://download.docker.com/linux/ubuntu/gpg
