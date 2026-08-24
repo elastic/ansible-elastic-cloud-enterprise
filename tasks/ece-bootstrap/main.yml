@@ -73,6 +73,15 @@
     state: started
   when: container_engine == "Podman"
 
+- name: Ensure the Podman socket is started
+  systemd:
+    name: podman.socket
+    state: started
+  when: container_engine == "Podman"
+
+- name: Check runtime SELinux mode before install
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/base/general/detect_selinux.yml"
+
 - name: Check if an installation or upgrade should be performed
   shell: '{{ container_engine | lower }} ps -a -f name=frc-runners-runner --format {%raw%}"{{.Image}}"{%endraw%}'
   register: existing_runner

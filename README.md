@@ -8,6 +8,10 @@ Please note that the ECE Ansible playbook is a community project supported by El
 
 This role is tested against Ansible 2.8.7.
 
+Supported container-engine hosts include Ubuntu (Docker), SLES (Docker), Rocky 8/9 (Podman), and RHEL 9 (Podman). RHEL 10 Podman support is experimental (`ece_os_experimental`) and is not yet in the ECE support matrix.
+
+On Podman hosts the role exposes the installer socket at `/var/run/docker.sock` (official ECE RHEL prep). Older revisions of this role used `--host-docker-host /run/podman/podman.sock`. Re-running the role on a cluster installed with that older socket path moves the systemd socket without rewriting existing ECE runner config — do not treat that as a drop-in upgrade.
+
 ## Contents of this role
 
 A minimal example of a [small playbook](https://www.elastic.co/guide/en/cloud-enterprise/current/ece-install-small-cloud.html) might look like this:
@@ -72,16 +76,17 @@ The following variables are avaible:
 - `data_dir`: Which directory to mount the xfs partition under
     - Default: `/mnt/data`
 - `ece_selinux_mode`: SELinux mode for host prep.
-    - `os-default` leaves the host's current/default mode unchanged.
-    - `disabled`, `permissive`, or `enforcing` explicitly set SELinux mode.
-    - Default: `os-default`
+    - `disabled` (default), `permissive`, or `enforcing` explicitly set SELinux mode.
+    - `os-default` leaves the host's current mode unchanged.
+    - Default is `disabled` so a stock RHEL/Rocky host still installs ECE (same as previous Rocky 8/9 role behavior). `disabled` writes `/etc/selinux/config` but does **not** take effect until reboot — the kernel can still be enforcing for this run.
+    - The installer `--selinux` flag is added from `getenforce` (actual runtime mode), not from this knob. Set `ece_selinux_mode=enforcing` when you intend to keep SELinux on.
 - `ece_firewalld_mode`: firewalld behavior for host prep.
+    - `disabled` (default) stops+disables firewalld.
+    - `enabled` installs/starts/enables firewalld and opens `ece_firewalld_open_ports`.
     - `os-default` leaves firewalld untouched.
-    - `disabled` stops+disables firewalld.
-    - `enabled` installs/starts/enables firewalld and opens configured ports.
-    - Default: `os-default`
+    - Default is `disabled` so firewalld does not block a fresh ECE install.
 - `ece_firewalld_open_ports`: firewalld ports opened when `ece_firewalld_mode=enabled`.
-    - Default: `20000/tcp`, `21000/tcp`, `22000/tcp`, `2345/tcp`, `4567/tcp`, `14000/tcp`
+    - Default: empty. This role does not ship an ECE port matrix. If you enable firewalld, set the ports your install needs.
 - `ece_roles`: Elastic Cloud Enterprise roles that successive hosts should assume
     - Default: [director, coordinator, proxy, allocator]
 - `capacity`: [Amount of memory to grant to the allocator](https://www.elastic.co/guide/en/cloud-enterprise/current/ece-manage-capacity.html#ece-alloc-memory)

@@ -16,7 +16,7 @@
     --capacity {{ capacity }}{% endif %}
     {% if container_engine == "Podman" %}
     --podman
-    {% if ece_selinux_mode == "enforcing" and "--selinux" not in extra_installer_args %}
+    {% if ece_selinux_currently_enforcing | default(false) and "--selinux" not in extra_installer_args %}
     --selinux
     {% endif %}
     --force

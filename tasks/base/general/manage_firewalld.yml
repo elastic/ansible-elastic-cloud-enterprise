@@ -1,8 +1,9 @@
 ---
 # Keep firewalld behavior explicit and configurable:
+# - disabled (default): stop + disable
+# - enabled: install + start + enable, then open ece_firewalld_open_ports
 # - os-default: preserve host defaults
-# - disabled: stop + disable
-# - enabled: install + start + enable, then open configured ports
+# Ports are caller-supplied. This role does not ship an ECE port matrix.
 
 - name: Ensure firewalld package is present when explicitly enabled
   ansible.builtin.package:

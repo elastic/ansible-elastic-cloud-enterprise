@@ -30,6 +30,12 @@
 # Match the official ECE RHEL Podman host prep: expose a Docker-compatible socket at
 # /var/run/docker.sock so the installer default (and SELinux fcontext rules) work.
 # Both ListenStream= lines are required — the first clears the vendor default.
+#
+# Upgrade note: older role revisions passed --host-docker-host /run/podman/podman.sock
+# and left ECE runners pointed at that path. Re-running this role on such a host
+# moves the socket to /var/run/docker.sock without rewriting the existing runner
+# config. Fresh installs are fine; existing clusters installed with the old socket
+# need a coordinated follow-up (or keep extra_installer_args with the old path).
 - name: Ensure podman.socket drop-in directory exists
   ansible.builtin.file:
     path: /etc/systemd/system/podman.socket.d
@@ -71,11 +77,22 @@
     - path: /etc/subgid
       line: elastic:100000:65536
 
-- name: Podman daemon is enabled and systemd has read all changes
-  systemd:
-    name: "{{ item }}"
-    enabled: yes
-    daemon_reload: yes
-  loop:
-    - podman.service
-    - podman.socket
+- name: Enable and restart podman.socket so /var/run/docker.sock exists
+  ansible.builtin.systemd:
+    name: podman.socket
+    enabled: true
+    state: restarted
+    daemon_reload: true
+
+- name: Enable the Podman service
+  ansible.builtin.systemd:
+    name: podman.service
+    enabled: true
+    daemon_reload: true
+
+- name: Enable podman-restart so containers survive host reboot
+  ansible.builtin.systemd:
+    name: podman-restart.service
+    enabled: true
+    daemon_reload: true
+  failed_when: false
