@@ -63,8 +63,8 @@ extra_installer_args: ""
 #   - disabled: stop + disable firewalld
 #   - enabled: install/start/enable firewalld and optionally open ports
 # - ece_firewalld_open_ports:
-#   Ports opened when ece_firewalld_mode=enabled. Defaults mirror the
-#   ce-aws SELinux bootstrap path and keep the role migration-compatible.
+#   Ports opened when ece_firewalld_mode=enabled. Override if your
+#   install needs a different set.
 ece_selinux_mode: os-default
 ece_firewalld_mode: os-default
 ece_firewalld_open_ports:

@@ -4,8 +4,7 @@ conntrack_module: ip_conntrack
 container_engine: Podman
 
 # EXPERIMENTAL: RHEL 10 is not yet listed in the ECE support matrix (docs cover
-# RHEL 8/9). Kept in the role so ce-aws CI can exercise the path; do not treat
-# as production-supported until the matrix catches up.
+# RHEL 8/9). Do not treat as production-supported until the matrix catches up.
 #
 # Networking: unlike RHEL/Rocky 9 (CNI required for ECE), RHEL 10 keeps Podman's
 # OS default backend (netavark). containernetworking-plugins is not available.

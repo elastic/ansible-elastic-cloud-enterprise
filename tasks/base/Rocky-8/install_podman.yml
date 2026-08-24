@@ -7,9 +7,8 @@
 
 # A podman_version that matches a podman_version_map key installs that entry's
 # packages (e.g. "4.9.4" -> the pinned 4.9.4 RPMs). Any other value is treated
-# as an explicit version prefix so CI matrix values like podman-4.9 (passed as
-# podman_version=4.9) install podman-4.9* / podman-remote-4.9*, matching the
-# Rocky 9 resolver and the legacy ce-aws shell path (`dnf install podman-4.9*`).
+# as an explicit version prefix so values like podman_version=4.9 install
+# podman-4.9* / podman-remote-4.9*, matching the Rocky 9 resolver.
 - name: Resolve Podman packages
   set_fact:
     podman_packages: >-

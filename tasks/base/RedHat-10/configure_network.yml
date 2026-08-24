@@ -1,8 +1,7 @@
 ---
 # RHEL 10 ships Podman 5 with netavark as the default network backend.
 # Unlike RHEL/Rocky 9 (where ECE still requires CNI), keep the OS default here:
-# containernetworking-plugins is not available on RHEL 10, and our ce-aws
-# Terraform podman_rhel module likewise leaves netavark alone on RHEL 10+.
+# containernetworking-plugins is not available on RHEL 10.
 #
 # Only ensure containers.conf exists and strip any stale network_backend pin
 # (e.g. leftover "cni" from an older image/playbook) so Podman falls back to
