@@ -6,6 +6,7 @@
     backrefs: yes
     regexp: '^(GRUB_CMDLINE_LINUX=\"[^\"]*)(\".*)'
     line: '\1 cgroup_enable=memory swapaccount=1 cgroup.memory=nokmem\2'
+  when: is_nokmem_present.rc == 1
 
 - name: Run bootloader update
   command: "{{ bootloader_update_command }}"
