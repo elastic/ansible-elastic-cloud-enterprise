@@ -16,7 +16,9 @@
     --capacity {{ capacity }}{% endif %}
     {% if container_engine == "Podman" %}
     --podman
-    --host-docker-host /run/podman/podman.sock
+    {% if ece_selinux_currently_enforcing | default(false) | bool and "--selinux" not in extra_installer_args %}
+    --selinux
+    {% endif %}
     --force
     {% endif %}
     {% if docker_config != "" %}

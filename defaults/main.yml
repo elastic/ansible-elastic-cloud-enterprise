@@ -54,6 +54,26 @@ memory:
 # Elastic Cloud Enterprise additional installer arguments
 extra_installer_args: ""
 
+# Host security posture controls.
+# Defaults match the previous Rocky 8/9 role behavior (disable both) so a
+# stock RHEL/Rocky install still bootstraps ECE. Override to keep SELinux
+# enforcing or to manage firewalld yourself.
+# - ece_selinux_mode:
+#   - disabled / permissive / enforcing: explicitly set SELinux mode
+#   - os-default: leave the host's current mode unchanged
+#   The installer --selinux flag is added from getenforce (actual runtime
+#   mode), not from this knob. `disabled` does not take effect until reboot.
+# - ece_firewalld_mode:
+#   - disabled: stop + disable firewalld
+#   - enabled: install/start/enable firewalld and open ece_firewalld_open_ports
+#   - os-default: leave firewalld state untouched
+# - ece_firewalld_open_ports:
+#   Ports opened when ece_firewalld_mode=enabled. Empty by default: this role
+#   does not ship an ECE port matrix. Set the ports your install needs.
+ece_selinux_mode: disabled
+ece_firewalld_mode: disabled
+ece_firewalld_open_ports: []
+
 
 # Elastic Cloud Enterprise - Support Diagnostics Settings
 ece_supportdiagnostics_url: "https://github.com/elastic/ece-support-diagnostics/archive/v1.3.tar.gz"

@@ -1,0 +1,31 @@
+---
+# Keep firewalld behavior explicit and configurable:
+# - disabled (default): stop + disable
+# - enabled: install + start + enable, then open ece_firewalld_open_ports
+# - os-default: preserve host defaults
+# Ports are caller-supplied. This role does not ship an ECE port matrix.
+
+- name: Ensure firewalld package is present when explicitly enabled
+  ansible.builtin.package:
+    name: firewalld
+    state: present
+  when: ece_firewalld_mode == "enabled"
+
+- name: Manage firewalld service state
+  ansible.builtin.systemd:
+    name: firewalld
+    state: "{{ 'stopped' if ece_firewalld_mode == 'disabled' else 'started' }}"
+    enabled: "{{ ece_firewalld_mode == 'enabled' }}"
+  when: ece_firewalld_mode in ["disabled", "enabled"]
+  failed_when: false
+
+- name: Open configured firewalld ports for ECE
+  ansible.posix.firewalld:
+    port: "{{ item }}"
+    permanent: true
+    immediate: true
+    state: enabled
+  loop: "{{ ece_firewalld_open_ports }}"
+  when:
+    - ece_firewalld_mode == "enabled"
+    - ece_firewalld_open_ports | length > 0

@@ -10,6 +10,14 @@
     msg: "ERROR: OS {{ ansible_distribution }} {{ ansible_distribution_major_version}} is not supported!"
   when: unsupported_version is defined and unsupported_version
 
+- name: Warn when OS support is experimental
+  debug:
+    msg: >-
+      WARNING: {{ ansible_distribution }} {{ ansible_distribution_major_version }}
+      support in this role is EXPERIMENTAL. Proceeding anyway because
+      ece_os_experimental=true.
+  when: ece_os_experimental | default(false) | bool
+
 # default(..., true) so an empty string (e.g. docker_version= passed through from
 # an unset CI variable) also falls back to the map default, not just an undefined
 # value.
@@ -34,6 +42,16 @@
     that: "podman_version in podman_version_map.keys() or podman_version is match('^[0-9][0-9.]*$')"
     msg: "Podman version must be one of {{ podman_version_map.keys() }} (latest patch of that major) or an explicit version such as 5.2.3"
   when: container_engine == "Podman"
+
+- name: Assert SELinux mode is supported
+  assert:
+    that: ece_selinux_mode in ["os-default", "disabled", "permissive", "enforcing"]
+    msg: "ece_selinux_mode must be one of: os-default, disabled, permissive, enforcing"
+
+- name: Assert firewalld mode is supported
+  assert:
+    that: ece_firewalld_mode in ["os-default", "disabled", "enabled"]
+    msg: "ece_firewalld_mode must be one of: os-default, disabled, enabled"
 
 - name: execute os specific tasks
   include_tasks: "{{ ansible_distribution }}-{{ ansible_distribution_major_version}}/main.yml"

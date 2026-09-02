@@ -1,0 +1,23 @@
+---
+# RHEL 9 (and Rocky 9) ship Podman 4/5 which default to the netavark network backend.
+# ECE's allocator networking requires the legacy CNI backend, so switch it here.
+# This matches the ECE on-prem docs for Podman on RHEL 9.
+- name: Install CNI plugins (required for the cni network backend)
+  package:
+    name: containernetworking-plugins
+    state: present
+
+- name: Ensure /etc/containers/containers.conf exists
+  copy:
+    src: /usr/share/containers/containers.conf
+    dest: /etc/containers/containers.conf
+    remote_src: true
+    force: false
+
+- name: Use the CNI network backend for Podman
+  ini_file:
+    path: /etc/containers/containers.conf
+    section: network
+    option: network_backend
+    value: '"cni"'
+    no_extra_spaces: true

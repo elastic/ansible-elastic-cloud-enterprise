@@ -5,10 +5,10 @@
     policy: "{{ 'targeted' if ece_selinux_mode != 'disabled' else omit }}"
   when: ece_selinux_mode != "os-default"
 
-# A podman_version that matches a podman_version_map key installs that entry's
-# packages (e.g. "4.9.4" -> the pinned 4.9.4 RPMs). Any other value is treated
-# as an explicit version prefix so values like podman_version=4.9 install
-# podman-4.9* / podman-remote-4.9*, matching the Rocky 9 resolver.
+# A podman_version that matches a podman_version_map key installs the latest
+# patch of that major via a dnf glob (e.g. "5" -> podman-5.* / podman-remote-5.*).
+# Any other value is treated as an explicit version so a specific release can be
+# pinned, e.g. podman_version=5.2.3 -> podman-5.2.3* / podman-remote-5.2.3*.
 - name: Resolve Podman packages
   set_fact:
     podman_packages: >-
@@ -20,6 +20,16 @@
   package:
     name: "{{ podman_packages }}"
     state: present
+
+# Vendor storage.conf on RHEL 10+ lives under /usr/share until containers-common
+# (pulled in by Podman) is installed. Copy after the package so the source exists;
+# later graphroot edits (configure_podman) need a real /etc file.
+- name: Ensure /etc/containers/storage.conf exists
+  copy:
+    src: /usr/share/containers/storage.conf
+    dest: /etc/containers/storage.conf
+    remote_src: true
+    force: false
 
 - name: Verify that fs.may_detach_mounts is enabled
   lineinfile:

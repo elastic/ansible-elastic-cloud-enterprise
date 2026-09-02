@@ -1,0 +1,14 @@
+---
+# Official ECE docs require --selinux whenever the host is actually enforcing.
+# ansible.posix.selinux writes /etc/selinux/config immediately, but `disabled`
+# does not take effect until reboot — getenforce can still return Enforcing.
+# Always decide from runtime state, not from ece_selinux_mode.
+- name: Check runtime SELinux mode
+  ansible.builtin.command: getenforce
+  register: ece_getenforce
+  changed_when: false
+  failed_when: false
+
+- name: Record whether the host is actually enforcing
+  ansible.builtin.set_fact:
+    ece_selinux_currently_enforcing: "{{ (ece_getenforce.stdout | default('') | trim) == 'Enforcing' }}"
