@@ -16,19 +16,20 @@
          if podman_version in podman_version_map
          else ['podman-' ~ podman_version ~ '*', 'podman-remote-' ~ podman_version ~ '*'] }}
 
-# Vendor storage.conf on RHEL 10+ often lives only under /usr/share; copy it so
-# later graphroot edits (configure_podman) land on a full defaults file.
+- name: Install Podman
+  package:
+    name: "{{ podman_packages }}"
+    state: present
+
+# Vendor storage.conf on RHEL 10+ lives under /usr/share until containers-common
+# (pulled in by Podman) is installed. Copy after the package so the source exists;
+# later graphroot edits (configure_podman) need a real /etc file.
 - name: Ensure /etc/containers/storage.conf exists
   copy:
     src: /usr/share/containers/storage.conf
     dest: /etc/containers/storage.conf
     remote_src: true
     force: false
-
-- name: Install Podman
-  package:
-    name: "{{ podman_packages }}"
-    state: present
 
 - name: Verify that fs.may_detach_mounts is enabled
   lineinfile:
