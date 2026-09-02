@@ -14,8 +14,8 @@
   debug:
     msg: >-
       WARNING: {{ ansible_distribution }} {{ ansible_distribution_major_version }}
-      support in this role is EXPERIMENTAL (not yet in the ECE support matrix).
-      Proceeding anyway because ece_os_experimental=true.
+      support in this role is EXPERIMENTAL. Proceeding anyway because
+      ece_os_experimental=true.
   when: ece_os_experimental | default(false) | bool
 
 # default(..., true) so an empty string (e.g. docker_version= passed through from
