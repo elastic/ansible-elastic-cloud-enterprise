@@ -74,6 +74,14 @@ ece_selinux_mode: disabled
 ece_firewalld_mode: disabled
 ece_firewalld_open_ports: []
 
+# Optional dual-stack default network on Podman hosts (IPv6). Off by default.
+# When true, the role creates ece_podman_network_name with both subnets and
+# sets it as Podman's default_network before ECE is installed.
+ece_podman_ipv6_network: false
+ece_podman_network_name: ece-network
+ece_podman_network_ipv4_subnet: "10.89.0.0/24"
+ece_podman_network_ipv6_subnet: "fd00:10:89::/64"
+
 
 # Elastic Cloud Enterprise - Support Diagnostics Settings
 ece_supportdiagnostics_url: "https://github.com/elastic/ece-support-diagnostics/archive/v1.3.tar.gz"

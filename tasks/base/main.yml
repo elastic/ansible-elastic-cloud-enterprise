@@ -18,6 +18,27 @@
       ece_os_experimental=true.
   when: ece_os_experimental | default(false) | bool
 
+# RHEL 8/9 ship both Docker and Podman maps. Pick the engine from the version
+# extra-var the caller actually set. Empty strings (CI passing docker_version=
+# or podman_version=) are ignored. A docker_version that starts with "podman"
+# is a CI env label (e.g. podman-default-4), not a Docker release.
+# If both a real podman_version and a real docker_version are set, Podman wins.
+- name: Select Podman when a version is requested and this OS supports it
+  set_fact:
+    container_engine: Podman
+  when:
+    - podman_version | default('') | string | length > 0
+    - podman_version_map is defined
+
+- name: Select Docker when a version is requested and this OS supports it
+  set_fact:
+    container_engine: Docker
+  when:
+    - docker_version | default('') | string | length > 0
+    - docker_version is not match('^podman')
+    - docker_version_map is defined
+    - not (podman_version | default('') | string | length > 0 and podman_version_map is defined)
+
 # default(..., true) so an empty string (e.g. docker_version= passed through from
 # an unset CI variable) also falls back to the map default, not just an undefined
 # value.
@@ -70,6 +91,11 @@
 - include_tasks: general/configure_podman.yml
   tags: [install_podman, install_docker, destructive]
   when: container_engine == "Podman"
+- include_tasks: general/configure_podman_ipv6_network.yml
+  tags: [install_podman, install_docker, destructive]
+  when:
+    - container_engine == "Podman"
+    - ece_podman_ipv6_network | default(false) | bool
 - include_tasks: general/sysctl_scripts.yml
 - include_tasks: general/kernel_modules.yml
 

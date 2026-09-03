@@ -3,6 +3,8 @@ docker_unit_after: "multi-user.target"
 docker_storage_driver: overlay2
 bootloader_update_command: grub2-mkconfig -o /etc/grub2.cfg
 conntrack_module: ip_conntrack
+# Default stays Docker so existing RHEL 8 Docker installs keep working.
+# Set podman_version (and leave docker_version empty / podman-*) to use Podman.
 container_engine: Docker
 
 # Docker version mapping
@@ -27,3 +29,12 @@ docker_version_map:
     keys:
       server: https://download.docker.com/linux/centos/gpg
       id: 060A 61C5 1B55 8A7F 742B 77AA C52F EB6B 621E 9F35
+
+# Podman version mapping. Same major-glob pattern as RHEL 9: "4" installs the
+# latest available 4.x from the RHEL 8 repos.
+podman_version_map:
+  "4":
+    name: "podman"
+    package:
+      - podman-4.*
+      - podman-remote-4.*

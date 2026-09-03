@@ -1,0 +1,79 @@
+---
+- name: Configure SELinux mode for Docker hosts
+  ansible.posix.selinux:
+    state: "{{ ece_selinux_mode }}"
+    policy: "{{ 'targeted' if ece_selinux_mode != 'disabled' else omit }}"
+  when: ece_selinux_mode != "os-default"
+
+- name: Remove conflicting container engines
+  package:
+    name: "{{ packages }}"
+    state: absent
+  vars:
+    packages:
+    - docker
+    - docker-ce
+    - podman
+    - podman-remote
+  register: remove_packages
+  retries: 10
+  delay: 30
+  until: remove_packages is success
+
+- name: Add Docker GPG Key
+  rpm_key:
+    key: "{{ docker_version_map[docker_version]['keys']['server'] }}"
+    state: present
+
+- name: Add Docker CE repository
+  command: dnf config-manager --add-repo="{{ docker_version_map[docker_version]['repo'] }}"
+  args:
+    creates: /etc/yum.repos.d/docker-ce.repo
+  register: repo_installed
+  retries: 10
+  delay: 30
+  until: repo_installed is success
+
+- name: Install docker
+  package:
+    name: "{{ docker_version_map[docker_version]['package'] }}"
+    state: present
+
+- name: Verify that fs.may_detach_mounts is enabled
+  lineinfile:
+    path: /etc/sysctl.conf
+    regexp: '^fs.may_detach_mounts'
+    line: 'fs.may_detach_mounts = 1'
+    create: yes
+
+# Docker 28+ needs ip_set for iptables port publishing. ECE's allocator talks
+# to the ip_tables kernel API (libiptc) even when the host userspace is nft.
+- name: Load iptables compatibility modules for Docker and ECE
+  copy:
+    dest: "/etc/modules-load.d/{{ item }}.conf"
+    content: "{{ item }}\n"
+  loop:
+    - ip_set
+    - ip_tables
+    - iptable_nat
+    - iptable_filter
+
+- name: Ensure iptables compatibility modules are loaded now
+  modprobe:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - ip_set
+    - ip_tables
+    - iptable_nat
+    - iptable_filter
+  failed_when: false
+
+- name: Point iptables alternatives at nft
+  alternatives:
+    name: "{{ item.name }}"
+    path: "{{ item.path }}"
+  loop:
+    - { name: iptables, path: /usr/sbin/iptables-nft }
+    - { name: ip6tables, path: /usr/sbin/ip6tables-nft }
+  failed_when: false

@@ -12,13 +12,85 @@
   delay: 30
   until: remove_packages is success
 
-- name: Install docker
+- name: Install docker from the SLES zypper package
   command: "zypper install -y --force-resolution --replacefiles {{ docker_version_map[docker_version]['package'] }} acl"
   args:
     warn: false
+  when: docker_version_map[docker_version]['method'] | default('zypper') == 'zypper'
+
+- name: Install docker from the official static tarball
+  when: docker_version_map[docker_version]['method'] | default('zypper') == 'static'
+  block:
+    - name: Install static-docker runtime dependencies
+      zypper:
+        name: "{{ packages }}"
+        state: present
+      vars:
+        packages:
+        - runc
+        - containerd
+        - fuse-overlayfs
+        - slirp4netns
+        - libseccomp2
+        - iptables
+        - acl
+      register: static_deps
+      retries: 10
+      delay: 30
+      until: static_deps is success
+
+    - name: Download Docker static binary tarball
+      get_url:
+        url: "https://download.docker.com/linux/static/stable/{{ ansible_architecture }}/docker-{{ docker_version_map[docker_version]['tarball_version'] }}.tgz"
+        dest: "/tmp/docker-{{ docker_version_map[docker_version]['tarball_version'] }}.tgz"
+        mode: "0644"
+
+    - name: Extract Docker static binaries into /usr/bin
+      unarchive:
+        src: "/tmp/docker-{{ docker_version_map[docker_version]['tarball_version'] }}.tgz"
+        dest: /usr/bin
+        remote_src: true
+        extra_opts:
+          - --strip-components=1
+
+    - name: Install systemd unit for static dockerd
+      copy:
+        dest: /etc/systemd/system/docker.service
+        mode: "0644"
+        owner: root
+        group: root
+        content: |
+          [Unit]
+          Description=Docker Application Container Engine
+          Documentation=https://docs.docker.com
+          After=network-online.target firewalld.service
+          Wants=network-online.target
+
+          [Service]
+          Type=notify
+          ExecStart=/usr/bin/dockerd
+          ExecReload=/bin/kill -s HUP $MAINPID
+          TimeoutSec=0
+          RestartSec=2
+          Restart=always
+          LimitNOFILE=infinity
+          LimitNPROC=infinity
+          LimitCORE=infinity
+          TasksMax=infinity
+          Delegate=yes
+          KillMode=process
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Enable docker service unit
+      systemd:
+        name: docker
+        enabled: yes
+        daemon_reload: yes
 
 # Workaround for https://github.com/elastic/ansible-elastic-cloud-enterprise/issues/155#issuecomment-1117069430
-- name: Uninstall nscd 
+- name: Uninstall nscd
   zypper:
     name: nscd
     state: absent

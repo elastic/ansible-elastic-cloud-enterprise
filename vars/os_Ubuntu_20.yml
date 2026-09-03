@@ -5,12 +5,23 @@ bootloader_update_command: update-grub
 conntrack_module: xt_conntrack
 container_engine: Docker
 
-# Docker version mapping
+# Docker version mapping. The last key is the default when no docker_version
+# is requested. "27.0" is the ECE matrix label for Docker 27.x (27.5.1 today);
+# the apt glob is 27.* so a later 27.x patch is installed.
 docker_version_map:
   "20.10":
     package:
       - docker-ce=5:20.10.14*
       - docker-ce-cli=5:20.10.14*
+      - containerd.io
+    repo: deb https://download.docker.com/linux/ubuntu focal stable
+    keys:
+      server: https://download.docker.com/linux/ubuntu/gpg
+      id: 0EBFCD88
+  "27.0":
+    package:
+      - docker-ce=5:27.*
+      - docker-ce-cli=5:27.*
       - containerd.io
     repo: deb https://download.docker.com/linux/ubuntu focal stable
     keys:
