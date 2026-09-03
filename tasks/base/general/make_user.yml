@@ -23,16 +23,21 @@
     cacheable: true
   when: ansible_user == "elastic"
 
+# Matches the official host-prep docs: `groupadd elastic` / `groupadd docker|podman`
+# then `useradd -g elastic -G docker|podman elastic` (no pinned uid/gid) and
+# `elastic ALL=(ALL) NOPASSWD:ALL` in /etc/sudoers.d/99-ece-users.
+# Only pin uid/gid when the caller sets elastic_uid / elastic_gid (or when
+# ansible_user is already `elastic`, so we adopt that account).
 - name: Add group elastic
   group:
-    name:  elastic
+    name: elastic
     state: present
-    gid: "{{ elastic_gid | default(1234) }}"
+    gid: "{{ elastic_gid | default(omit) }}"
   when: "'elastic' not in ansible_facts.getent_group"
 
 - name: Add group {{ container_engine }}
   group:
-    name:  "{{ container_engine | lower }}"
+    name: "{{ container_engine | lower }}"
     state: present
   when: container_engine | lower not in ansible_facts.getent_group
 
@@ -41,7 +46,7 @@
     name: elastic
     group: elastic
     groups: "{{ container_engine | lower }}"
-    uid: "{{ elastic_uid | default(1234) }}"
+    uid: "{{ elastic_uid | default(omit) }}"
     append: yes
     state: present
     generate_ssh_key: true

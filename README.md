@@ -8,7 +8,7 @@ Please note that the ECE Ansible playbook is a community project supported by El
 
 This role is tested against Ansible 2.8.7.
 
-Supported container-engine hosts include Ubuntu (Docker), SLES (Docker), Rocky 8/9 (Podman), and RHEL 9 (Podman). RHEL 10 Podman support is experimental in this role (`ece_os_experimental`) and is not listed in Galaxy yet.
+Supported container-engine hosts include Ubuntu 20.04/22.04/24.04 (Docker), SLES 15 (Docker), Rocky 8/9 (Podman), RHEL 8 (Docker or Podman), and RHEL 9 (Podman, or Docker 29). RHEL 10 Podman support is experimental in this role (`ece_os_experimental`) and is not listed in Galaxy yet.
 
 On Podman hosts the role exposes the installer socket at `/var/run/docker.sock` (official ECE RHEL prep). Older revisions of this role used `--host-docker-host /run/podman/podman.sock`. Re-running the role on a cluster installed with that older socket path moves the systemd socket without rewriting existing ECE runner config — do not treat that as a drop-in upgrade.
 
@@ -87,6 +87,11 @@ The following variables are avaible:
     - Default is `disabled` so firewalld does not block a fresh ECE install.
 - `ece_firewalld_open_ports`: firewalld ports opened when `ece_firewalld_mode=enabled`.
     - Default: empty. This role does not ship an ECE port matrix. If you enable firewalld, set the ports your install needs.
+- `ece_podman_ipv6_network`: When `true` on a Podman host, create a dual-stack default network (`ece_podman_network_name`) so ECE containers get an IPv6 address.
+    - Default: `false`
+- `ece_podman_network_name`: Name of the optional dual-stack Podman network.
+    - Default: `ece-network`
+- `ece_podman_network_ipv4_subnet` / `ece_podman_network_ipv6_subnet`: Subnets used when `ece_podman_ipv6_network` is true.
 - `ece_roles`: Elastic Cloud Enterprise roles that successive hosts should assume
     - Default: [director, coordinator, proxy, allocator]
 - `capacity`: [Amount of memory to grant to the allocator](https://www.elastic.co/guide/en/cloud-enterprise/current/ece-manage-capacity.html#ece-alloc-memory)

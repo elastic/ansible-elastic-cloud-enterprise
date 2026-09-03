@@ -1,0 +1,47 @@
+---
+# As per https://docs.docker.com/engine/install/ubuntu/#uninstall-old-versions
+# Ubuntu 24 removed apt-key; install the Docker signing key into /etc/apt/keyrings
+# and reference it from the repo line (signed-by=).
+- name: Remove docker
+  package:
+    name: "{{ packages }}"
+    state: absent
+  vars:
+    packages:
+    - docker.io
+    - docker-doc
+    - docker-compose
+    - docker-compose-v2
+    - podman-docker
+    - containerd
+    - runc
+  register: remove_packages
+  retries: 10
+  delay: 30
+  until: remove_packages is success
+
+- name: Ensure apt keyrings directory exists
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: "0755"
+
+- name: Add docker repository key
+  get_url:
+    url: "{{ docker_version_map[docker_version]['keys']['server'] }}"
+    dest: "{{ docker_version_map[docker_version]['keys']['dest'] }}"
+    mode: "0644"
+
+- name: Add docker repository
+  apt_repository:
+    repo: "{{ docker_version_map[docker_version]['repo'] }}"
+    state: present
+
+- name: Install docker
+  apt:
+    name: "{{ docker_version_map[docker_version]['package'] }}"
+    update_cache: yes
+    state: present
+
+- name: Pin docker-engine packet
+  shell: echo "docker-engine hold" | sudo dpkg --set-selections

@@ -28,3 +28,22 @@
   file:
     path: /etc/security/limits.d/20-nproc.conf
     state: absent
+
+# systemd 252+ (RHEL 9, Ubuntu 24) compiles in DefaultLimitNOFILE=1024, which
+# overrides limits.conf for SSH sessions and systemd-managed services. ECE's
+# preflight check requires nofile >= 65536. A drop-in raises the default for
+# every service, including docker/podman and ssh@.service.
+- name: Ensure systemd system.conf.d exists
+  file:
+    path: /etc/systemd/system.conf.d
+    state: directory
+    mode: "0755"
+
+- name: Raise systemd DefaultLimitNOFILE for ECE
+  copy:
+    dest: /etc/systemd/system.conf.d/99-elastic-nofile.conf
+    mode: "0644"
+    content: |
+      [Manager]
+      DefaultLimitNOFILE=1024000
+
