@@ -99,6 +99,7 @@ docker_bridge_ip: "172.17.42.1/16"
 docker_default_nofile: 1024000
 
 
-# User and group id, uncomment if needed to override.
-# elastic_uid: 1234
-# elastic_gid: 1234
+# Optional. Official docs use `useradd` without -u/-g so the OS assigns
+# UID/GID >= 1000. Set these only to pin a specific id.
+# elastic_uid:
+# elastic_gid:
