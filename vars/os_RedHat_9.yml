@@ -3,12 +3,12 @@ bootloader_update_command: grub2-mkconfig -o /etc/grub2.cfg
 conntrack_module: ip_conntrack
 docker_unit_after: "multi-user.target"
 docker_storage_driver: overlay2
-# Default stays Podman (the supported RHEL 9 ECE path). Set docker_version to a
-# Docker release (e.g. 29.0) to install Docker CE instead.
+# Default stays Podman (the supported RHEL 9 ECE path). Set docker_version to a Docker release
+# (e.g. 29.0) to install Docker CE instead.
 container_engine: Podman
 
-# Docker version mapping. "29.0" is the ECE matrix label for Docker 29.x;
-# the dnf glob is 29* so a later 29.x patch is installed.
+# Docker version mapping. "29.0" is the ECE matrix label for Docker 29.x; the dnf glob is 29* so a
+# later 29.x patch is installed.
 docker_version_map:
   "29.0":
     name: 'Docker-CE'

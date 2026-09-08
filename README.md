@@ -87,11 +87,13 @@ The following variables are avaible:
     - Default is `disabled` so firewalld does not block a fresh ECE install.
 - `ece_firewalld_open_ports`: firewalld ports opened when `ece_firewalld_mode=enabled`.
     - Default: empty. This role does not ship an ECE port matrix. If you enable firewalld, set the ports your install needs.
-- `ece_podman_ipv6_network`: When `true` on a Podman host, create a dual-stack default network (`ece_podman_network_name`) so ECE containers get an IPv6 address.
+- `ece_podman_ipv6_network`: When `true` on a Podman host, create a dual-stack default network
+  (`ece_podman_network_name`) so ECE containers get an IPv6 address.
     - Default: `false`
 - `ece_podman_network_name`: Name of the optional dual-stack Podman network.
     - Default: `ece-network`
-- `ece_podman_network_ipv4_subnet` / `ece_podman_network_ipv6_subnet`: Subnets used when `ece_podman_ipv6_network` is true.
+- `ece_podman_network_ipv4_subnet` / `ece_podman_network_ipv6_subnet`: Subnets used when
+  `ece_podman_ipv6_network` is true.
 - `ece_roles`: Elastic Cloud Enterprise roles that successive hosts should assume
     - Default: [director, coordinator, proxy, allocator]
 - `capacity`: [Amount of memory to grant to the allocator](https://www.elastic.co/guide/en/cloud-enterprise/current/ece-manage-capacity.html#ece-alloc-memory)

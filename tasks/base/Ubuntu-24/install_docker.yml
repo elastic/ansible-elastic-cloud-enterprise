@@ -1,7 +1,7 @@
 ---
 # As per https://docs.docker.com/engine/install/ubuntu/#uninstall-old-versions
-# Ubuntu 24 removed apt-key; install the Docker signing key into /etc/apt/keyrings
-# and reference it from the repo line (signed-by=).
+# Ubuntu 24 removed apt-key; install the Docker signing key into /etc/apt/keyrings and reference it
+# from the repo line (signed-by=).
 - name: Remove docker
   package:
     name: "{{ packages }}"

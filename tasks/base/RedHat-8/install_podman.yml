@@ -5,10 +5,10 @@
     policy: "{{ 'targeted' if ece_selinux_mode != 'disabled' else omit }}"
   when: ece_selinux_mode != "os-default"
 
-# A podman_version that matches a podman_version_map key installs the latest
-# patch of that major via a dnf glob (e.g. "4" -> podman-4.* / podman-remote-4.*).
-# Any other value is treated as an explicit version so a specific release can be
-# pinned, e.g. podman_version=4.9.4 -> podman-4.9.4* / podman-remote-4.9.4*.
+# A podman_version that matches a podman_version_map key installs the latest patch of that major
+# via a dnf glob (e.g. "4" -> podman-4.* / podman-remote-4.*). Any other value is treated as an
+# explicit version so a specific release can be pinned, e.g. podman_version=4.9.4 ->
+# podman-4.9.4* / podman-remote-4.9.4*.
 - name: Resolve Podman packages
   set_fact:
     podman_packages: >-

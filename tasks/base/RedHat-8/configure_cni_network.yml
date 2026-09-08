@@ -1,6 +1,6 @@
 ---
-# RHEL 8 Podman uses the CNI network backend. Install the plugins and pin
-# network_backend so ECE allocator networking matches the on-prem docs.
+# RHEL 8 Podman uses the CNI network backend. Install the plugins and pin network_backend so ECE
+# allocator networking matches the on-prem docs.
 - name: Install CNI plugins (required for the cni network backend)
   package:
     name: containernetworking-plugins

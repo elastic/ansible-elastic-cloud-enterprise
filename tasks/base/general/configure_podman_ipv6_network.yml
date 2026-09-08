@@ -1,8 +1,7 @@
 ---
-# Optional dual-stack default network for Podman hosts that need IPv6.
-# Off by default. When ece_podman_ipv6_network is true the role creates
-# ece_podman_network_name with both an IPv4 and IPv6 subnet and makes it
-# Podman's default so ECE containers get an IPv6 address.
+# Optional dual-stack default network for Podman hosts that need IPv6. Off by default. When
+# ece_podman_ipv6_network is true the role creates ece_podman_network_name with both an IPv4 and
+# IPv6 subnet and makes it Podman's default so ECE containers get an IPv6 address.
 - name: Check whether the Podman IPv6 network already exists
   command: podman network exists {{ ece_podman_network_name }}
   register: ece_podman_network_exists

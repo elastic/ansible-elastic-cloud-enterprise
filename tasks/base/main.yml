@@ -18,11 +18,10 @@
       ece_os_experimental=true.
   when: ece_os_experimental | default(false) | bool
 
-# RHEL 8/9 ship both Docker and Podman maps. Pick the engine from the version
-# extra-var the caller actually set. Empty strings (CI passing docker_version=
-# or podman_version=) are ignored. A docker_version that starts with "podman"
-# is a CI env label (e.g. podman-default-4), not a Docker release.
-# If both a real podman_version and a real docker_version are set, Podman wins.
+# RHEL 8/9 ship both Docker and Podman maps. Pick the engine from the version extra-var the caller
+# actually set. Empty strings (CI passing docker_version= or podman_version=) are ignored. A
+# docker_version that starts with "podman" is a CI env label (e.g. podman-default-4), not a Docker
+# release. If both a real podman_version and a real docker_version are set, Podman wins.
 - name: Select Podman when a version is requested and this OS supports it
   set_fact:
     container_engine: Podman

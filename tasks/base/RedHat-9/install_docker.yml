@@ -46,8 +46,8 @@
     line: 'fs.may_detach_mounts = 1'
     create: yes
 
-# Docker 28+ needs ip_set for iptables port publishing. ECE's allocator talks
-# to the ip_tables kernel API (libiptc) even when the host userspace is nft.
+# Docker 28+ needs ip_set for iptables port publishing. ECE's allocator talks to the ip_tables
+# kernel API (libiptc) even when the host userspace is nft.
 - name: Load iptables compatibility modules for Docker and ECE
   copy:
     dest: "/etc/modules-load.d/{{ item }}.conf"
