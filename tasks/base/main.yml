@@ -38,6 +38,14 @@
     - docker_version_map is defined
     - not (podman_version | default('') | string | length > 0 and podman_version_map is defined)
 
+- name: Warn when this OS and container engine combination is experimental
+  debug:
+    msg: >-
+      WARNING: {{ ansible_distribution }} {{ ansible_distribution_major_version }} with
+      {{ container_engine }} is EXPERIMENTAL in this role and is not an official ECE
+      support-matrix combination. Proceeding anyway.
+  when: container_engine in (ece_experimental_container_engines | default([]))
+
 # default(..., true) so an empty string (e.g. docker_version= passed through from
 # an unset CI variable) also falls back to the map default, not just an undefined
 # value.

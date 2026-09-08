@@ -8,7 +8,7 @@ Please note that the ECE Ansible playbook is a community project supported by El
 
 This role is tested against Ansible 2.8.7.
 
-Supported container-engine hosts include Ubuntu 20.04/22.04/24.04 (Docker), SLES 15 (Docker), Rocky 8/9 (Podman), RHEL 8 (Docker or Podman), and RHEL 9 (Podman, or Docker 29). RHEL 10 Podman support is experimental in this role (`ece_os_experimental`) and is not listed in Galaxy yet.
+Supported container-engine hosts include Ubuntu 20.04/22.04/24.04 (Docker), SLES 15 (Docker), Rocky 8/9 (Podman), RHEL 8 (Docker or Podman), and RHEL 9 (Podman). RHEL 9 with Docker and RHEL 10 with Podman are experimental in this role (not official support-matrix combinations) and emit a warning at runtime. RHEL 10 is also not listed in Galaxy yet.
 
 On Podman hosts the role exposes the installer socket at `/var/run/docker.sock` (official ECE RHEL prep). Older revisions of this role used `--host-docker-host /run/podman/podman.sock`. Re-running the role on a cluster installed with that older socket path moves the systemd socket without rewriting existing ECE runner config — do not treat that as a drop-in upgrade.
 
