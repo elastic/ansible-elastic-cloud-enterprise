@@ -31,3 +31,10 @@
     option: default_network
     value: '"{{ ece_podman_network_name }}"'
     no_extra_spaces: true
+
+# Official RHEL host-prep restarts Podman after setting default_network.
+- name: Restart Podman so the dual-stack default network applies
+  systemd:
+    name: podman
+    state: restarted
+    daemon_reload: true

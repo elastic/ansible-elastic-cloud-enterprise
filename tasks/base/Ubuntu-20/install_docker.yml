@@ -15,5 +15,4 @@
     update_cache: yes
     state: present
 
-- name: Pin docker-engine packet
-  shell: echo "docker-engine hold" | sudo dpkg --set-selections
+- include_tasks: ../general/hold_docker_ce.yml

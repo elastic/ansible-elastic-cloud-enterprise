@@ -82,6 +82,11 @@ ece_podman_network_name: ece-network
 ece_podman_network_ipv4_subnet: "10.89.0.0/24"
 ece_podman_network_ipv6_subnet: "fd00:10:89::/64"
 
+# Optional Docker dual-stack default bridge (IPv6). Off by default. When true, the role merges
+# ipv6 / fixed-cidr-v6 / ip6tables into /etc/docker/daemon.json (official Ubuntu/SLES host-prep).
+ece_docker_ipv6: false
+ece_docker_ipv6_cidr: "fd00:10:89::/64"
+
 
 # Elastic Cloud Enterprise - Support Diagnostics Settings
 ece_supportdiagnostics_url: "https://github.com/elastic/ece-support-diagnostics/archive/v1.3.tar.gz"

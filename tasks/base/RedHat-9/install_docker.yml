@@ -25,10 +25,13 @@
     key: "{{ docker_version_map[docker_version]['keys']['server'] }}"
     state: present
 
+# Download the vendor .repo file. Avoid `dnf config-manager` so this works on
+# minimal RHEL 9 images that do not ship dnf-plugins-core.
 - name: Add Docker CE repository
-  command: dnf config-manager --add-repo="{{ docker_version_map[docker_version]['repo'] }}"
-  args:
-    creates: /etc/yum.repos.d/docker-ce.repo
+  get_url:
+    url: "{{ docker_version_map[docker_version]['repo'] }}"
+    dest: /etc/yum.repos.d/docker-ce.repo
+    mode: "0644"
   register: repo_installed
   retries: 10
   delay: 30

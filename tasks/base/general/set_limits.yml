@@ -20,6 +20,8 @@
   - { domain: 'elastic', limit_type: 'hard', limit_item: 'nofile', value: '1024000' }
   - { domain: 'elastic', limit_type: 'soft', limit_item: 'memlock', value: 'unlimited' }
   - { domain: 'elastic', limit_type: 'hard', limit_item: 'memlock', value: 'unlimited' }
+  - { domain: 'elastic', limit_type: 'soft', limit_item: 'nproc', value: 'unlimited' }
+  - { domain: 'elastic', limit_type: 'hard', limit_item: 'nproc', value: 'unlimited' }
   - { domain: 'root', limit_type: 'soft', limit_item: 'nofile', value: '1024000' }
   - { domain: 'root', limit_type: 'hard', limit_item: 'nofile', value: '1024000' }
   - { domain: 'root', limit_type: 'soft', limit_item: 'memlock', value: 'unlimited' }
@@ -45,4 +47,12 @@
     content: |
       [Manager]
       DefaultLimitNOFILE=1024000
+  register: ece_systemd_nofile
+
+# Drop-in is ignored by the current PID 1 until reexec. Docker/Podman start later
+# in this role, so they inherit the new default after this.
+- name: Reload systemd so DefaultLimitNOFILE applies to later services
+  systemd:
+    daemon_reexec: true
+  when: ece_systemd_nofile is changed
 

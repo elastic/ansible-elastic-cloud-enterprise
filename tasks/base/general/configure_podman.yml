@@ -23,6 +23,44 @@
     option: graphroot
     value: '"{{ data_dir }}/docker"'
 
+- name: Ensure /etc/containers/containers.conf exists
+  copy:
+    src: /usr/share/containers/containers.conf
+    dest: /etc/containers/containers.conf
+    remote_src: true
+    force: false
+
+# Official RHEL host-prep: PAM limits.conf does not apply inside containers.
+- name: Set Podman default container ulimits
+  ini_file:
+    path: /etc/containers/containers.conf
+    section: containers
+    option: default_ulimits
+    value: '["nofile=1024000:1024000", "memlock=-1:-1", "nproc=-1:-1"]'
+    no_extra_spaces: true
+
+# Official RHEL host-prep: lock the Podman major so dnf does not jump 4 -> 5.
+- name: Install the dnf versionlock plugin
+  package:
+    name: python3-dnf-plugin-versionlock
+    state: present
+  when: ansible_pkg_mgr == "dnf"
+
+- name: List existing dnf version locks
+  command: dnf versionlock list
+  register: ece_podman_versionlock
+  changed_when: false
+  when: ansible_pkg_mgr == "dnf"
+
+- name: Lock the installed Podman major version
+  command: dnf versionlock add --raw "{{ item }}"
+  loop:
+    - "podman-{{ (podman_version | string).split('.')[0] }}.*"
+    - "podman-remote-{{ (podman_version | string).split('.')[0] }}.*"
+  when:
+    - ansible_pkg_mgr == "dnf"
+    - item not in (ece_podman_versionlock.stdout | default(''))
+
 # Not strictly needed, allows containers to run after user logout in some situations.
 - name: Enable lingering for Elastic user
   ansible.builtin.shell: loginctl enable-linger elastic

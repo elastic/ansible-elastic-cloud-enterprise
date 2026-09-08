@@ -8,5 +8,4 @@
   - iptables
   - sysstat
   - net-tools
-  - containernetworking-plugins
   - policycoreutils-python-utils

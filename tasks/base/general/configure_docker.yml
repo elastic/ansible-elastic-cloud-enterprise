@@ -47,6 +47,58 @@
     state: absent
     force: yes
 
+# Official Ubuntu/SLES host-prep puts default-ulimits in daemon.json because
+# PAM limits.conf does not apply inside containers. Merge so a pre-existing
+# file (for example IPv6 keys written by a caller) is not replaced.
+- name: Ensure /etc/docker exists
+  file:
+    path: /etc/docker
+    state: directory
+    mode: "0755"
+  when: docker_version != '1.13'
+
+- name: Stat existing Docker daemon.json
+  stat:
+    path: /etc/docker/daemon.json
+  register: ece_docker_daemon_stat
+  when: docker_version != '1.13'
+
+- name: Read existing Docker daemon.json
+  slurp:
+    path: /etc/docker/daemon.json
+  register: ece_docker_daemon_slurp
+  when:
+    - docker_version != '1.13'
+    - ece_docker_daemon_stat.stat.exists | default(false)
+
+- name: Merge ECE settings into Docker daemon.json
+  copy:
+    dest: /etc/docker/daemon.json
+    mode: "0644"
+    content: "{{ ece_docker_daemon_desired | combine(ece_docker_daemon_existing, recursive=True) | to_nice_json }}\n"
+  vars:
+    ece_docker_daemon_existing: "{{ (ece_docker_daemon_slurp.content | b64decode | from_json) if (ece_docker_daemon_stat.stat.exists | default(false)) else {} }}"
+    ece_docker_daemon_ulimits:
+      default-ulimits:
+        nofile:
+          Name: nofile
+          Hard: "{{ docker_default_nofile | int }}"
+          Soft: "{{ docker_default_nofile | int }}"
+        memlock:
+          Name: memlock
+          Hard: -1
+          Soft: -1
+        nproc:
+          Name: nproc
+          Hard: -1
+          Soft: -1
+    ece_docker_daemon_ipv6:
+      ipv6: true
+      fixed-cidr-v6: "{{ ece_docker_ipv6_cidr }}"
+      ip6tables: true
+    ece_docker_daemon_desired: "{{ ece_docker_daemon_ulimits | combine(ece_docker_daemon_ipv6 if (ece_docker_ipv6 | default(false) | bool) else {}, recursive=True) }}"
+  when: docker_version != '1.13'
+
 - name: Docker daemon is enabled and systemd has read all changes
   systemd:
     name: docker
