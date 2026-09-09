@@ -9,15 +9,19 @@ galaxy_info:
   - name: Ubuntu
     versions:
     - 16.04
+    - 20.04
     - 22.04
+    - 24.04
   - name: SLES
     versions:
+    - 15
   - name: Rocky
     versions:
     - 8
     - 9
   - name: EL
     versions:
+    - 8
     - 9
 
 dependencies: []

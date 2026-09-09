@@ -6,3 +6,6 @@
   with_items:
   - lvm2
   - iptables
+  - sysstat
+  - net-tools
+  - policycoreutils-python-utils

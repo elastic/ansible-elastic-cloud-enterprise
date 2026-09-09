@@ -1,0 +1,9 @@
+# Official Ubuntu host-prep pins the packages this role actually installs.
+- name: Hold installed Docker packages
+  dpkg_selections:
+    name: "{{ item }}"
+    selection: hold
+  loop:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
