@@ -58,12 +58,13 @@
 # rewritten.
 - name: Set Docker version
   set_fact:
-    docker_version: "{{ docker_version | default(docker_version_map.keys()|list|last, true) }}"
+    # |string so extra-vars like -e docker_version=29 (YAML int) match string map keys.
+    docker_version: "{{ docker_version | default(docker_version_map.keys()|list|last, true) | string }}"
   when: container_engine == "Docker"
 
 - name: Resolve bare Docker major to latest mapped line
   set_fact:
-    docker_version: "{{ (docker_version_map.keys() | select('match', '^' + docker_version + '(\\..+)?$') | list | last) | default(docker_version, true) }}"
+    docker_version: "{{ (docker_version_map.keys() | select('match', '^' ~ docker_version ~ '(\\..+)?$') | list | last) | default(docker_version, true) }}"
   when:
     - container_engine == "Docker"
     - docker_version is match('^[0-9]+$')
