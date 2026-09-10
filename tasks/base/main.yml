@@ -49,10 +49,25 @@
 # default(..., true) so an empty string (e.g. docker_version= passed through from
 # an unset CI variable) also falls back to the map default, not just an undefined
 # value.
+#
+# Version contract:
+#   "24"   — latest mapped line of that major (24.latest)
+#   "24.0" — exact map key (that minor line only)
+# If the caller passed a bare major and that key is not in the map, resolve to the
+# last key that starts with "{major}." (YAML insertion order). "24.0" is never
+# rewritten.
 - name: Set Docker version
   set_fact:
     docker_version: "{{ docker_version | default(docker_version_map.keys()|list|last, true) }}"
   when: container_engine == "Docker"
+
+- name: Resolve bare Docker major to latest mapped line
+  set_fact:
+    docker_version: "{{ (docker_version_map.keys() | select('match', '^' + docker_version + '(\\..+)?$') | list | last) | default(docker_version, true) }}"
+  when:
+    - container_engine == "Docker"
+    - docker_version is match('^[0-9]+$')
+    - docker_version not in docker_version_map
 
 - name: Set Podman version
   set_fact:
