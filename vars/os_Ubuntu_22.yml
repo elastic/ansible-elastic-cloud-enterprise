@@ -10,12 +10,16 @@ container_engine: Docker
 #   "24.0" / "25.0" — that minor line only (apt glob N.0.*)
 # Docker 24 and 25 only shipped a .0 line, so the two globs resolve the same
 # today. The last key is the default when no docker_version is requested.
+# NOTE: containerd.io is pinned to 1.7.* because Docker's jammy apt pool
+# (https://download.docker.com/linux/ubuntu/dists/jammy/pool/stable/amd64/)
+# now also publishes containerd 2.x, which does not pair with the Docker
+# 24/25 line installed here. The glob tracks the latest 1.7.x patch build.
 docker_version_map:
   "24.0":
     package:
       - docker-ce=5:24.0.*
       - docker-ce-cli=5:24.0.*
-      - containerd.io
+      - containerd.io=1.7.*
     repo: deb https://download.docker.com/linux/ubuntu jammy stable
     keys:
       server: https://download.docker.com/linux/ubuntu/gpg
@@ -24,7 +28,7 @@ docker_version_map:
     package:
       - docker-ce=5:24.*
       - docker-ce-cli=5:24.*
-      - containerd.io
+      - containerd.io=1.7.*
     repo: deb https://download.docker.com/linux/ubuntu jammy stable
     keys:
       server: https://download.docker.com/linux/ubuntu/gpg
@@ -33,7 +37,7 @@ docker_version_map:
     package:
       - docker-ce=5:25.0.*
       - docker-ce-cli=5:25.0.*
-      - containerd.io
+      - containerd.io=1.7.*
     repo: deb https://download.docker.com/linux/ubuntu jammy stable
     keys:
       server: https://download.docker.com/linux/ubuntu/gpg
@@ -42,7 +46,7 @@ docker_version_map:
     package:
       - docker-ce=5:25.*
       - docker-ce-cli=5:25.*
-      - containerd.io
+      - containerd.io=1.7.*
     repo: deb https://download.docker.com/linux/ubuntu jammy stable
     keys:
       server: https://download.docker.com/linux/ubuntu/gpg
