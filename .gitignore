@@ -1,4 +1,6 @@
 .idea
+__pycache__/
+*.py[cod]
 *.retry
 *.local.yml
 *.local.sh
