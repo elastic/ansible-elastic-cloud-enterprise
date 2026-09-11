@@ -32,6 +32,8 @@
     name: "{{ docker_version_map[docker_version]['package'] }}"
     state: present
 
+- include_tasks: ../general/hold_docker_dnf.yml
+
 - name: Verify that fs.may_detach_mounts is enabled
   lineinfile:
     path: /etc/sysctl.conf

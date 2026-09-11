@@ -1,0 +1,24 @@
+---
+# Lock the Docker CE bundle after a pinned install so dnf does not float
+# docker-ce / containerd.io independently (same idea as the Podman versionlock).
+- name: Install the dnf versionlock plugin
+  package:
+    name: python3-dnf-plugin-versionlock
+    state: present
+  when: ansible_pkg_mgr == "dnf"
+
+- name: List existing dnf version locks
+  command: dnf versionlock list
+  register: ece_docker_versionlock
+  changed_when: false
+  when: ansible_pkg_mgr == "dnf"
+
+- name: Lock installed Docker CE packages
+  command: dnf versionlock add "{{ item }}"
+  loop:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+  when:
+    - ansible_pkg_mgr == "dnf"
+    - item not in (ece_docker_versionlock.stdout | default(''))

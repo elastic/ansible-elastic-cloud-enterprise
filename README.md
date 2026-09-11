@@ -121,7 +121,7 @@ The following variables are avaible:
     - Default: `/home/elastic/.docker`
     - Override only if you install ECE as a user other than `elastic`. The container-side mount target is always `/home/elastic/.docker` (the `elastic` user's home inside the ECE images).
 - [Supported Docker Versions](https://www.elastic.co/guide/en/cloud-enterprise/2.7/ece-software-prereq.html#ece-linux-docker)
-  - `docker_version`: Must be a key in the OS `docker_version_map` (or a bare major that resolves to one). A bare major (`24`, `29`) installs the latest mapped line of that major; `24.0` / `25.0` install that minor line only when the OS ships it. There is no `29.0` pin — ECE needs Docker 29.3+. Last supported version on Centos 7/8 and RHEL 7/8 is 20.0, Ubuntu 16, Ubuntu 18 and SLES 12 is 19.03.
+  - `docker_version`: Must be a key in the OS `docker_version_map` (or a bare major that resolves to one). A bare major (`24`, `29`) installs the latest mapped line of that major; `24.0` / `25.0` install that minor line only when the OS ships it. There is no `29.0` key — ECE does not support Docker 29.0–29.2. Package pins for `docker-ce` / `docker-ce-cli` / `containerd.io` live in `vars/docker_bundles.yml` (one bundle per key). Last supported version on Centos 7/8 and RHEL 7/8 is 20.10, Ubuntu 16, Ubuntu 18 and SLES 12 is 19.03.
 - `docker_bridge_ip `: The default IP of the docker bridge. Configurable to avoid overlapping with the current host subnet.
 - `force_xfc`: By default if the `lxc` xfc volume already exists, the `setup_xfc` step is skipped, if this is set to true, creation of the volume is forced
     - Default: false
