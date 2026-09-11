@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check docker_bundles + OS maps: no bare containerd.io, keys align, 29.3 floor."""
+"""Check docker_bundles + OS maps: no bare containerd.io, keys align."""
 from __future__ import print_function
 
 import os
@@ -66,8 +66,8 @@ def main():
                 )
 
     docker29 = bundles.get("29", {}).get("docker", "")
-    if not docker29.startswith("29.3"):
-        errors.append("docker_bundles['29'].docker must be a 29.3+ pin, got %r" % (docker29,))
+    if docker29 != "29.*":
+        errors.append("docker_bundles['29'].docker must be latest 29.x (29.*), got %r" % (docker29,))
 
     if "29.0" in bundles:
         errors.append("docker_bundles must not define 29.0")

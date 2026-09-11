@@ -4,7 +4,7 @@
 # optional overrides (frozen apt pools, a different docker patch).
 #
 # "N" is latest of that major; "N.M" is that minor line only.
-# There is no "29.0" — ECE requires Docker 29.3+.
+# There is no "29.0" key (ECE does not support 29.0–29.2). "29" is latest 29.x.
 docker_bundles:
   "18.09":
     docker: "18.09.9"
@@ -36,6 +36,6 @@ docker_bundles:
     docker: "27.*"
     containerd: "1.7.*"
   "29":
-    docker: "29.3*"
+    docker: "29.*"
     containerd: "2.*"
     tarball_version: "29.7.2"

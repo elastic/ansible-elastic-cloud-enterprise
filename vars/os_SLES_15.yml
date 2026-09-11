@@ -9,7 +9,7 @@ container_engine: Docker
 # the official static tarball (tarball_version from vars/docker_bundles.yml).
 #   "25" / "29" — latest static pin we ship for that major
 #   "25.0"      — Docker 25.0.x (only 25 line; same tarball as "25")
-# No "29.0" pin: ECE needs Docker 29.3+.
+# No "29.0" key (ECE does not support 29.0–29.2). Static "29" is an exact tarball.
 # The last key is the default when no docker_version is requested.
 docker_version_map:
   "20.10":

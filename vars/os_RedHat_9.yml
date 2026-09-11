@@ -14,7 +14,7 @@ ece_experimental_container_engines:
   - Docker
 
 # Docker version mapping. Experimental. Pins come from vars/docker_bundles.yml
-# ("29" is docker 29.3* + containerd 2.*). No 29.0 pin.
+# ("29" is latest 29.x + containerd 2.*). No 29.0 key.
 docker_version_map:
   "29":
     name: 'Docker-CE'
