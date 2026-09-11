@@ -5,11 +5,12 @@ bootloader_update_command: update-grub
 conntrack_module: xt_conntrack
 container_engine: Docker
 
-# Docker version mapping. Ubuntu 24.04 is "noble". "29.0" is the ECE matrix label for Docker 29.x
-# (29.7 today); the apt glob is 29.* so a later 29.x patch is installed. The last key is the
-# default when no docker_version is requested.
+# Docker version mapping. Ubuntu 24.04 is "noble".
+#   "29" — latest 29.x (apt glob 29.*). ECE needs Docker 29.3+; there is no
+#   29.0 pin (29.0–29.2 are not an ECE-supported runtime).
+# The last key is the default when no docker_version is requested.
 docker_version_map:
-  "29.0":
+  "29":
     package:
       - docker-ce=5:29.*
       - docker-ce-cli=5:29.*

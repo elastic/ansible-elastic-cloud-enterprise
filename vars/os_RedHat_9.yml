@@ -13,10 +13,10 @@ container_engine: Podman
 ece_experimental_container_engines:
   - Docker
 
-# Docker version mapping. "29.0" is the ECE matrix label for Docker 29.x; the dnf glob is 29* so a
-# later 29.x patch is installed. Experimental — not a support-matrix combination.
+# Docker version mapping. Experimental — not a support-matrix combination.
+#   "29" — latest 29.x (dnf glob 29*). ECE needs Docker 29.3+; no 29.0 pin.
 docker_version_map:
-  "29.0":
+  "29":
     name: 'Docker-CE'
     package:
       - docker-ce-29*

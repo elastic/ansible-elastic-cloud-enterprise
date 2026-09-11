@@ -38,7 +38,8 @@ docker_unit_after: "network.target docker.socket"
 docker_storage_driver: overlay
 bootloader_update_command: update-bootloader
 
-# Docker version mapping
+# Docker version mapping.
+# "N" is latest of that major; "N.M" is that minor line only.
 docker_version_map:
   "19.03":
     package: docker-19.03.14_ce
