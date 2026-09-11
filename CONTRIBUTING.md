@@ -40,12 +40,14 @@ bootloader_update_command: update-bootloader
 
 # Docker version mapping.
 # "N" is latest of that major; "N.M" is that minor line only.
+# docker-ce / containerd pins live in vars/docker_bundles.yml — do not copy them
+# here. Use pkg_style: apt|yum and optional docker:/containerd: overrides.
 docker_version_map:
   "19.03":
     package: docker-19.03.14_ce
 ```
 
-See `vars/os_Ubuntu_16.yml` as an example.
+See `vars/docker_bundles.yml` and `vars/os_Ubuntu_16.yml` as examples. Run `python3 tests/check_docker_bundles.py` after changing pins.
 
 **2)** Add a folder `DISTRIBUTION-MAJORVERSION` to `tasks/base/`
 

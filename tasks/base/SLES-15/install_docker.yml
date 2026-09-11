@@ -21,14 +21,16 @@
 - name: Install docker from the official static tarball
   when: docker_version_map[docker_version]['method'] | default('zypper') == 'static'
   block:
+    # Do not install zypper containerd/runc: the static tarball already ships
+    # those binaries. A distro containerd makes dockerd use SLES's runtime
+    # instead of the bundled one (Docker 29 only embeds containerd when none
+    # is installed).
     - name: Install static-docker runtime dependencies
       zypper:
         name: "{{ packages }}"
         state: present
       vars:
         packages:
-        - runc
-        - containerd
         - fuse-overlayfs
         - slirp4netns
         - libseccomp2

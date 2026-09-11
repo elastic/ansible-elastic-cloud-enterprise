@@ -1,0 +1,41 @@
+---
+# One Docker+containerd (and static tarball) pin per docker_version key.
+# OS vars/os_*.yml only list which keys they offer, repo/keys, pkg_style, and
+# optional overrides (frozen apt pools, a different docker patch).
+#
+# "N" is latest of that major; "N.M" is that minor line only.
+# There is no "29.0" — ECE requires Docker 29.3+.
+docker_bundles:
+  "18.09":
+    docker: "18.09.9"
+    containerd: "1.6.28"
+  "19.03":
+    docker: "19.03.15"
+    containerd: "1.6.28"
+  "20.10":
+    docker: "20.10.8"
+    containerd: "1.6.28"
+  "24.0":
+    docker: "24.0.*"
+    containerd: "1.7.*"
+  "24":
+    docker: "24.*"
+    containerd: "1.7.*"
+  "25.0":
+    docker: "25.0.*"
+    containerd: "1.7.*"
+    tarball_version: "25.0.5"
+  "25":
+    docker: "25.*"
+    containerd: "1.7.*"
+    tarball_version: "25.0.5"
+  "27.0":
+    docker: "27.0.*"
+    containerd: "1.7.*"
+  "27":
+    docker: "27.*"
+    containerd: "1.7.*"
+  "29":
+    docker: "29.3*"
+    containerd: "2.*"
+    tarball_version: "29.7.2"

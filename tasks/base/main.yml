@@ -1,4 +1,7 @@
 ---
+- name: Load Docker version bundles
+  include_vars: docker_bundles.yml
+
 - name: Include OS specific vars
   include_vars: "{{ item }}"
   with_first_found:
@@ -79,6 +82,9 @@
   assert:
     that: "docker_version in docker_version_map.keys()"
     msg: "Docker version must be one of {{ docker_version_map.keys() }}"
+  when: container_engine == "Docker"
+
+- include_tasks: general/apply_docker_bundle.yml
   when: container_engine == "Docker"
 
 - name: Assert Podman version is supported

@@ -1,0 +1,40 @@
+---
+# Fill the selected docker_version_map entry's package list (and static tarball)
+# from vars/docker_bundles.yml. OS files must not copy those numbers.
+- name: Reject docker_version=29.0
+  fail:
+    msg: >-
+      docker_version=29.0 is not supported (ECE requires Docker 29.3+).
+      Pass docker_version=29.
+  when: docker_version == "29.0"
+
+- name: Apply docker bundle package pins
+  set_fact:
+    docker_version_map: "{{ docker_version_map | combine({ docker_version: docker_version_map[docker_version] | combine({'package': (docker_version_map[docker_version] | docker_bundle_packages(docker_bundles, docker_version))}) }) }}"
+  when: docker_version_map[docker_version].pkg_style | default('') in ['apt', 'yum']
+
+- name: Apply docker bundle static tarball pin
+  set_fact:
+    docker_version_map: "{{ docker_version_map | combine({ docker_version: docker_version_map[docker_version] | combine({'tarball_version': docker_version_map[docker_version].tarball_version | default(docker_bundles[docker_version].tarball_version)}) }) }}"
+  when:
+    - docker_version_map[docker_version].method | default('') == 'static'
+    - docker_version in docker_bundles
+
+- name: Assert static Docker installs have a tarball version
+  assert:
+    that:
+      - docker_version_map[docker_version].tarball_version is defined
+      - docker_version_map[docker_version].tarball_version | length > 0
+    msg: >-
+      Static Docker install for {{ docker_version }} has no tarball_version.
+      Set it in docker_bundles.yml.
+  when: docker_version_map[docker_version].method | default('') == 'static'
+
+- name: Assert the Docker bundle does not leave containerd.io unpinned
+  assert:
+    that:
+      - docker_version_map[docker_version].package is string or ('containerd.io' not in docker_version_map[docker_version].package)
+    msg: >-
+      Rendered Docker package list for {{ docker_version }} contains a bare
+      containerd.io. Add a containerd pin to docker_bundles or an OS override.
+  when: docker_version_map[docker_version].pkg_style | default('') in ['apt', 'yum']
