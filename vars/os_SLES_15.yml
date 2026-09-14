@@ -6,10 +6,10 @@ conntrack_module: ip_conntrack
 container_engine: Docker
 
 # Docker version mapping. SLES 15 zypper only ships docker 20.10. Docker 25+ is
-# the official static tarball (tarball_version from vars/docker_bundles.yml).
+# the official static tarball (exact version; download.docker.com has no wildcard).
 #   "25" / "29" — latest static pin we ship for that major
 #   "25.0"      — Docker 25.0.x (only 25 line; same tarball as "25")
-# No "29.0" key (ECE does not support 29.0–29.2). Static "29" is an exact tarball.
+# No "29.0" key (ECE does not support 29.0–29.2).
 # The last key is the default when no docker_version is requested.
 docker_version_map:
   "20.10":
@@ -17,7 +17,10 @@ docker_version_map:
     package: docker-20.10.12_ce
   "25.0":
     method: static
+    tarball_version: "25.0.5"
   "25":
     method: static
+    tarball_version: "25.0.5"
   "29":
     method: static
+    tarball_version: "29.7.2"

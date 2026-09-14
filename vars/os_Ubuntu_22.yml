@@ -5,32 +5,44 @@ bootloader_update_command: update-grub
 conntrack_module: xt_conntrack
 container_engine: Docker
 
-# Docker version mapping. Ubuntu 22.04 is "jammy". Pins come from
-# vars/docker_bundles.yml (containerd 1.7.* so apt does not take jammy 2.x).
+# Docker version mapping. Ubuntu 22.04 is "jammy".
 #   "24" / "25"     — latest patch of that major
 #   "24.0" / "25.0" — that minor line only
+# containerd 1.7.* is latest 1.x so apt does not take jammy 2.x next to Docker 24/25.
 # The last key is the default when no docker_version is requested.
 docker_version_map:
   "24.0":
-    pkg_style: apt
+    package:
+      - docker-ce=5:24.0.*
+      - docker-ce-cli=5:24.0.*
+      - containerd.io=1.7.*
     repo: deb https://download.docker.com/linux/ubuntu jammy stable
     keys:
       server: https://download.docker.com/linux/ubuntu/gpg
       id: 0EBFCD88
   "24":
-    pkg_style: apt
+    package:
+      - docker-ce=5:24.*
+      - docker-ce-cli=5:24.*
+      - containerd.io=1.7.*
     repo: deb https://download.docker.com/linux/ubuntu jammy stable
     keys:
       server: https://download.docker.com/linux/ubuntu/gpg
       id: 0EBFCD88
   "25.0":
-    pkg_style: apt
+    package:
+      - docker-ce=5:25.0.*
+      - docker-ce-cli=5:25.0.*
+      - containerd.io=1.7.*
     repo: deb https://download.docker.com/linux/ubuntu jammy stable
     keys:
       server: https://download.docker.com/linux/ubuntu/gpg
       id: 0EBFCD88
   "25":
-    pkg_style: apt
+    package:
+      - docker-ce=5:25.*
+      - docker-ce-cli=5:25.*
+      - containerd.io=1.7.*
     repo: deb https://download.docker.com/linux/ubuntu jammy stable
     keys:
       server: https://download.docker.com/linux/ubuntu/gpg

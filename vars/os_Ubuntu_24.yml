@@ -6,12 +6,15 @@ conntrack_module: xt_conntrack
 container_engine: Docker
 
 # Docker version mapping. Ubuntu 24.04 is "noble".
-# Pins come from vars/docker_bundles.yml: "29" is latest 29.x + containerd 2.*.
+# "29" is latest 29.x + containerd 2.x (Docker's current default).
 # No 29.0 key (ECE does not support 29.0–29.2).
 # The last key is the default when no docker_version is requested.
 docker_version_map:
   "29":
-    pkg_style: apt
+    package:
+      - docker-ce=5:29.*
+      - docker-ce-cli=5:29.*
+      - containerd.io=2.*
     repo: deb [signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu noble stable
     keys:
       server: https://download.docker.com/linux/ubuntu/gpg

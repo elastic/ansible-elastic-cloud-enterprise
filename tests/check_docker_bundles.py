@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Check docker_bundles + OS maps: no bare containerd.io, keys align."""
+"""Check OS docker_version_map pins: no bare containerd.io, no 29.0 key."""
 from __future__ import print_function
 
 import os
+import re
 import sys
 
 try:
@@ -12,8 +13,16 @@ except ImportError:
     sys.exit(2)
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-sys.path.insert(0, os.path.join(ROOT, "filter_plugins"))
-from docker_bundle import docker_bundle_packages  # noqa: E402
+
+# Frozen apt pools that cannot use the shared 1.6/1.7/2.x pins.
+OS_CONTAINERD_EXCEPTIONS = {
+    ("os_Ubuntu_16.yml", "18.09"): "1.4.6-1*",
+    ("os_Ubuntu_16.yml", "19.03"): "1.4.6-1*",
+    ("os_Ubuntu_18.yml", "19.03"): "1.6.21-1*",
+}
+
+CE_PKG = re.compile(r"^(docker-ce(?:-cli)?)[=-](?:5:)?(.+)$")
+CONTAINERD_PKG = re.compile(r"^containerd\.io[=-](.+)$")
 
 
 def load_yaml(path):
@@ -21,62 +30,76 @@ def load_yaml(path):
         return yaml.safe_load(fh)
 
 
+def containerd_pin(pkgs):
+    for pkg in pkgs:
+        match = CONTAINERD_PKG.match(pkg)
+        if match:
+            return match.group(1)
+    return None
+
+
+def docker_pins(pkgs):
+    found = {}
+    for pkg in pkgs:
+        match = CE_PKG.match(pkg)
+        if match:
+            found[match.group(1)] = match.group(2)
+    return found
+
+
 def main():
     errors = []
-    bundles = load_yaml(os.path.join(ROOT, "vars", "docker_bundles.yml"))["docker_bundles"]
     vars_dir = os.path.join(ROOT, "vars")
+    ce_keys = 0
 
-    by_key = {}
+    if os.path.exists(os.path.join(vars_dir, "docker_bundles.yml")):
+        errors.append("vars/docker_bundles.yml should be removed; pins live in os_*.yml")
+
     for name in sorted(os.listdir(vars_dir)):
         if not (name.startswith("os_") and name.endswith(".yml")):
             continue
         data = load_yaml(os.path.join(vars_dir, name)) or {}
         version_map = data.get("docker_version_map") or {}
+        if "29.0" in version_map:
+            errors.append("%s: must not define a 29.0 key" % name)
+
         for key, entry in version_map.items():
             if not isinstance(entry, dict):
                 continue
-            if "package" in entry and isinstance(entry["package"], list):
-                if "containerd.io" in entry["package"]:
-                    errors.append("%s %s: hardcoded bare containerd.io" % (name, key))
-            style = entry.get("pkg_style")
-            if style not in ("apt", "yum"):
+            if entry.get("method") == "static":
+                tarball = entry.get("tarball_version")
+                if not tarball:
+                    errors.append("%s %s: static install missing tarball_version" % (name, key))
                 continue
-            if key not in bundles:
-                errors.append("%s %s: pkg_style=%s but no docker_bundles entry" % (name, key, style))
-                continue
-            try:
-                pkgs = docker_bundle_packages(entry, bundles, key)
-            except Exception as exc:
-                errors.append("%s %s: render failed: %s" % (name, key, exc))
+
+            pkgs = entry.get("package")
+            if not isinstance(pkgs, list):
                 continue
             if "containerd.io" in pkgs:
-                errors.append("%s %s: rendered bare containerd.io: %s" % (name, key, pkgs))
-            containerd = entry.get("containerd", bundles[key].get("containerd"))
-            by_key.setdefault(key, []).append((name, containerd, entry.get("containerd") is not None))
+                errors.append("%s %s: bare containerd.io" % (name, key))
 
-    for key, rows in sorted(by_key.items()):
-        default = bundles[key].get("containerd")
-        for name, containerd, overridden in rows:
-            if overridden:
-                continue
-            if containerd != default:
-                errors.append(
-                    "%s %s: containerd %r does not match bundle %r and has no override"
-                    % (name, key, containerd, default)
-                )
-
-    docker29 = bundles.get("29", {}).get("docker", "")
-    if docker29 != "29.*":
-        errors.append("docker_bundles['29'].docker must be latest 29.x (29.*), got %r" % (docker29,))
-
-    if "29.0" in bundles:
-        errors.append("docker_bundles must not define 29.0")
+            pins = docker_pins(pkgs)
+            if "docker-ce" in pins:
+                ce_keys += 1
+                if pins.get("docker-ce") != pins.get("docker-ce-cli"):
+                    errors.append(
+                        "%s %s: docker-ce %r and docker-ce-cli %r differ"
+                        % (name, key, pins.get("docker-ce"), pins.get("docker-ce-cli"))
+                    )
+                if key == "29" and pins["docker-ce"] != "29.*":
+                    errors.append("%s %s: docker must be latest 29.x (29.*), got %r" % (name, key, pins["docker-ce"]))
+                ctd = containerd_pin(pkgs)
+                if ctd is None:
+                    errors.append("%s %s: docker-ce list has no containerd.io pin" % (name, key))
+                expected = OS_CONTAINERD_EXCEPTIONS.get((name, key))
+                if expected and ctd != expected:
+                    errors.append("%s %s: expected frozen containerd %r, got %r" % (name, key, expected, ctd))
 
     if errors:
         for err in errors:
             print("FAIL:", err)
         return 1
-    print("OK: docker bundles align (%d CE keys)" % len(by_key))
+    print("OK: docker maps pin containerd (%d CE keys)" % ce_keys)
     return 0
 
 

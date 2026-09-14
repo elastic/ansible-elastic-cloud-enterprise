@@ -1,7 +1,4 @@
 ---
-- name: Load Docker version bundles
-  include_vars: docker_bundles.yml
-
 - name: Include OS specific vars
   include_vars: "{{ item }}"
   with_first_found:
@@ -78,14 +75,44 @@
     podman_version: "{{ podman_version | default(podman_version_map.keys()|list|last, true) }}"
   when: container_engine == "Podman"
 
+- name: Reject docker_version=29.0
+  fail:
+    msg: >-
+      docker_version=29.0 is not supported (ECE does not support Docker 29.0–29.2).
+      Pass docker_version=29 for the latest 29.x.
+  when:
+    - container_engine == "Docker"
+    - docker_version == "29.0"
+
 - name: Assert Docker version is supported
   assert:
     that: "docker_version in docker_version_map.keys()"
     msg: "Docker version must be one of {{ docker_version_map.keys() }}"
   when: container_engine == "Docker"
 
-- include_tasks: general/apply_docker_bundle.yml
-  when: container_engine == "Docker"
+- name: Assert static Docker installs have a tarball version
+  assert:
+    that:
+      - docker_version_map[docker_version].tarball_version is defined
+      - docker_version_map[docker_version].tarball_version | length > 0
+    msg: >-
+      Static Docker install for {{ docker_version }} has no tarball_version.
+      Set it on the OS docker_version_map entry.
+  when:
+    - container_engine == "Docker"
+    - docker_version_map[docker_version].method | default('') == 'static'
+
+- name: Assert Docker CE package lists pin containerd.io
+  assert:
+    that:
+      - "'containerd.io' not in docker_version_map[docker_version].package"
+    msg: >-
+      Docker package list for {{ docker_version }} contains a bare
+      containerd.io. Pin it (for example containerd.io=1.7.*).
+  when:
+    - container_engine == "Docker"
+    - docker_version_map[docker_version].package is defined
+    - docker_version_map[docker_version].package is not string
 
 - name: Assert Podman version is supported
   assert:

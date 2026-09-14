@@ -13,12 +13,15 @@ container_engine: Podman
 ece_experimental_container_engines:
   - Docker
 
-# Docker version mapping. Experimental. Pins come from vars/docker_bundles.yml
-# ("29" is latest 29.x + containerd 2.*). No 29.0 key.
+# Docker version mapping. Experimental. "29" is latest 29.x + containerd 2.x.
+# No 29.0 key (ECE does not support 29.0–29.2).
 docker_version_map:
   "29":
     name: 'Docker-CE'
-    pkg_style: yum
+    package:
+      - docker-ce-29.*
+      - docker-ce-cli-29.*
+      - containerd.io-2.*
     repo: https://download.docker.com/linux/centos/docker-ce.repo
     keys:
       server: https://download.docker.com/linux/centos/gpg
