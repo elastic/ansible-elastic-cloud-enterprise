@@ -47,9 +47,9 @@
     state: absent
     force: yes
 
-# Official Ubuntu/SLES host-prep puts default-ulimits in daemon.json because
-# PAM limits.conf does not apply inside containers. Merge so a pre-existing
-# file (for example IPv6 keys written by a caller) is not replaced.
+# Official Ubuntu/SLES host-prep puts default-ulimits in daemon.json only (not
+# also as dockerd --default-ulimit flags: Docker refuses the same directive in
+# both places). Merge so a pre-existing file (for example IPv6 keys) is kept.
 - name: Ensure /etc/docker exists
   file:
     path: /etc/docker
