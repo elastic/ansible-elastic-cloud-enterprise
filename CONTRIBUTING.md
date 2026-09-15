@@ -40,14 +40,12 @@ bootloader_update_command: update-bootloader
 
 # Docker version mapping.
 # "N" is latest of that major; "N.M" is that minor line only.
-# Pin docker-ce, docker-ce-cli, and containerd.io together — never a bare
-# containerd.io (apt would then take the newest 2.x next to Docker 24/25).
 docker_version_map:
   "19.03":
-    package: docker-19.03.15_ce
+    package: docker-19.03.14_ce
 ```
 
-See `vars/os_Ubuntu_22.yml` as an example. Run `python3 tests/check_docker_bundles.py` after changing pins.
+See `vars/os_Ubuntu_16.yml` as an example.
 
 **2)** Add a folder `DISTRIBUTION-MAJORVERSION` to `tasks/base/`
 

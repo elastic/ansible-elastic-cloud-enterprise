@@ -5,8 +5,9 @@ bootloader_update_command: update-grub
 conntrack_module: ip_conntrack
 container_engine: Docker
 
-# Docker version mapping.
-# Xenial's Docker apt pool is frozen; containerd 1.4.6 is the last build
+# Docker version mapping
+# NOTE: Ubuntu 16.04 (xenial) is EOL and Docker's xenial apt pool is frozen;
+# containerd.io 1.4.6 is the last build published for xenial
 # (https://download.docker.com/linux/ubuntu/dists/xenial/pool/stable/amd64/).
 docker_version_map:
   "18.09":

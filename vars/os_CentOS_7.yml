@@ -5,7 +5,7 @@ bootloader_update_command: grub2-mkconfig -o /etc/grub2.cfg
 conntrack_module: ip_conntrack
 container_engine: Docker
 
-# Docker version mapping. el7 has no containerd 1.7; 1.6.28 is the shared 1.6 pin.
+# Docker version mapping
 docker_version_map:
   "18.09":
     name: 'Docker-CE'

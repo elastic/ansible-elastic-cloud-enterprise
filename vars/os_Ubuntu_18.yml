@@ -5,8 +5,8 @@ bootloader_update_command: update-grub
 conntrack_module: xt_conntrack
 container_engine: Docker
 
-# Docker version mapping.
-# Bionic's pool tops out at containerd 1.6.21
+# Docker version mapping
+# NOTE: containerd.io 1.6.21 is the last build published in Docker's bionic apt pool
 # (https://download.docker.com/linux/ubuntu/dists/bionic/pool/stable/amd64/).
 docker_version_map:
   "19.03":

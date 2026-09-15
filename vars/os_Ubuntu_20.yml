@@ -5,10 +5,8 @@ bootloader_update_command: update-grub
 conntrack_module: xt_conntrack
 container_engine: Docker
 
-# Docker version mapping.
-# "20.10" keeps the focal docker 20.10.14 package and the shared 1.6.28 containerd pin.
-# "27" is latest 27.x; "27.0" is the 27.0 line only. containerd 1.7.* is latest 1.x on focal.
-# The last key is the default when no docker_version is requested.
+# Docker version mapping. The last key is the default when no docker_version is requested.
+# "27" is latest 27.x; "27.0" is the 27.0 line only.
 docker_version_map:
   "20.10":
     package:

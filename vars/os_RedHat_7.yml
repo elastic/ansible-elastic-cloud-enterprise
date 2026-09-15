@@ -5,7 +5,7 @@ bootloader_update_command: grub2-mkconfig -o /etc/grub2.cfg
 conntrack_module: ip_conntrack
 container_engine: Docker
 
-# Docker version mapping. "1.13" is RH Docker from Extra RPMs, not Docker CE.
+# Docker version mapping
 docker_version_map:
   "1.13":
     name: 'Docker'
