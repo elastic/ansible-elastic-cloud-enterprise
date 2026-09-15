@@ -47,9 +47,8 @@
     state: absent
     force: yes
 
-# Official Ubuntu/SLES host-prep puts default-ulimits in daemon.json only (not
-# also as dockerd --default-ulimit flags: Docker refuses the same directive in
-# both places). Merge so a pre-existing file (for example IPv6 keys) is kept.
+# Official host-prep puts default-ulimits in daemon.json only. Do not also pass dockerd --default-ulimit
+# flags; Docker refuses the same directive in both places. Merge keeps existing keys (e.g. IPv6).
 - name: Ensure /etc/docker exists
   file:
     path: /etc/docker
