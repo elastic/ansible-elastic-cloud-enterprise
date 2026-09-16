@@ -1,0 +1,188 @@
+# Trigger an ECE PrSuite IT from this public repo.
+#
+# This workflow file is only loaded from the default branch (master). Landing
+# it on a feature branch does not enable the comment or the Actions button
+# until it is merged.
+#
+# Security: the repo is public. Anyone can comment. The job must not run for
+# non-employees, must not check out PR head (untrusted), and must not pass
+# comment text into a shell unquoted.
+name: Run ECE PrSuite
+
+on:
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Pull request number whose branch should be installed
+        required: true
+        type: string
+
+# Least privilege. Secrets are only used after the employee gate.
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: ece-prsuite-${{ github.event.issue.number || github.event.inputs.pr_number }}
+  cancel-in-progress: false
+
+env:
+  ECE_PIPELINE: cloud-integration-ece-matcher-tests
+  # Ansible-enabled cell on elastic/cloud master (ubuntu_24.04 / docker_29 is
+  # still on the shell path until cloud#158721 merges).
+  ECE_TESTS_OS: ubuntu_22.04
+  ECE_TESTS_DOCKER: docker_25
+  TEST_MATCHER: "-w co.elastic.cloud --tag co.elastic.cloud.test.tags.PrSuite"
+
+jobs:
+  reject-unauthorized:
+    if: >
+      github.event_name == 'issue_comment'
+      && github.event.issue.pull_request
+      && github.event.comment.user.type != 'Bot'
+      && startsWith(github.event.comment.body, 'run ece')
+      && !contains(fromJSON('["MEMBER","OWNER"]'), github.event.comment.author_association)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Tell the commenter this is employees-only
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: 'ECE ITs can only be triggered by Elastic org members (`run ece` / `run ece/tests`).',
+            });
+
+  trigger:
+    if: >
+      github.event_name == 'workflow_dispatch'
+      || (
+        github.event.issue.pull_request
+        && github.event.comment.user.type != 'Bot'
+        && contains(fromJSON('["MEMBER","OWNER"]'), github.event.comment.author_association)
+        && startsWith(github.event.comment.body, 'run ece')
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reject unknown comment verbs
+        if: github.event_name == 'issue_comment'
+        env:
+          COMMENT_BODY: ${{ github.event.comment.body }}
+        run: |
+          set -euo pipefail
+          body="$(printf '%s' "$COMMENT_BODY" | tr -d '\r' | sed -e 's/[[:space:]]*$//')"
+          case "$body" in
+            'run ece'|'run ece/tests') ;;
+            *)
+              echo "Ignoring comment; expected exactly 'run ece' or 'run ece/tests'."
+              exit 1
+              ;;
+          esac
+
+      - name: Resolve the PR branch on elastic/ansible-elastic-cloud-enterprise
+        id: pr
+        uses: actions/github-script@v7
+        env:
+          INPUT_PR_NUMBER: ${{ github.event.inputs.pr_number }}
+        with:
+          script: |
+            const prNumber = context.payload.issue
+              ? context.issue.number
+              : Number(process.env.INPUT_PR_NUMBER);
+            if (!Number.isInteger(prNumber) || prNumber < 1) {
+              core.setFailed(`Invalid pull request number: ${process.env.INPUT_PR_NUMBER}`);
+              return;
+            }
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+            });
+            const expected = `${context.repo.owner}/${context.repo.repo}`;
+            if (pr.head.repo.full_name !== expected) {
+              core.setFailed(
+                `Refusing fork PR ${prNumber} (${pr.head.repo.full_name}). ` +
+                `Push the branch to ${expected} so CI can clone ANSIBLE_ECE_BRANCH.`
+              );
+              return;
+            }
+            core.setOutput('number', String(pr.number));
+            core.setOutput('branch', pr.head.ref);
+            core.setOutput('sha', pr.head.sha);
+            core.setOutput('url', pr.html_url);
+
+      - name: Trigger ECE matcher PrSuite on elastic/cloud master
+        id: bk
+        env:
+          BUILDKITE_API_TOKEN: ${{ secrets.BUILDKITE_API_TOKEN }}
+          ANSIBLE_ECE_BRANCH: ${{ steps.pr.outputs.branch }}
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
+          PR_SHA: ${{ steps.pr.outputs.sha }}
+          PR_URL: ${{ steps.pr.outputs.url }}
+        run: |
+          set -euo pipefail
+          if [ -z "${BUILDKITE_API_TOKEN:-}" ]; then
+            echo "BUILDKITE_API_TOKEN is not configured on this repository."
+            echo "A repo admin must add a Buildkite API token with write_builds."
+            exit 1
+          fi
+          payload="$(python3 -c '
+          import json, os
+          print(json.dumps({
+            "commit": "HEAD",
+            "branch": "master",
+            "message": "ansible-ece PR #{n} PrSuite ({branch} @ {sha})".format(
+              n=os.environ["PR_NUMBER"],
+              branch=os.environ["ANSIBLE_ECE_BRANCH"],
+              sha=os.environ["PR_SHA"][:12],
+            ),
+            "env": {
+              "ANSIBLE_ECE_BRANCH": os.environ["ANSIBLE_ECE_BRANCH"],
+              "ECE_TESTS_OS": os.environ["ECE_TESTS_OS"],
+              "ECE_TESTS_DOCKER": os.environ["ECE_TESTS_DOCKER"],
+              "ECE_TEST_USE_LATEST_AVAILABLE_IMAGES": "true",
+              "TEST_MATCHER": os.environ["TEST_MATCHER"],
+            },
+          }))
+          ')"
+          resp="$(curl -sS -X POST \
+            -H "Authorization: Bearer ${BUILDKITE_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            "https://api.buildkite.com/v2/organizations/elastic/pipelines/${ECE_PIPELINE}/builds" \
+            -d "$payload")"
+          web_url="$(python3 -c 'import json,sys; print(json.load(sys.stdin).get("web_url",""))' <<<"$resp")"
+          if [ -z "$web_url" ]; then
+            echo "Buildkite did not return a web_url:"
+            python3 -c 'import json,sys; d=json.load(sys.stdin); print({k:d.get(k) for k in ("message","errors")})' <<<"$resp"
+            exit 1
+          fi
+          echo "web_url=$web_url" >> "$GITHUB_OUTPUT"
+          echo "Triggered $web_url"
+
+      - name: Comment the Buildkite URL on the PR
+        uses: actions/github-script@v7
+        env:
+          WEB_URL: ${{ steps.bk.outputs.web_url }}
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
+          BRANCH: ${{ steps.pr.outputs.branch }}
+        with:
+          script: |
+            const os = process.env.ECE_TESTS_OS;
+            const engine = process.env.ECE_TESTS_DOCKER;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: Number(process.env.PR_NUMBER),
+              body: [
+                `Triggered ECE PrSuite on elastic/cloud \`master\` with \`ANSIBLE_ECE_BRANCH=${process.env.BRANCH}\`.`,
+                '',
+                `* Combo: \`${os}\` / \`${engine}\``,
+                `* Suite: \`@PrSuite\``,
+                `* Build: ${process.env.WEB_URL}`,
+              ].join('\n'),
+            });
