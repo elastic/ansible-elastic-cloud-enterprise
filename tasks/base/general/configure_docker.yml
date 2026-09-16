@@ -47,9 +47,10 @@
     state: absent
     force: yes
 
-# Official Ubuntu/SLES host-prep puts default-ulimits in daemon.json because
-# PAM limits.conf does not apply inside containers. Merge so a pre-existing
-# file (for example IPv6 keys written by a caller) is not replaced.
+# Official host-prep puts default-ulimits in daemon.json only. Do not also pass dockerd --default-ulimit
+# flags; Docker refuses the same directive in both places. Render via the template module so Hard/Soft
+# are JSON numbers (quoted Jinja in YAML becomes a string; lookup|from_json breaks when the lookup
+# already returns a dict). Merge keeps existing keys (e.g. IPv6).
 - name: Ensure /etc/docker exists
   file:
     path: /etc/docker
@@ -71,32 +72,26 @@
     - docker_version != '1.13'
     - ece_docker_daemon_stat.stat.exists | default(false)
 
+- name: Render ECE Docker daemon settings
+  template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json.ece
+    mode: "0600"
+  when: docker_version != '1.13'
+
+- name: Read rendered ECE Docker daemon settings
+  slurp:
+    path: /etc/docker/daemon.json.ece
+  register: ece_docker_daemon_rendered
+  when: docker_version != '1.13'
+
 - name: Merge ECE settings into Docker daemon.json
   copy:
     dest: /etc/docker/daemon.json
     mode: "0644"
-    content: "{{ ece_docker_daemon_desired | combine(ece_docker_daemon_existing, recursive=True) | to_nice_json }}\n"
+    content: "{{ (ece_docker_daemon_rendered.content | b64decode | from_json) | combine(ece_docker_daemon_existing, recursive=True) | to_nice_json }}\n"
   vars:
     ece_docker_daemon_existing: "{{ (ece_docker_daemon_slurp.content | b64decode | from_json) if (ece_docker_daemon_stat.stat.exists | default(false)) else {} }}"
-    ece_docker_daemon_ulimits:
-      default-ulimits:
-        nofile:
-          Name: nofile
-          Hard: "{{ docker_default_nofile | int }}"
-          Soft: "{{ docker_default_nofile | int }}"
-        memlock:
-          Name: memlock
-          Hard: -1
-          Soft: -1
-        nproc:
-          Name: nproc
-          Hard: -1
-          Soft: -1
-    ece_docker_daemon_ipv6:
-      ipv6: true
-      fixed-cidr-v6: "{{ ece_docker_ipv6_cidr }}"
-      ip6tables: true
-    ece_docker_daemon_desired: "{{ ece_docker_daemon_ulimits | combine(ece_docker_daemon_ipv6 if (ece_docker_ipv6 | default(false) | bool) else {}, recursive=True) }}"
   when: docker_version != '1.13'
 
 - name: Docker daemon is enabled and systemd has read all changes
