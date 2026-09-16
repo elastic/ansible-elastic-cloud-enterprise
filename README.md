@@ -6,7 +6,13 @@ Please note that the ECE Ansible playbook is a community project supported by El
 
 ## Requirements
 
-This role is tested against Ansible 2.8.7.
+This role is tested against Ansible 14.4.0 (`ansible-core` 2.21). Install that controller with:
+
+```bash
+python3 -m pip install -r requirements.txt
+```
+
+The control node needs Python 3.12 or newer. Ansible Engine 2.x (including 2.8.7) is not supported. `ansible-core` 2.16 is the oldest controller this role will still load (`min_ansible_version`); use the pin above for a maintained release.
 
 Supported container-engine hosts include Ubuntu 16.04/20.04/22.04/24.04 (Docker), SLES 15 (Docker), Rocky 8/9 (Podman), RHEL 8 (Docker or Podman), and RHEL 9 (Podman). RHEL 9 with Docker and RHEL 10 with Podman are experimental in this role (not official support-matrix combinations) and emit a warning at runtime. RHEL 10 is also not listed in Galaxy yet.
 

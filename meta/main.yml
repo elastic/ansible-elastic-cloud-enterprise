@@ -4,7 +4,7 @@ galaxy_info:
   description: Elastic Cloud Enterprise Reference preparation and installation 
   company: "Elastic.co"
   license: "license (Apache)"
-  min_ansible_version: 2.4
+  min_ansible_version: "2.16"
   platforms:
   - name: Ubuntu
     versions:
@@ -23,5 +23,8 @@ galaxy_info:
     versions:
     - 8
     - 9
+
+collections:
+  - ansible.posix
 
 dependencies: []
