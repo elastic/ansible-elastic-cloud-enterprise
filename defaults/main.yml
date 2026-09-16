@@ -89,7 +89,8 @@ ece_docker_ipv6_cidr: "fd00:10:89::/64"
 
 
 # Elastic Cloud Enterprise - Support Diagnostics Settings
-ece_supportdiagnostics_url: "https://github.com/elastic/ece-support-diagnostics/archive/v1.3.tar.gz"
+ece_supportdiagnostics_version: "1.3"
+ece_supportdiagnostics_url: "https://github.com/elastic/ece-support-diagnostics/archive/v{{ ece_supportdiagnostics_version }}.tar.gz"
 ece_supportdiagnostics_result_path: "/tmp/ece-support-diagnostics"
 fetch_diagnostics: false
 

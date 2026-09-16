@@ -20,7 +20,7 @@
   delegate_to: localhost
 
 - name: Run ece support diagnostics
-  script: /tmp/elastic/ece-support-diagnostics-1.1/diagnostics.sh -s -d
+  script: /tmp/elastic/ece-support-diagnostics-{{ ece_supportdiagnostics_version }}/diagnostics.sh -s -d
 
 - name: Download diagnostic bundles to ansible host and save under {{ ece_supportdiagnostics_result_path }}
   fetch:

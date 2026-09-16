@@ -14,7 +14,7 @@ python3 -m pip install -r requirements.txt
 
 The control node needs Python 3.12 or newer. Ansible Engine 2.x (including 2.8.7) is not supported. `ansible-core` 2.16 is the oldest controller this role will still load (`min_ansible_version`); use the pin above for a maintained release.
 
-Supported container-engine hosts include Ubuntu 16.04/20.04/22.04/24.04 (Docker), SLES 15 (Docker), Rocky 8/9 (Podman), RHEL 8 (Docker or Podman), and RHEL 9 (Podman). RHEL 9 with Docker and RHEL 10 with Podman are experimental in this role (not official support-matrix combinations) and emit a warning at runtime. RHEL 10 is also not listed in Galaxy yet.
+Supported container-engine hosts include Ubuntu 20.04/22.04/24.04 (Docker), SLES 15 (Docker), Rocky 8/9 (Podman), RHEL 8 (Docker or Podman), and RHEL 9 (Podman). RHEL 9 with Docker and RHEL 10 with Podman are experimental in this role (not official support-matrix combinations) and emit a warning at runtime. RHEL 10 is also not listed in Galaxy yet. Ubuntu 16.04 is not an ECE 3.8+ (or current Ansible 14) target: ECE 3.8 documents Ubuntu 20.04/22.04 only, and xenial's Python 3.5 cannot run ansible-core 2.16+ modules.
 
 On Podman hosts the role exposes the installer socket at `/var/run/docker.sock` (official ECE RHEL prep). Older revisions of this role used `--host-docker-host /run/podman/podman.sock`. Re-running the role on a cluster installed with that older socket path moves the systemd socket without rewriting existing ECE runner config — do not treat that as a drop-in upgrade.
 
@@ -127,7 +127,7 @@ The following variables are avaible:
     - Default: `/home/elastic/.docker`
     - Override only if you install ECE as a user other than `elastic`. The container-side mount target is always `/home/elastic/.docker` (the `elastic` user's home inside the ECE images).
 - [Supported Docker Versions](https://www.elastic.co/guide/en/cloud-enterprise/2.7/ece-software-prereq.html#ece-linux-docker)
-  - `docker_version`: Must be a key in the OS `docker_version_map` (or a bare major that resolves to one). A bare major (`24`, `29`) installs the latest mapped line of that major; `24.0` / `25.0` install that minor line only when the OS ships it. There is no `29.0` pin — ECE needs Docker 29.3+. Last supported version on Centos 7/8 and RHEL 7/8 is 20.0, Ubuntu 16, Ubuntu 18 and SLES 12 is 19.03.
+  - `docker_version`: Must be a key in the OS `docker_version_map` (or a bare major that resolves to one). A bare major (`24`, `29`) installs the latest mapped line of that major; `24.0` / `25.0` install that minor line only when the OS ships it. There is no `29.0` pin — ECE needs Docker 29.3+. Last supported version on Centos 7/8 and RHEL 7/8 is 20.0, Ubuntu 18 and SLES 12 is 19.03.
 - `docker_bridge_ip `: The default IP of the docker bridge. Configurable to avoid overlapping with the current host subnet.
 - `force_xfc`: By default if the `lxc` xfc volume already exists, the `setup_xfc` step is skipped, if this is set to true, creation of the volume is forced
     - Default: false
@@ -135,8 +135,10 @@ The following variables are avaible:
 - `memory`: Defines the JVM heap size to be used for different services running in ece. See https://www.elastic.co/guide/en/cloud-enterprise/2.7/ece-jvm.html for example values and [defaults/main.yml](defaults/main.yml) for the default values.
 
 - `fetch_diagnostics`: Determines if Elastic Cloud Enterprise Support Diagnostics should be downloaded and executed
-- `ece_supportdiagnostics_url`: THe location of the diagnostics tool. Can be a local file for offline installation.
-    - Default: `https://github.com/elastic/ece-support-diagnostics/archive/v1.1.tar.gz`
+- `ece_supportdiagnostics_version`: Version of [ece-support-diagnostics](https://github.com/elastic/ece-support-diagnostics) used to build the download URL and the extracted script path.
+    - Default: `1.3`
+- `ece_supportdiagnostics_url`: The location of the diagnostics tool. Can be a local file for offline installation.
+    - Default: `https://github.com/elastic/ece-support-diagnostics/archive/v{{ ece_supportdiagnostics_version }}.tar.gz`
 - `ece_supportdiagnostics_result_path`: The localtion where to store the diagnostic bundles on ansible host.
     - Default: `/tmp/ece-support-diagnostics`
 - `ece_runner_id`: Assigns an arbitrary ID to the host (runner) that you are installing Elastic Cloud Enterprise on

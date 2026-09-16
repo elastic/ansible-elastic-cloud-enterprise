@@ -20,7 +20,7 @@ In `tasks/base/main.yml` tasks and variables are dynamically included depending 
   - unsupported.yml
 ```
 This means:
-- All distribution specific *variables* go into `vars/os_DISTRIBUTION_MAJORVERSION.yml` (e.g. `os_Ubuntu_16.yml`)
+- All distribution specific *variables* go into `vars/os_DISTRIBUTION_MAJORVERSION.yml` (e.g. `os_Ubuntu_22.yml`)
 - All distribution specific *tasks* go in `tasks/base/DISTRIBUTION-MAJORVERSION/`
 
 Distribution specific tasks are executed prior to all general tasks and include e.g. installing specific packages.
@@ -45,9 +45,9 @@ docker_version_map:
     package: docker-19.03.14_ce
 ```
 
-See `vars/os_Ubuntu_16.yml` as an example.
+See `vars/os_Ubuntu_22.yml` as an example.
 
 **2)** Add a folder `DISTRIBUTION-MAJORVERSION` to `tasks/base/`
 
 This folder must at least contain a file `main.yml`. Normally `main.yml` only includes playbooks which then contain the specific tasks.
-The specific tasks must include installing docker and other required packages (see [tasks/base/Ubuntu-16](tasks/base/Ubuntu-16)).
+The specific tasks must include installing docker and other required packages (see [tasks/base/Ubuntu-22](tasks/base/Ubuntu-22)).

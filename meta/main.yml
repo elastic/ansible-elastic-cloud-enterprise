@@ -8,7 +8,6 @@ galaxy_info:
   platforms:
   - name: Ubuntu
     versions:
-    - 16.04
     - 20.04
     - 22.04
     - 24.04
@@ -26,5 +25,6 @@ galaxy_info:
 
 collections:
   - ansible.posix
+  - community.general
 
 dependencies: []
