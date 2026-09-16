@@ -48,8 +48,9 @@
     force: yes
 
 # Official host-prep puts default-ulimits in daemon.json only. Do not also pass dockerd --default-ulimit
-# flags; Docker refuses the same directive in both places. Render via j2 so Hard/Soft are JSON numbers
-# (quoted Jinja in YAML becomes a string and dockerd cannot unmarshal it). Merge keeps existing keys (e.g. IPv6).
+# flags; Docker refuses the same directive in both places. Render via the template module so Hard/Soft
+# are JSON numbers (quoted Jinja in YAML becomes a string; lookup|from_json breaks when the lookup
+# already returns a dict). Merge keeps existing keys (e.g. IPv6).
 - name: Ensure /etc/docker exists
   file:
     path: /etc/docker
@@ -71,14 +72,26 @@
     - docker_version != '1.13'
     - ece_docker_daemon_stat.stat.exists | default(false)
 
+- name: Render ECE Docker daemon settings
+  template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json.ece
+    mode: "0600"
+  when: docker_version != '1.13'
+
+- name: Read rendered ECE Docker daemon settings
+  slurp:
+    path: /etc/docker/daemon.json.ece
+  register: ece_docker_daemon_rendered
+  when: docker_version != '1.13'
+
 - name: Merge ECE settings into Docker daemon.json
   copy:
     dest: /etc/docker/daemon.json
     mode: "0644"
-    content: "{{ ece_docker_daemon_desired | combine(ece_docker_daemon_existing, recursive=True) | to_nice_json }}\n"
+    content: "{{ (ece_docker_daemon_rendered.content | b64decode | from_json) | combine(ece_docker_daemon_existing, recursive=True) | to_nice_json }}\n"
   vars:
     ece_docker_daemon_existing: "{{ (ece_docker_daemon_slurp.content | b64decode | from_json) if (ece_docker_daemon_stat.stat.exists | default(false)) else {} }}"
-    ece_docker_daemon_desired: "{{ lookup('template', 'daemon.json.j2') | from_json }}"
   when: docker_version != '1.13'
 
 - name: Docker daemon is enabled and systemd has read all changes
