@@ -14,8 +14,6 @@
 
 - name: Install docker from the SLES zypper package
   command: "zypper install -y --force-resolution --replacefiles {{ docker_version_map[docker_version]['package'] }} acl"
-  args:
-    warn: false
   when: docker_version_map[docker_version]['method'] | default('zypper') == 'zypper'
 
 - name: Install docker from the official static tarball
