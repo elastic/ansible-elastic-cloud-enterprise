@@ -1,0 +1,22 @@
+{
+  "default-ulimits": {
+    "memlock": {
+      "Hard": -1,
+      "Name": "memlock",
+      "Soft": -1
+    },
+    "nofile": {
+      "Hard": {{ docker_default_nofile | int }},
+      "Name": "nofile",
+      "Soft": {{ docker_default_nofile | int }}
+    },
+    "nproc": {
+      "Hard": -1,
+      "Name": "nproc",
+      "Soft": -1
+    }
+  }{% if ece_docker_ipv6 | default(false) | bool %},
+  "fixed-cidr-v6": {{ ece_docker_ipv6_cidr | to_json }},
+  "ip6tables": true,
+  "ipv6": true{% endif %}
+}

@@ -48,7 +48,8 @@
     force: yes
 
 # Official host-prep puts default-ulimits in daemon.json only. Do not also pass dockerd --default-ulimit
-# flags; Docker refuses the same directive in both places. Merge keeps existing keys (e.g. IPv6).
+# flags; Docker refuses the same directive in both places. Render via j2 so Hard/Soft are JSON numbers
+# (quoted Jinja in YAML becomes a string and dockerd cannot unmarshal it). Merge keeps existing keys (e.g. IPv6).
 - name: Ensure /etc/docker exists
   file:
     path: /etc/docker
@@ -77,25 +78,7 @@
     content: "{{ ece_docker_daemon_desired | combine(ece_docker_daemon_existing, recursive=True) | to_nice_json }}\n"
   vars:
     ece_docker_daemon_existing: "{{ (ece_docker_daemon_slurp.content | b64decode | from_json) if (ece_docker_daemon_stat.stat.exists | default(false)) else {} }}"
-    ece_docker_daemon_ulimits:
-      default-ulimits:
-        nofile:
-          Name: nofile
-          Hard: "{{ docker_default_nofile | int }}"
-          Soft: "{{ docker_default_nofile | int }}"
-        memlock:
-          Name: memlock
-          Hard: -1
-          Soft: -1
-        nproc:
-          Name: nproc
-          Hard: -1
-          Soft: -1
-    ece_docker_daemon_ipv6:
-      ipv6: true
-      fixed-cidr-v6: "{{ ece_docker_ipv6_cidr }}"
-      ip6tables: true
-    ece_docker_daemon_desired: "{{ ece_docker_daemon_ulimits | combine(ece_docker_daemon_ipv6 if (ece_docker_ipv6 | default(false) | bool) else {}, recursive=True) }}"
+    ece_docker_daemon_desired: "{{ lookup('template', 'daemon.json.j2') | from_json }}"
   when: docker_version != '1.13'
 
 - name: Docker daemon is enabled and systemd has read all changes

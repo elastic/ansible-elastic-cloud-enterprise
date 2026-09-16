@@ -62,10 +62,20 @@
   when: podman_config != "" and container_engine == "Podman"
 
 - name: Ensure the Docker service is started
-  systemd:
-    name: docker
-    state: started
   when: container_engine == "Docker"
+  block:
+    - name: Ensure the Docker service is started
+      systemd:
+        name: docker
+        state: started
+  rescue:
+    - name: Collect Docker daemon failure logs
+      command: journalctl -u docker.service -n 80 --no-pager
+      register: ece_docker_journal
+      changed_when: false
+    - name: Fail with Docker daemon logs
+      fail:
+        msg: "{{ ece_docker_journal.stdout }}"
 
 - name: Ensure the Podman service is started
   systemd:
