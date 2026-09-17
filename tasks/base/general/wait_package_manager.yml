@@ -3,31 +3,97 @@
 # Debian transaction. Used before the first package install and around the XFS
 # reboot so we do not race unattended-upgrades / apt-daily / dnf-automatic /
 # zypper, and so we do not reboot while dpkg/rpm holds a lock.
+#
+# Polls in one shell task (not Ansible until) so each busy poll's holder dump is
+# in stdout when the wait finishes. First-boot security updates can hold apt for
+# several minutes; the dump shows pid/etime so a hung holder is obvious.
 
 - name: Wait until apt/dpkg locks are free
   shell: |
-    if command -v flock >/dev/null 2>&1; then
-      for lock in \
-          /var/lib/dpkg/lock \
-          /var/lib/dpkg/lock-frontend \
-          /var/lib/apt/lists/lock \
-          /var/cache/apt/archives/lock; do
-        if [ -e "$lock" ]; then
-          flock --exclusive --nonblock "$lock" true || exit 1
+    retries={{ ece_package_manager_wait_retries | int }}
+    delay={{ ece_package_manager_wait_delay | int }}
+    locks="/var/lib/dpkg/lock /var/lib/dpkg/lock-frontend /var/lib/apt/lists/lock /var/cache/apt/archives/lock"
+
+    apt_idle() {
+      if command -v flock >/dev/null 2>&1; then
+        for lock in $locks; do
+          if [ -e "$lock" ]; then
+            flock --exclusive --nonblock "$lock" true || return 1
+          fi
+        done
+      fi
+      pgrep -x apt >/dev/null && return 1
+      pgrep -x apt-get >/dev/null && return 1
+      pgrep -x dpkg >/dev/null && return 1
+      pgrep -x unattended-upgr >/dev/null && return 1
+      return 0
+    }
+
+    dump_apt() {
+      echo "time=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+      echo "locks:"
+      for lock in $locks; do
+        if [ ! -e "$lock" ]; then
+          echo "  $lock: absent"
+          continue
+        fi
+        state=free
+        if command -v flock >/dev/null 2>&1; then
+          flock --exclusive --nonblock "$lock" true || state=held
+        fi
+        echo "  $lock: $state"
+        if command -v fuser >/dev/null 2>&1; then
+          fuser -v "$lock" 2>&1 | sed 's/^/    /' || true
         fi
       done
-    fi
-    pgrep -x apt >/dev/null && exit 1
-    pgrep -x apt-get >/dev/null && exit 1
-    pgrep -x dpkg >/dev/null && exit 1
-    pgrep -x unattended-upgr >/dev/null && exit 1
-    exit 0
+      if command -v lslocks >/dev/null 2>&1; then
+        echo "lslocks:"
+        lslocks -u -o COMMAND,PID,TYPE,MODE,PATH 2>/dev/null | grep -E 'dpkg|apt|/var/lib/dpkg|/var/cache/apt' || echo "  (no apt/dpkg paths)"
+      fi
+      echo "processes:"
+      found=0
+      for comm in apt apt-get dpkg unattended-upgr; do
+        pids=$(pgrep -x "$comm" | tr '\n' ',' | sed 's/,$//') || true
+        if [ -n "$pids" ]; then
+          found=1
+          ps -o pid,etime,stat,comm,args -p "$pids" || true
+        fi
+      done
+      if [ "$found" -eq 0 ]; then
+        echo "  (no apt/apt-get/dpkg/unattended-upgr process)"
+      fi
+      echo "systemd:"
+      for unit in apt-daily.service apt-daily-upgrade.service unattended-upgrades.service; do
+        echo "  $unit: $(systemctl is-active "$unit" 2>/dev/null || echo unknown)"
+      done
+    }
+
+    n=0
+    while :; do
+      if apt_idle; then
+        echo "apt/dpkg idle after ${n} poll(s)"
+        exit 0
+      fi
+      echo "=== apt/dpkg busy (poll ${n}/${retries}) ==="
+      dump_apt
+      if [ "$n" -ge "$retries" ]; then
+        echo "apt/dpkg still busy after ${retries} polls"
+        exit 1
+      fi
+      sleep "$delay"
+      n=$((n + 1))
+    done
   register: ece_apt_lock
-  until: ece_apt_lock.rc == 0
-  retries: "{{ ece_package_manager_wait_retries | int }}"
-  delay: "{{ ece_package_manager_wait_delay | int }}"
   changed_when: false
   when: ansible_pkg_mgr == "apt"
+
+- name: Show apt/dpkg wait diagnostics
+  debug:
+    var: ece_apt_lock.stdout_lines
+  when:
+    - ansible_pkg_mgr == "apt"
+    - ece_apt_lock is defined
+    - ece_apt_lock.stdout_lines | default([]) | length > 0
 
 - name: Complete any interrupted dpkg configure
   command: dpkg --configure -a
@@ -37,36 +103,125 @@
 
 - name: Wait until dnf/yum locks are free
   shell: |
-    if command -v flock >/dev/null 2>&1 && [ -e /var/lib/rpm/.rpm.lock ]; then
-      flock --exclusive --nonblock /var/lib/rpm/.rpm.lock true || exit 1
-    fi
-    pgrep -x dnf >/dev/null && exit 1
-    pgrep -x dnf5 >/dev/null && exit 1
-    pgrep -x yum >/dev/null && exit 1
-    pgrep -x yum-cron >/dev/null && exit 1
-    pgrep -x dnf-automatic >/dev/null && exit 1
-    exit 0
+    retries={{ ece_package_manager_wait_retries | int }}
+    delay={{ ece_package_manager_wait_delay | int }}
+
+    dnf_idle() {
+      if command -v flock >/dev/null 2>&1 && [ -e /var/lib/rpm/.rpm.lock ]; then
+        flock --exclusive --nonblock /var/lib/rpm/.rpm.lock true || return 1
+      fi
+      pgrep -x dnf >/dev/null && return 1
+      pgrep -x dnf5 >/dev/null && return 1
+      pgrep -x yum >/dev/null && return 1
+      pgrep -x yum-cron >/dev/null && return 1
+      pgrep -x dnf-automatic >/dev/null && return 1
+      return 0
+    }
+
+    dump_dnf() {
+      echo "time=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+      echo "processes:"
+      found=0
+      for comm in dnf dnf5 yum yum-cron dnf-automatic; do
+        pids=$(pgrep -x "$comm" | tr '\n' ',' | sed 's/,$//') || true
+        if [ -n "$pids" ]; then
+          found=1
+          ps -o pid,etime,stat,comm,args -p "$pids" || true
+        fi
+      done
+      if [ "$found" -eq 0 ]; then
+        echo "  (no dnf/yum process)"
+      fi
+    }
+
+    n=0
+    while :; do
+      if dnf_idle; then
+        echo "dnf/yum idle after ${n} poll(s)"
+        exit 0
+      fi
+      echo "=== dnf/yum busy (poll ${n}/${retries}) ==="
+      dump_dnf
+      if [ "$n" -ge "$retries" ]; then
+        echo "dnf/yum still busy after ${retries} polls"
+        exit 1
+      fi
+      sleep "$delay"
+      n=$((n + 1))
+    done
   register: ece_dnf_lock
-  until: ece_dnf_lock.rc == 0
-  retries: "{{ ece_package_manager_wait_retries | int }}"
-  delay: "{{ ece_package_manager_wait_delay | int }}"
   changed_when: false
   when: ansible_pkg_mgr in ["dnf", "dnf5", "yum"]
 
+- name: Show dnf/yum wait diagnostics
+  debug:
+    var: ece_dnf_lock.stdout_lines
+  when:
+    - ansible_pkg_mgr in ["dnf", "dnf5", "yum"]
+    - ece_dnf_lock is defined
+    - ece_dnf_lock.stdout_lines | default([]) | length > 0
+
 - name: Wait until zypper locks are free
   shell: |
-    if [ -r /var/run/zypp.pid ]; then
-      pid=$(cat /var/run/zypp.pid)
-      if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+    retries={{ ece_package_manager_wait_retries | int }}
+    delay={{ ece_package_manager_wait_delay | int }}
+
+    zypper_idle() {
+      if [ -r /var/run/zypp.pid ]; then
+        pid=$(cat /var/run/zypp.pid)
+        if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+          return 1
+        fi
+      fi
+      pgrep -x zypper >/dev/null && return 1
+      pgrep -x zypp-refresh >/dev/null && return 1
+      return 0
+    }
+
+    dump_zypper() {
+      echo "time=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+      if [ -r /var/run/zypp.pid ]; then
+        echo "zypp.pid=$(cat /var/run/zypp.pid)"
+      else
+        echo "zypp.pid: absent"
+      fi
+      echo "processes:"
+      found=0
+      for comm in zypper zypp-refresh; do
+        pids=$(pgrep -x "$comm" | tr '\n' ',' | sed 's/,$//') || true
+        if [ -n "$pids" ]; then
+          found=1
+          ps -o pid,etime,stat,comm,args -p "$pids" || true
+        fi
+      done
+      if [ "$found" -eq 0 ]; then
+        echo "  (no zypper process)"
+      fi
+    }
+
+    n=0
+    while :; do
+      if zypper_idle; then
+        echo "zypper idle after ${n} poll(s)"
+        exit 0
+      fi
+      echo "=== zypper busy (poll ${n}/${retries}) ==="
+      dump_zypper
+      if [ "$n" -ge "$retries" ]; then
+        echo "zypper still busy after ${retries} polls"
         exit 1
       fi
-    fi
-    pgrep -x zypper >/dev/null && exit 1
-    pgrep -x zypp-refresh >/dev/null && exit 1
-    exit 0
+      sleep "$delay"
+      n=$((n + 1))
+    done
   register: ece_zypper_lock
-  until: ece_zypper_lock.rc == 0
-  retries: "{{ ece_package_manager_wait_retries | int }}"
-  delay: "{{ ece_package_manager_wait_delay | int }}"
   changed_when: false
   when: ansible_pkg_mgr == "zypper"
+
+- name: Show zypper wait diagnostics
+  debug:
+    var: ece_zypper_lock.stdout_lines
+  when:
+    - ansible_pkg_mgr == "zypper"
+    - ece_zypper_lock is defined
+    - ece_zypper_lock.stdout_lines | default([]) | length > 0
