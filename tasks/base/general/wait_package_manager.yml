@@ -25,7 +25,15 @@
       pgrep -x apt >/dev/null && return 1
       pgrep -x apt-get >/dev/null && return 1
       pgrep -x dpkg >/dev/null && return 1
-      pgrep -x unattended-upgr >/dev/null && return 1
+      # comm is truncated to unattended-upgr for both the upgrade and the
+      # always-on unattended-upgrade-shutdown --wait-for-signal helper.
+      for pid in $(pgrep -x unattended-upgr || true); do
+        args=$(ps -p "$pid" -o args=)
+        case "$args" in
+          *unattended-upgrade-shutdown*) ;;
+          *) return 1 ;;
+        esac
+      done
       return 0
     }
 
@@ -52,15 +60,22 @@
       fi
       echo "processes:"
       found=0
-      for comm in apt apt-get dpkg unattended-upgr; do
+      for comm in apt apt-get dpkg; do
         pids=$(pgrep -x "$comm" | tr '\n' ',' | sed 's/,$//') || true
         if [ -n "$pids" ]; then
           found=1
           ps -o pid,etime,stat,comm,args -p "$pids" || true
         fi
       done
+      for pid in $(pgrep -x unattended-upgr || true); do
+        args=$(ps -p "$pid" -o args=)
+        case "$args" in
+          *unattended-upgrade-shutdown*) echo "  pid $pid shutdown-waiter (ignored): $args" ;;
+          *) found=1; ps -o pid,etime,stat,comm,args -p "$pid" || true ;;
+        esac
+      done
       if [ "$found" -eq 0 ]; then
-        echo "  (no apt/apt-get/dpkg/unattended-upgr process)"
+        echo "  (no apt/apt-get/dpkg/unattended-upgrade process)"
       fi
       echo "systemd:"
       for unit in apt-daily.service apt-daily-upgrade.service unattended-upgrades.service; do
