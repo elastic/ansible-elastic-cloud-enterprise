@@ -104,7 +104,7 @@ docker_bridge_ip: "172.17.42.1/16"
 docker_default_nofile: 1024000
 
 # How long to wait for apt/dnf/zypper to become idle before installing packages
-# or rebooting. 60 x 10s = 10 minutes. Does not wait on cloud-init.
+# or rebooting. 60 x 10s = 10 minutes.
 ece_package_manager_wait_retries: 60
 ece_package_manager_wait_delay: 10
 

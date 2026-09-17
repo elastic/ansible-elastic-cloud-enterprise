@@ -3,9 +3,6 @@
 # Debian transaction. Used before the first package install and around the XFS
 # reboot so we do not race unattended-upgrades / apt-daily / dnf-automatic /
 # zypper, and so we do not reboot while dpkg/rpm holds a lock.
-#
-# Intentionally CSP-agnostic: only lock files and package-manager processes.
-# Works on cloud VMs and bare metal. cloud-init is never required.
 
 - name: Wait until apt/dpkg locks are free
   shell: |
