@@ -103,6 +103,11 @@ docker_bridge_ip: "172.17.42.1/16"
 # limit set in set_limits.yml.
 docker_default_nofile: 1024000
 
+# How long to wait for apt/dnf/zypper to become idle before installing packages
+# or rebooting. 60 x 10s = 10 minutes. Does not wait on cloud-init.
+ece_package_manager_wait_retries: 60
+ece_package_manager_wait_delay: 10
+
 
 # Optional. Official docs use `useradd` without -u/-g so the OS assigns UID/GID >= 1000. Set these
 # only to pin a specific id.

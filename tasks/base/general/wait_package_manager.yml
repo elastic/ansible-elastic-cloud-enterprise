@@ -1,0 +1,75 @@
+---
+# Wait until the host package manager is idle, then finish any interrupted
+# Debian transaction. Used before the first package install and around the XFS
+# reboot so we do not race unattended-upgrades / apt-daily / dnf-automatic /
+# zypper, and so we do not reboot while dpkg/rpm holds a lock.
+#
+# Intentionally CSP-agnostic: only lock files and package-manager processes.
+# Works on cloud VMs and bare metal. cloud-init is never required.
+
+- name: Wait until apt/dpkg locks are free
+  shell: |
+    if command -v flock >/dev/null 2>&1; then
+      for lock in \
+          /var/lib/dpkg/lock \
+          /var/lib/dpkg/lock-frontend \
+          /var/lib/apt/lists/lock \
+          /var/cache/apt/archives/lock; do
+        if [ -e "$lock" ]; then
+          flock --exclusive --nonblock "$lock" true || exit 1
+        fi
+      done
+    fi
+    pgrep -x apt >/dev/null && exit 1
+    pgrep -x apt-get >/dev/null && exit 1
+    pgrep -x dpkg >/dev/null && exit 1
+    pgrep -x unattended-upgr >/dev/null && exit 1
+    exit 0
+  register: ece_apt_lock
+  until: ece_apt_lock.rc == 0
+  retries: "{{ ece_package_manager_wait_retries | int }}"
+  delay: "{{ ece_package_manager_wait_delay | int }}"
+  changed_when: false
+  when: ansible_pkg_mgr == "apt"
+
+- name: Complete any interrupted dpkg configure
+  command: dpkg --configure -a
+  register: ece_dpkg_configure
+  changed_when: ece_dpkg_configure.stdout | default('') | length > 0
+  when: ansible_pkg_mgr == "apt"
+
+- name: Wait until dnf/yum locks are free
+  shell: |
+    if command -v flock >/dev/null 2>&1 && [ -e /var/lib/rpm/.rpm.lock ]; then
+      flock --exclusive --nonblock /var/lib/rpm/.rpm.lock true || exit 1
+    fi
+    pgrep -x dnf >/dev/null && exit 1
+    pgrep -x dnf5 >/dev/null && exit 1
+    pgrep -x yum >/dev/null && exit 1
+    pgrep -x yum-cron >/dev/null && exit 1
+    pgrep -x dnf-automatic >/dev/null && exit 1
+    exit 0
+  register: ece_dnf_lock
+  until: ece_dnf_lock.rc == 0
+  retries: "{{ ece_package_manager_wait_retries | int }}"
+  delay: "{{ ece_package_manager_wait_delay | int }}"
+  changed_when: false
+  when: ansible_pkg_mgr in ["dnf", "dnf5", "yum"]
+
+- name: Wait until zypper locks are free
+  shell: |
+    if [ -r /var/run/zypp.pid ]; then
+      pid=$(cat /var/run/zypp.pid)
+      if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+        exit 1
+      fi
+    fi
+    pgrep -x zypper >/dev/null && exit 1
+    pgrep -x zypp-refresh >/dev/null && exit 1
+    exit 0
+  register: ece_zypper_lock
+  until: ece_zypper_lock.rc == 0
+  retries: "{{ ece_package_manager_wait_retries | int }}"
+  delay: "{{ ece_package_manager_wait_delay | int }}"
+  changed_when: false
+  when: ansible_pkg_mgr == "zypper"

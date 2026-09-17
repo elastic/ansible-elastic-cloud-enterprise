@@ -100,6 +100,8 @@ The following variables are avaible:
     - Default: `false`
 - `ece_docker_ipv6_cidr`: IPv6 subnet written when `ece_docker_ipv6` is true.
     - Default: `fd00:10:89::/64`
+- `ece_package_manager_wait_retries` / `ece_package_manager_wait_delay`: How long to wait for apt/dnf/zypper locks to clear before the first package install and before/after the XFS reboot. Does not require cloud-init (CSP VMs and bare metal).
+    - Default: `60` retries, `10` seconds apart (10 minutes)
 - `ece_roles`: Elastic Cloud Enterprise roles that successive hosts should assume
     - Default: [director, coordinator, proxy, allocator]
 - `capacity`: [Amount of memory to grant to the allocator](https://www.elastic.co/guide/en/cloud-enterprise/current/ece-manage-capacity.html#ece-alloc-memory)

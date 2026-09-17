@@ -97,6 +97,8 @@
     that: ece_firewalld_mode in ["os-default", "disabled", "enabled"]
     msg: "ece_firewalld_mode must be one of: os-default, disabled, enabled"
 
+- include_tasks: general/wait_package_manager.yml
+
 - name: execute os specific tasks
   include_tasks: "{{ ansible_distribution }}-{{ ansible_distribution_major_version}}/main.yml"
 

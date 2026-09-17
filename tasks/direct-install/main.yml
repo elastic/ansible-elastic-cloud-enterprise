@@ -2,10 +2,16 @@
 - include_tasks: setup_xfs.yml
   tags: [setup_filesystem, destructive]
 
+- include_tasks: ../base/general/wait_package_manager.yml
+  tags: [setup_filesystem]
+
 - name: Reboot the machine with all defaults
   reboot:
     msg: "Reboot for changes to take effect initiated by Ansible"
     post_reboot_delay: 10
+  tags: [setup_filesystem]
+
+- include_tasks: ../base/general/wait_package_manager.yml
   tags: [setup_filesystem]
 
 - include_tasks: ../base/general/setup_mount_permissions.yml
