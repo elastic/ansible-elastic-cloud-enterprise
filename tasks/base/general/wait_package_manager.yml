@@ -5,8 +5,23 @@
 # zypper, and so we do not reboot while dpkg/rpm holds a lock.
 #
 # Polls in one shell task (not Ansible until) so each busy poll's holder dump is
-# in stdout when the wait finishes. First-boot security updates can hold apt for
-# several minutes; the dump shows pid/etime so a hung holder is obvious.
+# in stdout when the wait finishes. Automatic update units are stopped first so
+# we do not sit on a first-boot unattended-upgrades run; dpkg --configure -a
+# then repairs a transaction we interrupted.
+
+- name: Stop automatic apt so it does not hold the lock during install
+  systemd:
+    name: "{{ item }}"
+    state: stopped
+    enabled: false
+  loop:
+    - apt-daily.timer
+    - apt-daily-upgrade.timer
+    - apt-daily.service
+    - apt-daily-upgrade.service
+    - unattended-upgrades.service
+  failed_when: false
+  when: ansible_pkg_mgr == "apt"
 
 - name: Wait until apt/dpkg locks are free
   shell: |
