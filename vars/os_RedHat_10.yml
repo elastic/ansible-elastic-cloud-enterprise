@@ -1,6 +1,8 @@
 ---
 bootloader_update_command: grub2-mkconfig -o /etc/grub2.cfg
 conntrack_module: ip_conntrack
+docker_unit_after: "multi-user.target"
+docker_storage_driver: overlay2
 container_engine: Podman
 
 # EXPERIMENTAL in this role: RHEL 10 is installable, but not a Galaxy-listed
@@ -10,6 +12,25 @@ container_engine: Podman
 # Networking: unlike RHEL/Rocky 9 (CNI required for ECE), RHEL 10 keeps Podman's
 # OS default backend (netavark). containernetworking-plugins is not available.
 ece_os_experimental: true
+
+# Docker CE on RHEL 10 is doubly experimental: no official ECE support-matrix
+# entry. Same warning class as RHEL 9 Docker.
+ece_experimental_container_engines:
+  - Docker
+
+# Docker version mapping. Experimental — not a support-matrix combination.
+#   "29" — latest 29.x (dnf glob 29*). ECE needs Docker 29.3+; no 29.0 pin.
+docker_version_map:
+  "29":
+    name: 'Docker-CE'
+    package:
+      - docker-ce-29*
+      - docker-ce-cli-29*
+      - containerd.io
+    repo: https://download.docker.com/linux/rhel/docker-ce.repo
+    keys:
+      server: https://download.docker.com/linux/rhel/gpg
+      id: 060A 61C5 1B55 8A7F 742B 77AA C52F EB6B 621E 9F35
 
 # Podman version mapping for RHEL 10. Same major-glob pattern as RHEL/Rocky 9
 # so the latest available 5.x patch is installed (and known-bad 5.2.2-11/13
