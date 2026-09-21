@@ -51,23 +51,3 @@ See `vars/os_Ubuntu_16.yml` as an example.
 
 This folder must at least contain a file `main.yml`. Normally `main.yml` only includes playbooks which then contain the specific tasks.
 The specific tasks must include installing docker and other required packages (see [tasks/base/Ubuntu-16](tasks/base/Ubuntu-16)).
-
-## Running ECE PrSuite from a role PR
-
-This repo is public and has no ECE test pipeline of its own. Elastic org members
-can start the basic ECE `@PrSuite` against **this PR's branch** (cloned as
-`ANSIBLE_ECE_BRANCH`) on `elastic/cloud` `master`:
-
-- Comment `run ece` or `run ece/tests` on the pull request, or
-- Actions → **Run ECE PrSuite** → enter the PR number
-
-Only `MEMBER` / `OWNER` commenters are accepted. Fork PRs are rejected (CI
-clones `elastic/ansible-elastic-cloud-enterprise` by branch name). The workflow
-file must be on `master` before either trigger works.
-
-Default combo is Ubuntu 22.04 / Docker 25 (Ansible-provisioned on cloud
-`master`). Images come from the latest cloud `master` build
-(`ECE_TEST_USE_LATEST_AVAILABLE_IMAGES`).
-
-A repo admin must set the `BUILDKITE_API_TOKEN` Actions secret (Buildkite token
-with `write_builds` on `cloud-integration-ece-matcher-tests`).
