@@ -54,20 +54,24 @@ The specific tasks must include installing docker and other required packages (s
 
 ## Running ECE PrSuite from a role PR
 
-This repo is public and has no ECE test pipeline of its own. Elastic org members
-can start the basic ECE `@PrSuite` against **this PR's branch** (cloned as
-`ANSIBLE_ECE_BRANCH`) on `elastic/cloud` `master`:
+This repo is public and has no ECE environment of its own. The `ansible-ece-prsuite`
+Buildkite pipeline `trigger`s `cloud-integration-ece-matcher-tests` on
+`elastic/cloud` `master` with `ANSIBLE_ECE_BRANCH` set to this PR's branch.
 
-- Comment `run ece` or `run ece/tests` on the pull request, or
-- Actions → **Run ECE PrSuite** → enter the PR number
+Elastic org members can start it by:
 
-Only `MEMBER` / `OWNER` commenters are accepted. Fork PRs are rejected (CI
-clones `elastic/ansible-elastic-cloud-enterprise` by branch name). The workflow
-file must be on `master` before either trigger works.
+- Commenting `run ece` or `run ece/tests` on the pull request (after the
+  [pr-bot webhook](https://docs.elastic.dev/ci/configuring-pull-requests-for-buildkite) is registered), or
+- **New Build** on [ansible-ece-prsuite](https://buildkite.com/elastic/ansible-ece-prsuite) for the PR branch
+
+Fork PRs are not built. GitHub pushes do not start ECE. The parent build waits
+for matcher and reports a GitHub check; it does not post Buildkite URLs as PR
+comments.
 
 Default combo is Ubuntu 22.04 / Docker 25 (Ansible-provisioned on cloud
 `master`). Images come from the latest cloud `master` build
 (`ECE_TEST_USE_LATEST_AVAILABLE_IMAGES`).
 
-A repo admin must set the `BUILDKITE_API_TOKEN` Actions secret (Buildkite token
-with `write_builds` on `cloud-integration-ece-matcher-tests`).
+Terrazzo creates the pipeline from `catalog-info.yaml` after this lands on
+`master`. `elasticmachine` needs at least Read on the repo for comment
+triggers.

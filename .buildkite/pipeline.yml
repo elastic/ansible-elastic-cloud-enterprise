@@ -1,0 +1,20 @@
+---
+# Trigger ECE @PrSuite on elastic/cloud master, installing this role branch.
+# Do not pass BUILDKITE_PULL_REQUEST through: that number is an ansible-ece PR,
+# not an elastic/cloud PR.
+steps:
+  - label: ":elastic: ECE PrSuite"
+    trigger: cloud-integration-ece-matcher-tests
+    async: false
+    build:
+      message: "ansible-ece ${BUILDKITE_BRANCH} PrSuite"
+      branch: master
+      commit: HEAD
+      env:
+        ANSIBLE_ECE_BRANCH: "${BUILDKITE_BRANCH}"
+        ECE_TEST_USE_LATEST_AVAILABLE_IMAGES: "true"
+        # Ansible-provisioned combo on cloud master (ubuntu_24.04 / docker_29 is
+        # still on the shell path until cloud#158721 merges).
+        ECE_TESTS_OS: ubuntu_22.04
+        ECE_TESTS_DOCKER: docker_25
+        TEST_MATCHER: "-w co.elastic.cloud --tag co.elastic.cloud.test.tags.PrSuite"
