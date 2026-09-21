@@ -14,8 +14,7 @@ container_engine: Podman
 ece_os_experimental: true
 
 # Docker CE on RHEL 10 is doubly experimental: no official ECE support-matrix
-# entry AND no official Docker CE RHEL 10 repo yet (uses the CentOS 9 stream
-# repo as a stand-in). Same warning class as RHEL 9 Docker.
+# entry. Same warning class as RHEL 9 Docker.
 ece_experimental_container_engines:
   - Docker
 
@@ -28,9 +27,9 @@ docker_version_map:
       - docker-ce-29*
       - docker-ce-cli-29*
       - containerd.io
-    repo: https://download.docker.com/linux/centos/docker-ce.repo
+    repo: https://download.docker.com/linux/rhel/docker-ce.repo
     keys:
-      server: https://download.docker.com/linux/centos/gpg
+      server: https://download.docker.com/linux/rhel/gpg
       id: 060A 61C5 1B55 8A7F 742B 77AA C52F EB6B 621E 9F35
 
 # Podman version mapping for RHEL 10. Same major-glob pattern as RHEL/Rocky 9

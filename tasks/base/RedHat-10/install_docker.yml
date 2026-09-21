@@ -37,14 +37,14 @@
   delay: 30
   until: repo_installed is success
 
-# The vendor repo file uses $releasever which DNF expands to the host OS version.
-# On RHEL 10 that produces centos/10/... which does not exist on Docker's CDN.
-# Pin to centos/9 so packages are fetched from the CentOS 9 stream stand-in.
-- name: Pin Docker CE repo baseurl to CentOS 9 stream
+# Docker's RHEL repo tree has 10/ but not minor-version paths (10.0, 10.1…).
+# If $releasever expands beyond the major version, DNF metadata would 404.
+# Pin to the major version string so the path stays valid regardless.
+- name: Pin Docker CE repo baseurl to RHEL 10
   replace:
     path: /etc/yum.repos.d/docker-ce.repo
     regexp: '\$releasever'
-    replace: '9'
+    replace: '10'
 
 - name: Install docker
   package:
