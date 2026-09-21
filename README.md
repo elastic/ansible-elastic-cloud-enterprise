@@ -135,10 +135,10 @@ The following variables are avaible:
 - `memory`: Defines the JVM heap size to be used for different services running in ece. See https://www.elastic.co/guide/en/cloud-enterprise/2.7/ece-jvm.html for example values and [defaults/main.yml](defaults/main.yml) for the default values.
 
 - `fetch_diagnostics`: Determines if Elastic Cloud Enterprise Support Diagnostics should be downloaded and executed
-- `ece_supportdiagnostics_version`: Version of [ece-support-diagnostics](https://github.com/elastic/ece-support-diagnostics) used to build the download URL and the extracted script path.
-    - Default: `1.3`
+- `ece_supportdiagnostics_version`: Version of [ece-support-diagnostics](https://github.com/elastic/ece-support-diagnostics) used to build the download URL and the extracted script path. 2.x+ requires the official `-dist` release (not the GitHub source archive).
+    - Default: `2.0.9`
 - `ece_supportdiagnostics_url`: The location of the diagnostics tool. Can be a local file for offline installation.
-    - Default: `https://github.com/elastic/ece-support-diagnostics/archive/v{{ ece_supportdiagnostics_version }}.tar.gz`
+    - Default: `https://github.com/elastic/ece-support-diagnostics/releases/download/v{{ ece_supportdiagnostics_version }}/ece-support-diagnostics-v{{ ece_supportdiagnostics_version }}-dist.tar.gz`
 - `ece_supportdiagnostics_result_path`: The localtion where to store the diagnostic bundles on ansible host.
     - Default: `/tmp/ece-support-diagnostics`
 - `ece_runner_id`: Assigns an arbitrary ID to the host (runner) that you are installing Elastic Cloud Enterprise on
