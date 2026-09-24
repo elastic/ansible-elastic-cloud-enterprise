@@ -14,7 +14,7 @@ docker_version_map:
     package:
       - docker-ce=5:29.*
       - docker-ce-cli=5:29.*
-      - containerd.io
+      - containerd.io=2.*
     repo: deb [signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu noble stable
     keys:
       server: https://download.docker.com/linux/ubuntu/gpg
