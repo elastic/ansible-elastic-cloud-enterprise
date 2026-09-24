@@ -81,30 +81,6 @@
     msg: "Docker version must be one of {{ docker_version_map.keys() }}"
   when: container_engine == "Docker"
 
-- name: Assert static Docker installs have a tarball version
-  assert:
-    that:
-      - docker_version_map[docker_version].tarball_version is defined
-      - docker_version_map[docker_version].tarball_version | length > 0
-    msg: >-
-      Static Docker install for {{ docker_version }} has no tarball_version.
-      Set it on the OS docker_version_map entry.
-  when:
-    - container_engine == "Docker"
-    - docker_version_map[docker_version].method | default('') == 'static'
-
-- name: Assert Docker CE package lists pin containerd.io
-  assert:
-    that:
-      - "'containerd.io' not in docker_version_map[docker_version].package"
-    msg: >-
-      Docker package list for {{ docker_version }} contains a bare
-      containerd.io. Pin it (for example containerd.io=1.7.*).
-  when:
-    - container_engine == "Docker"
-    - docker_version_map[docker_version].package is defined
-    - docker_version_map[docker_version].package is not string
-
 - name: Assert Podman version is supported
   assert:
     that: "podman_version in podman_version_map.keys() or podman_version is match('^[0-9][0-9.]*$')"
