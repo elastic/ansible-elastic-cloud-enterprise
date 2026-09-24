@@ -75,15 +75,6 @@
     podman_version: "{{ podman_version | default(podman_version_map.keys()|list|last, true) }}"
   when: container_engine == "Podman"
 
-- name: Reject docker_version=29.0
-  fail:
-    msg: >-
-      docker_version=29.0 is not supported (ECE does not support Docker 29.0–29.2).
-      Pass docker_version=29 for the latest 29.x.
-  when:
-    - container_engine == "Docker"
-    - docker_version == "29.0"
-
 - name: Assert Docker version is supported
   assert:
     that: "docker_version in docker_version_map.keys()"
