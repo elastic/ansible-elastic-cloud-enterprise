@@ -1,8 +1,24 @@
 ---
+- name: Stop the docker socket
+  systemd:
+    name: docker.socket
+    state: stopped
+  failed_when: false
+
 - name: Stop the docker service
   systemd:
     name: docker
     state: stopped
+  failed_when: false
+
+- name: Unmount any lingering mounts under /var/lib/docker
+  shell: |
+    mounts=$(mount | awk '$3 ~ "^/var/lib/docker(/|$)" { print $3 }' | sort -r)
+    if [ -n "$mounts" ]; then
+      echo "$mounts" | xargs umount -l && echo "$mounts"
+    fi
+  register: docker_umount_result
+  changed_when: docker_umount_result.stdout != ""
 
 - name: Ensures /etc/systemd/system/docker.service.d dir exists
   file:
