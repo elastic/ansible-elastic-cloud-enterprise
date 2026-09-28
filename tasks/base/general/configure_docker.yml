@@ -41,11 +41,22 @@
     create: yes
   when: docker_version == '1.13'
 
-- name: Remove var/lib/docker
+# Docker is repointed at {{ data_dir }}/docker above, so the default data root only needs to be
+# emptied, not removed. Removing it breaks on SLES 15, where /var/lib/docker is a mount of its own
+# (SUSE's docker-img-store-setup.service gives it a dedicated btrfs subvolume) and rmdir on a mount
+# point fails with EBUSY.
+- name: Find leftovers in var/lib/docker
+  find:
+    paths: /var/lib/docker
+    file_type: any
+    hidden: yes
+  register: default_docker_data_root
+
+- name: Empty var/lib/docker
   file:
-    path: /var/lib/docker
+    path: "{{ item.path }}"
     state: absent
-    force: yes
+  with_items: "{{ default_docker_data_root.files }}"
 
 # Official host-prep puts default-ulimits in daemon.json only. Do not also pass dockerd --default-ulimit
 # flags; Docker refuses the same directive in both places. Render via the template module so Hard/Soft
