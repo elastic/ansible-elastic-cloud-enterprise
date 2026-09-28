@@ -1,4 +1,12 @@
 ---
+# Left running, socket activation puts dockerd back on the default data root while the tasks below
+# rewrite its config and clear it. Static installs ship no docker.socket, so a failure here is fine.
+- name: Stop the docker socket
+  systemd:
+    name: docker.socket
+    state: stopped
+  failed_when: false
+
 - name: Stop the docker service
   systemd:
     name: docker
