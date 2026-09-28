@@ -41,10 +41,6 @@
     create: yes
   when: docker_version == '1.13'
 
-# Docker is repointed at {{ data_dir }}/docker above, so the default data root only needs to be
-# emptied, not removed. Removing it breaks on SLES 15, where /var/lib/docker is a mount of its own
-# (SUSE's docker-img-store-setup.service gives it a dedicated btrfs subvolume) and rmdir on a mount
-# point fails with EBUSY.
 - name: Find leftovers in var/lib/docker
   find:
     paths: /var/lib/docker
