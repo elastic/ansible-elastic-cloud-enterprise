@@ -41,18 +41,36 @@
     create: yes
   when: docker_version == '1.13'
 
+- name: Stat var/lib/docker
+  stat:
+    path: /var/lib/docker
+    follow: no
+  register: default_docker_data_root
+
+# A symlinked data root has to be unlinked rather than emptied through: the target is a
+# relocated Docker storage directory that may well still be in use.
+- name: Remove var/lib/docker unless it is a real directory
+  file:
+    path: /var/lib/docker
+    state: absent
+    force: yes
+  when:
+    - default_docker_data_root.stat.exists | default(false)
+    - not (default_docker_data_root.stat.isdir | default(false))
+
 - name: Find leftovers in var/lib/docker
   find:
     paths: /var/lib/docker
     file_type: any
     hidden: yes
-  register: default_docker_data_root
+  register: default_docker_data_root_contents
+  when: default_docker_data_root.stat.isdir | default(false)
 
 - name: Empty var/lib/docker
   file:
     path: "{{ item.path }}"
     state: absent
-  with_items: "{{ default_docker_data_root.files }}"
+  with_items: "{{ default_docker_data_root_contents.files | default([]) }}"
 
 # Official host-prep puts default-ulimits in daemon.json only. Do not also pass dockerd --default-ulimit
 # flags; Docker refuses the same directive in both places. Render via the template module so Hard/Soft
