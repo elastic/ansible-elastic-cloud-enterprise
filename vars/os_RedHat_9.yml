@@ -21,7 +21,7 @@ docker_version_map:
     package:
       - docker-ce-29.*
       - docker-ce-cli-29.*
-      - containerd.io-2.*
+      - containerd.io
     repo: https://download.docker.com/linux/centos/docker-ce.repo
     keys:
       server: https://download.docker.com/linux/centos/gpg
