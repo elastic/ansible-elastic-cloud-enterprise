@@ -6,7 +6,8 @@ conntrack_module: xt_conntrack
 container_engine: Docker
 
 # Docker version mapping. The last key is the default when no docker_version is requested.
-# "27" is latest 27.x; "27.0" is the 27.0 line only.
+# "27" is latest 27.x. "27.0" is the same packages (old ECE matrix label) so existing
+# docker_version=27.0 callers still get latest 27.x.
 docker_version_map:
   "20.10":
     package:
@@ -19,8 +20,8 @@ docker_version_map:
       id: 0EBFCD88
   "27.0":
     package:
-      - docker-ce=5:27.0.*
-      - docker-ce-cli=5:27.0.*
+      - docker-ce=5:27.*
+      - docker-ce-cli=5:27.*
       - containerd.io=1.7.*
     repo: deb https://download.docker.com/linux/ubuntu focal stable
     keys:
