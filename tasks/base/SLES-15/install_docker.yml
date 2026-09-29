@@ -27,8 +27,6 @@
         state: present
       vars:
         packages:
-        - runc
-        - containerd
         - fuse-overlayfs
         - slirp4netns
         - libseccomp2
