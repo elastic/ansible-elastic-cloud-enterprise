@@ -1,0 +1,46 @@
+---
+# yaml-language-server: $schema=https://gist.githubusercontent.com/elasticmachine/988b80dae436cafea07d9a4a460a011d/raw/rre.schema.json
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: buildkite-pipeline-ansible-ece-prsuite
+  description: Trigger ECE PrSuite against this role branch (ANSIBLE_ECE_BRANCH)
+  links:
+    - title: Pipeline
+      url: https://buildkite.com/elastic/ansible-ece-prsuite
+spec:
+  type: buildkite-pipeline
+  owner: group:control-plane-hosted-foundations
+  system: buildkite
+  implementation:
+    apiVersion: buildkite.elastic.dev/v1
+    kind: Pipeline
+    metadata:
+      name: ansible-ece-prsuite
+      description: Trigger ECE matcher PrSuite on elastic/cloud master with this role branch
+    spec:
+      repository: elastic/ansible-elastic-cloud-enterprise
+      pipeline_file: .buildkite/pipeline.yml
+      default_branch: master
+      # Parent waits on the ECE matcher run.
+      maximum_timeout_in_minutes: 240
+      skip_intermediate_builds: false
+      cancel_intermediate_builds: false
+      provider_settings:
+        # API / UI / pr-bot only. Do not run ECE on every git push.
+        # `none` can reject API builds ("branches have been disabled"); `deployment`
+        # is unused here and still allows API triggers.
+        trigger_mode: deployment
+        build_branches: false
+        build_pull_requests: true
+        build_pull_request_forks: false
+        build_tags: false
+        publish_commit_status: true
+        publish_blocked_as_pending: true
+      teams:
+        cloud-team:
+          access_level: MANAGE_BUILD_AND_READ
+        control-plane-hosted-foundations:
+          access_level: MANAGE_BUILD_AND_READ
+        everyone:
+          access_level: BUILD_AND_READ
