@@ -64,6 +64,19 @@ Elastic org members can start it by:
   [pr-bot webhook](https://docs.elastic.dev/ci/configuring-pull-requests-for-buildkite) is registered), or
 - **New Build** on [ansible-ece-prsuite](https://buildkite.com/elastic/ansible-ece-prsuite) for the PR branch
 
+Override the OS / container-engine combo the same way as on `elastic/cloud`
+(`ECE_TESTS_OS` and `ECE_TESTS_DOCKER` tokens from `.ci/ece-test-matrix.json`).
+Optional `ECE_TESTS_ENV` selects the Terraform env (`ce-aws`, `ce-aws-arm`, …).
+
+```text
+run ece
+run ece ECE_TESTS_OS=ubuntu_24.04 ECE_TESTS_DOCKER=docker_29
+run ece/tests ECE_TESTS_OS=sles_15 ECE_TESTS_DOCKER=docker_29
+```
+
+On **New Build**, set the same names as environment variables. Unset keys keep
+the default combo: Ubuntu 22.04 / Docker 25.
+
 Fork PRs are not built. GitHub pushes do not start ECE. The parent build waits
 for matcher and reports a GitHub check; it does not post Buildkite URLs as PR
 comments.
