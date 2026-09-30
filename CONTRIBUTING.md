@@ -80,8 +80,9 @@ On **New Build**, set the same names as environment variables. Unset keys keep
 the default combo: Ubuntu 22.04 / Docker 25.
 
 Fork PRs are not built. GitHub pushes do not start ECE. The parent build waits
-for matcher and reports a GitHub check; it does not post Buildkite URLs as PR
-comments.
+for matcher and reports a GitHub check (`buildkite/ansible-ece-prsuite`) on the
+PR commit so a running job is visible in the checks panel. It does not post
+Buildkite URLs as PR comments.
 
 Default combo is Ubuntu 22.04 / Docker 25 (Ansible-provisioned on cloud
 `master`). Images come from the latest cloud `master` build

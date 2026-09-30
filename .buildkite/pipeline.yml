@@ -7,6 +7,15 @@
 # (OS, CONTAINER_ENGINE) or a PR comment:
 #   run ece OS=ubuntu_24.04 CONTAINER_ENGINE=docker_29
 # Those map to ECE_TESTS_OS / ECE_TESTS_DOCKER on the matcher.
+#
+# GitHub Checks: post against this commit so the ansible-ece PR shows a running
+# job. Do not forward BUILDKITE_PULL_REQUEST to the matcher (wrong repo's PR #).
+notify:
+  - github_check:
+      name: "buildkite/ansible-ece-prsuite"
+  - github_commit_status:
+      context: "buildkite/ansible-ece-prsuite"
+      blocked_builds_as_pending: true
 steps:
   - label: ":pipeline: ECE PrSuite"
     command: bash .buildkite/trigger-prsuite.sh

@@ -35,8 +35,16 @@ spec:
         build_pull_requests: true
         build_pull_request_forks: false
         build_tags: false
+        # Required with buildkite-pr-bot: GitHub App PR events are ignored unless
+        # elasticmachine created the build (comment trigger). Branch/API builds
+        # (pull_request.id == null) still run.
+        filter_enabled: true
+        filter_condition: >-
+          build.pull_request.id == null || (build.creator.name == 'elasticmachine' && build.pull_request.id != null)
         publish_commit_status: true
+        publish_commit_status_per_step: false
         publish_blocked_as_pending: true
+        skip_pull_request_builds_for_existing_commits: false
       teams:
         cloud-team:
           access_level: MANAGE_BUILD_AND_READ
