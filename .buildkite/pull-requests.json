@@ -1,0 +1,14 @@
+{
+  "jobs": [
+    {
+      "enabled": true,
+      "pipeline_slug": "ansible-ece-prsuite",
+      "allow_org_users": true,
+      "build_on_comment": true,
+      "build_on_commit": false,
+      "set_commit_status": true,
+      "commit_status_context": "buildkite/ansible-ece-prsuite",
+      "trigger_comment_regex": "^run ece(?:/tests)?\\s*$"
+    }
+  ]
+}
