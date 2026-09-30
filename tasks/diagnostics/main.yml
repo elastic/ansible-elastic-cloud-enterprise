@@ -1,10 +1,11 @@
 ---
-- name: Create path /tmp/elastic
+- name: Create local download path
   ansible.builtin.file:
     path: /tmp/elastic/ece-support-diagnostics
     state: directory
     mode: "0755"
   delegate_to: localhost
+  become: false
 
 - name: Download ece support diagnostics
   ansible.builtin.get_url:
@@ -12,20 +13,20 @@
     dest: /tmp/elastic/ece-support-diagnostics.tar.gz
     mode: "0755"
   delegate_to: localhost
+  become: false
 
+- name: Create remote extract path
+  ansible.builtin.file:
+    path: /tmp/elastic
+    state: directory
+    mode: "0755"
+
+# Extract on the managed host so GNU tar is used. Ansible's unarchive module
+# rejects BSD tar (macOS controllers) for .tar.gz.
 - name: Unzip downloaded ece support diagnostics
   ansible.builtin.unarchive:
     src: /tmp/elastic/ece-support-diagnostics.tar.gz
     dest: /tmp/elastic/
-  delegate_to: localhost
-
-# 2.x -dist includes helper binaries next to ece-diagnostics.sh; copy the
-# whole tree so those stay on PATH relative to the script (DIR).
-- name: Copy ece support diagnostics to the remote host
-  ansible.builtin.copy:
-    src: /tmp/elastic/ece-support-diagnostics-v{{ ece_supportdiagnostics_version }}/
-    dest: /tmp/elastic/ece-support-diagnostics-v{{ ece_supportdiagnostics_version }}/
-    mode: preserve
 
 - name: Run ece support diagnostics
   ansible.builtin.command:
