@@ -64,15 +64,16 @@ Elastic org members can start it by:
   [pr-bot webhook](https://docs.elastic.dev/ci/configuring-pull-requests-for-buildkite) is registered), or
 - **New Build** on [ansible-ece-prsuite](https://buildkite.com/elastic/ansible-ece-prsuite) for the PR branch
 
-Override the OS / container-engine combo the same way as on `elastic/cloud`
-(`ECE_TESTS_OS` and `ECE_TESTS_DOCKER` tokens from `.ci/ece-test-matrix.json`).
-Arm coverage is `ECE_TESTS_OS=ubuntu_22.04_arm64`, not `ECE_TESTS_ENV=ce-aws-arm`
-(that env is the legacy shell/puppet path).
+Override the combo with `OS` and `CONTAINER_ENGINE` (tokens from cloud
+`.ci/ece-test-matrix.json`). This pipeline remaps them to `ECE_TESTS_OS` /
+`ECE_TESTS_DOCKER` for the matcher. The long names still work as aliases.
+Arm coverage is `OS=ubuntu_22.04_arm64`, not the legacy `ce-aws-arm` env
+(that path is shell/puppet, not Ansible).
 
 ```text
 run ece
-run ece ECE_TESTS_OS=ubuntu_24.04 ECE_TESTS_DOCKER=docker_29
-run ece/tests ECE_TESTS_OS=sles_15 ECE_TESTS_DOCKER=docker_29
+run ece OS=ubuntu_24.04 CONTAINER_ENGINE=docker_29
+run ece/tests OS=sles_15 CONTAINER_ENGINE=docker_29
 ```
 
 On **New Build**, set the same names as environment variables. Unset keys keep
