@@ -66,7 +66,8 @@ Elastic org members can start it by:
 
 Override the OS / container-engine combo the same way as on `elastic/cloud`
 (`ECE_TESTS_OS` and `ECE_TESTS_DOCKER` tokens from `.ci/ece-test-matrix.json`).
-Optional `ECE_TESTS_ENV` selects the Terraform env (`ce-aws`, `ce-aws-arm`, …).
+Arm coverage is `ECE_TESTS_OS=ubuntu_22.04_arm64`, not `ECE_TESTS_ENV=ce-aws-arm`
+(that env is the legacy shell/puppet path).
 
 ```text
 run ece

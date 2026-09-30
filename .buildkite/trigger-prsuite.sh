@@ -6,7 +6,7 @@ apply_kv() {
   local key="$1"
   local val="$2"
   case "$key" in
-    ECE_TESTS_OS | ECE_TESTS_DOCKER | ECE_TESTS_ENV)
+    ECE_TESTS_OS | ECE_TESTS_DOCKER)
       if [[ ! "$val" =~ ^[A-Za-z0-9._-]+$ ]]; then
         echo "Invalid value for ${key}: ${val}" >&2
         exit 1
@@ -41,16 +41,7 @@ if [[ ! "$ECE_TESTS_OS" =~ ^[A-Za-z0-9._-]+$ || ! "$ECE_TESTS_DOCKER" =~ ^[A-Za-
   exit 1
 fi
 
-env_extra=""
-if [[ -n "${ECE_TESTS_ENV:-}" ]]; then
-  if [[ ! "$ECE_TESTS_ENV" =~ ^[A-Za-z0-9._-]+$ ]]; then
-    echo "Invalid ECE_TESTS_ENV: ${ECE_TESTS_ENV}" >&2
-    exit 1
-  fi
-  env_extra="        ECE_TESTS_ENV: \"${ECE_TESTS_ENV}\""
-fi
-
-echo "Triggering ECE PrSuite OS=${ECE_TESTS_OS} DOCKER=${ECE_TESTS_DOCKER}${ECE_TESTS_ENV:+ ENV=${ECE_TESTS_ENV}} branch=${BUILDKITE_BRANCH}"
+echo "Triggering ECE PrSuite OS=${ECE_TESTS_OS} DOCKER=${ECE_TESTS_DOCKER} branch=${BUILDKITE_BRANCH}"
 
 buildkite-agent pipeline upload <<EOF
 steps:
@@ -66,6 +57,5 @@ steps:
         ECE_TEST_USE_LATEST_AVAILABLE_IMAGES: "true"
         ECE_TESTS_OS: "${ECE_TESTS_OS}"
         ECE_TESTS_DOCKER: "${ECE_TESTS_DOCKER}"
-${env_extra}
         TEST_MATCHER: "-w co.elastic.cloud --tag co.elastic.cloud.test.tags.PrSuite"
 EOF
