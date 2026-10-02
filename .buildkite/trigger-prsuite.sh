@@ -2,8 +2,20 @@
 # Resolve the ECE OS/runtime combo and trigger matcher PrSuite on cloud master.
 set -euo pipefail
 
-# Comment/New Build use OS and CONTAINER_ENGINE. The matcher still wants
-# ECE_TESTS_OS / ECE_TESTS_DOCKER (legacy names); those aliases still work.
+# Comment/New Build use ECE_TESTS_OS and ECE_TESTS_CONTAINER_ENGINE.
+# The matcher still expects ECE_TESTS_DOCKER for the engine token; remap here.
+# ECE_TESTS_DOCKER is accepted as an alias.
+
+combo_os=""
+combo_engine=""
+
+is_generic_os_name() {
+  case "$1" in
+    linux | Linux | darwin | Darwin | Windows_NT | windows | macOS) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
 apply_kv() {
   local key="$1"
   local val="$2"
@@ -12,11 +24,15 @@ apply_kv() {
     exit 1
   fi
   case "$key" in
-    OS | ECE_TESTS_OS)
-      ECE_TESTS_OS="$val"
+    ECE_TESTS_OS)
+      if is_generic_os_name "$val"; then
+        echo "Ignoring ${key}=${val} (not an ECE OS token)" >&2
+        return 0
+      fi
+      combo_os="$val"
       ;;
-    CONTAINER_ENGINE | ECE_TESTS_DOCKER)
-      ECE_TESTS_DOCKER="$val"
+    ECE_TESTS_CONTAINER_ENGINE | ECE_TESTS_DOCKER)
+      combo_engine="$val"
       ;;
     *)
       echo "Ignoring unsupported comment arg: ${key}" >&2
@@ -24,15 +40,19 @@ apply_kv() {
   esac
 }
 
-if [[ -n "${OS:-}" ]]; then
-  apply_kv OS "$OS"
+if [[ -n "${ECE_TESTS_OS:-}" ]]; then
+  apply_kv ECE_TESTS_OS "$ECE_TESTS_OS"
 fi
-if [[ -n "${CONTAINER_ENGINE:-}" ]]; then
-  apply_kv CONTAINER_ENGINE "$CONTAINER_ENGINE"
+# Preferred name wins over the matcher alias if both are set.
+if [[ -n "${ECE_TESTS_DOCKER:-}" ]]; then
+  apply_kv ECE_TESTS_DOCKER "$ECE_TESTS_DOCKER"
+fi
+if [[ -n "${ECE_TESTS_CONTAINER_ENGINE:-}" ]]; then
+  apply_kv ECE_TESTS_CONTAINER_ENGINE "$ECE_TESTS_CONTAINER_ENGINE"
 fi
 
 # Named capture group `args` from pull-requests.json, e.g.
-# `OS=ubuntu_24.04 CONTAINER_ENGINE=docker_29`.
+# `ECE_TESTS_OS=ubuntu_24.04 ECE_TESTS_CONTAINER_ENGINE=docker_29`.
 args="${GITHUB_PR_COMMENT_VAR_ARGS:-}"
 if [[ -z "$args" && -n "${GITHUB_PR_TRIGGER_COMMENT:-}" ]]; then
   args="${GITHUB_PR_TRIGGER_COMMENT#run ece/tests}"
@@ -45,29 +65,33 @@ for token in $args; do
   apply_kv "${token%%=*}" "${token#*=}"
 done
 
-ECE_TESTS_OS="${ECE_TESTS_OS:-ubuntu_22.04}"
-ECE_TESTS_DOCKER="${ECE_TESTS_DOCKER:-docker_25}"
+combo_os="${combo_os:-ubuntu_22.04}"
+combo_engine="${combo_engine:-docker_25}"
 
-if [[ ! "$ECE_TESTS_OS" =~ ^[A-Za-z0-9._-]+$ || ! "$ECE_TESTS_DOCKER" =~ ^[A-Za-z0-9._-]+$ ]]; then
-  echo "Invalid OS=${ECE_TESTS_OS} or CONTAINER_ENGINE=${ECE_TESTS_DOCKER}" >&2
+if [[ ! "$combo_os" =~ ^[A-Za-z0-9._-]+$ || ! "$combo_engine" =~ ^[A-Za-z0-9._-]+$ ]]; then
+  echo "Invalid ECE_TESTS_OS=${combo_os} or ECE_TESTS_CONTAINER_ENGINE=${combo_engine}" >&2
+  exit 1
+fi
+if is_generic_os_name "$combo_os"; then
+  echo "Invalid ECE_TESTS_OS=${combo_os}: not an ECE matrix token" >&2
   exit 1
 fi
 
-echo "Triggering ECE PrSuite OS=${ECE_TESTS_OS} CONTAINER_ENGINE=${ECE_TESTS_DOCKER} branch=${BUILDKITE_BRANCH}"
+echo "Triggering ECE PrSuite ECE_TESTS_OS=${combo_os} ECE_TESTS_CONTAINER_ENGINE=${combo_engine} branch=${BUILDKITE_BRANCH}"
 
 buildkite-agent pipeline upload <<EOF
 steps:
-  - label: ":elastic: ECE PrSuite (${ECE_TESTS_OS} / ${ECE_TESTS_DOCKER})"
+  - label: ":elastic: ECE PrSuite (${combo_os} / ${combo_engine})"
     trigger: cloud-integration-ece-matcher-tests
     async: false
     build:
-      message: "ansible-ece ${BUILDKITE_BRANCH} PrSuite ${ECE_TESTS_OS}/${ECE_TESTS_DOCKER}"
+      message: "ansible-ece ${BUILDKITE_BRANCH} PrSuite ${combo_os}/${combo_engine}"
       branch: master
       commit: HEAD
       env:
         ANSIBLE_ECE_BRANCH: "${BUILDKITE_BRANCH}"
         ECE_TEST_USE_LATEST_AVAILABLE_IMAGES: "true"
-        ECE_TESTS_OS: "${ECE_TESTS_OS}"
-        ECE_TESTS_DOCKER: "${ECE_TESTS_DOCKER}"
+        ECE_TESTS_OS: "${combo_os}"
+        ECE_TESTS_DOCKER: "${combo_engine}"
         TEST_MATCHER: "-w co.elastic.cloud --tag co.elastic.cloud.test.tags.PrSuite"
 EOF
