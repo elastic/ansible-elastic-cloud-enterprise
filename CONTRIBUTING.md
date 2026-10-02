@@ -77,14 +77,14 @@ run ece ECE_TESTS_OS=ubuntu_24.04 ECE_TESTS_CONTAINER_ENGINE=docker_29
 run ece/tests ECE_TESTS_OS=sles_15 ECE_TESTS_CONTAINER_ENGINE=docker_29
 ```
 
-Unset keys keep the default combo: Ubuntu 22.04 / Docker 25.
+Unset keys keep the default combo: Ubuntu 24.04 / Docker 29.
 
 Fork PRs are not built. GitHub pushes do not start ECE. The parent build waits
 for matcher and reports a GitHub check (`buildkite/ansible-ece-prsuite`) on the
 PR commit so a running job is visible in the checks panel. It does not post
 Buildkite URLs as PR comments.
 
-Default combo is Ubuntu 22.04 / Docker 25 (Ansible-provisioned on cloud
+Default combo is Ubuntu 24.04 / Docker 29 (Ansible-provisioned on cloud
 `master`). Images come from the latest cloud `master` build
 (`ECE_TEST_USE_LATEST_AVAILABLE_IMAGES`).
 

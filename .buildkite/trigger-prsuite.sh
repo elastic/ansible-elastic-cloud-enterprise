@@ -65,8 +65,8 @@ for token in $args; do
   apply_kv "${token%%=*}" "${token#*=}"
 done
 
-combo_os="${combo_os:-ubuntu_22.04}"
-combo_engine="${combo_engine:-docker_25}"
+combo_os="${combo_os:-ubuntu_24.04}"
+combo_engine="${combo_engine:-docker_29}"
 
 if [[ ! "$combo_os" =~ ^[A-Za-z0-9._-]+$ || ! "$combo_engine" =~ ^[A-Za-z0-9._-]+$ ]]; then
   echo "Invalid ECE_TESTS_OS=${combo_os} or ECE_TESTS_CONTAINER_ENGINE=${combo_engine}" >&2
