@@ -20,7 +20,7 @@ In `tasks/base/main.yml` tasks and variables are dynamically included depending 
   - unsupported.yml
 ```
 This means:
-- All distribution specific *variables* go into `vars/os_DISTRIBUTION_MAJORVERSION.yml` (e.g. `os_Ubuntu_16.yml`)
+- All distribution specific *variables* go into `vars/os_DISTRIBUTION_MAJORVERSION.yml` (e.g. `os_Ubuntu_22.yml`)
 - All distribution specific *tasks* go in `tasks/base/DISTRIBUTION-MAJORVERSION/`
 
 Distribution specific tasks are executed prior to all general tasks and include e.g. installing specific packages.
@@ -45,12 +45,12 @@ docker_version_map:
     package: docker-19.03.14_ce
 ```
 
-See `vars/os_Ubuntu_16.yml` as an example.
+See `vars/os_Ubuntu_22.yml` as an example.
 
 **2)** Add a folder `DISTRIBUTION-MAJORVERSION` to `tasks/base/`
 
 This folder must at least contain a file `main.yml`. Normally `main.yml` only includes playbooks which then contain the specific tasks.
-The specific tasks must include installing docker and other required packages (see [tasks/base/Ubuntu-16](tasks/base/Ubuntu-16)).
+The specific tasks must include installing docker and other required packages (see [tasks/base/Ubuntu-22](tasks/base/Ubuntu-22)).
 
 ## Running ECE PrSuite from a role PR
 
@@ -64,11 +64,27 @@ Elastic org members can start it by:
   [pr-bot webhook](https://docs.elastic.dev/ci/configuring-pull-requests-for-buildkite) is registered), or
 - **New Build** on [ansible-ece-prsuite](https://buildkite.com/elastic/ansible-ece-prsuite) for the PR branch
 
-Fork PRs are not built. GitHub pushes do not start ECE. The parent build waits
-for matcher and reports a GitHub check; it does not post Buildkite URLs as PR
-comments.
+Override the combo with `ECE_TESTS_OS` and `ECE_TESTS_CONTAINER_ENGINE` (tokens
+from cloud `.ci/ece-test-matrix.json`). The same names work on a PR comment and
+on **New Build**. This pipeline remaps `ECE_TESTS_CONTAINER_ENGINE` to
+`ECE_TESTS_DOCKER` for the matcher; that matcher name still works as an alias.
+Arm coverage is `ECE_TESTS_OS=ubuntu_22.04_arm64`, not the legacy `ce-aws-arm`
+env (that path is shell/puppet, not Ansible).
 
-Default combo is Ubuntu 22.04 / Docker 25 (Ansible-provisioned on cloud
+```text
+run ece
+run ece ECE_TESTS_OS=ubuntu_24.04 ECE_TESTS_CONTAINER_ENGINE=docker_29
+run ece/tests ECE_TESTS_OS=sles_15 ECE_TESTS_CONTAINER_ENGINE=docker_29
+```
+
+Unset keys keep the default combo: Ubuntu 24.04 / Docker 29.
+
+Fork PRs are not built. GitHub pushes do not start ECE. The parent build waits
+for matcher and reports a GitHub check (`buildkite/ansible-ece-prsuite`) on the
+PR commit so a running job is visible in the checks panel. It does not post
+Buildkite URLs as PR comments.
+
+Default combo is Ubuntu 24.04 / Docker 29 (Ansible-provisioned on cloud
 `master`). Images come from the latest cloud `master` build
 (`ECE_TEST_USE_LATEST_AVAILABLE_IMAGES`).
 

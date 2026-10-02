@@ -8,7 +8,8 @@
       "build_on_commit": false,
       "set_commit_status": true,
       "commit_status_context": "buildkite/ansible-ece-prsuite",
-      "trigger_comment_regex": "^run ece(?:/tests)?\\s*$"
+      "trigger_comment_regex_flags": "",
+      "trigger_comment_regex": "^run ece(?:/tests)? *(?<args>(?=( )*[=]*)(.+=.+)?)?$"
     }
   ]
 }
