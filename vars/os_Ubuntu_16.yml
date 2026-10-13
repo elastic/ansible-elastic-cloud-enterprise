@@ -6,7 +6,9 @@ conntrack_module: ip_conntrack
 container_engine: Docker
 
 # Docker version mapping
-# NOTE: Ubuntu 16.04 (xenial) is EOL and Docker's xenial apt pool is frozen;
+# NOTE: Not an ECE 3.8+ or Ansible 14 target (xenial Python 3.5). Kept so older
+# playbooks still resolve; do not advertise as supported.
+# Ubuntu 16.04 (xenial) is EOL and Docker's xenial apt pool is frozen;
 # containerd.io 1.4.6 is the last build published for xenial
 # (https://download.docker.com/linux/ubuntu/dists/xenial/pool/stable/amd64/).
 docker_version_map:

@@ -14,8 +14,6 @@
 
 - name: Install docker
   command: "zypper install -y --force-resolution --replacefiles {{ docker_version_map[docker_version]['package'] }} acl"
-  args:
-    warn: false
 
 # Workaround for https://github.com/elastic/ansible-elastic-cloud-enterprise/issues/155#issuecomment-1117069430
 - name: Uninstall nscd 
