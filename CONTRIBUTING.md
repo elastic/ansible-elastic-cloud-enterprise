@@ -68,13 +68,16 @@ Override the combo with `ECE_TESTS_OS` and `ECE_TESTS_CONTAINER_ENGINE` (tokens
 from cloud `.ci/ece-test-matrix.json`). The same names work on a PR comment and
 on **New Build**. This pipeline remaps `ECE_TESTS_CONTAINER_ENGINE` to
 `ECE_TESTS_DOCKER` for the matcher; that matcher name still works as an alias.
-Arm coverage is `ECE_TESTS_OS=ubuntu_22.04_arm64`, not the legacy `ce-aws-arm`
-env (that path is shell/puppet, not Ansible).
+Arm coverage is `ECE_TESTS_OS=ubuntu_22.04_arm64`, which also sets
+`ECE_TESTS_ENV=ce-aws-arm` so the matcher uses arm64 instance types. That
+matrix row installs with Ansible (`ANSIBLE_ECE_BRANCH`); it is not the legacy
+shell/puppet-only path.
 
 ```text
 run ece
 run ece ECE_TESTS_OS=ubuntu_24.04 ECE_TESTS_CONTAINER_ENGINE=docker_29
 run ece/tests ECE_TESTS_OS=sles_15 ECE_TESTS_CONTAINER_ENGINE=docker_29
+run ece ECE_TESTS_OS=ubuntu_22.04_arm64 ECE_TESTS_CONTAINER_ENGINE=docker_25
 ```
 
 Unset keys keep the default combo: Ubuntu 24.04 / Docker 29.

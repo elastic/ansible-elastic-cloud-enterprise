@@ -14,6 +14,8 @@ python3 -m pip install -r requirements.txt
 
 The control node needs Python 3.12 or newer. Ansible Engine 2.x (including 2.8.7) is not supported. `ansible-core` 2.16 is the oldest controller this role will still load (`min_ansible_version`); use the pin above for a maintained release.
 
+ansible-core 2.21 (Ansible 14) needs **Python 3.9 or newer on managed hosts**. Stock Ubuntu 20.04 (`python3.8`) and RHEL/Rocky 8 (`platform-python` 3.6) fail every module unless you install a 3.9+ interpreter and set `ansible_python_interpreter`. Collection dependencies for a Galaxy install are in `meta/requirements.yml` (`ansible.posix` and `community.general`).
+
 Supported container-engine hosts include Ubuntu 20.04/22.04/24.04 (Docker), SLES 15 (Docker), Rocky 8/9 (Podman), RHEL 8 (Docker or Podman), and RHEL 9 (Podman). RHEL 9 with Docker, RHEL 10 with Podman, and RHEL 10 with Docker 29 are experimental in this role (not official support-matrix combinations) and emit a warning at runtime. RHEL 10 is also not listed in Galaxy yet. Ubuntu 16.04 is not an ECE 3.8+ (or current Ansible 14) target: ECE 3.8 documents Ubuntu 20.04/22.04 only, and xenial's Python 3.5 cannot run ansible-core 2.16+ modules.
 
 On Podman hosts the role exposes the installer socket at `/var/run/docker.sock` (official ECE RHEL prep). Older revisions of this role used `--host-docker-host /run/podman/podman.sock`. Re-running the role on a cluster installed with that older socket path moves the systemd socket without rewriting existing ECE runner config — do not treat that as a drop-in upgrade.
@@ -134,10 +136,10 @@ The following variables are avaible:
 - `elastic_authorized_keys_file`: Defines a local path to an `authorized_keys` file that should be copied to the `elastic` user. If not set, the keys from the default user that is used with ansible will be copied over.
 - `memory`: Defines the JVM heap size to be used for different services running in ece. See https://www.elastic.co/guide/en/cloud-enterprise/2.7/ece-jvm.html for example values and [defaults/main.yml](defaults/main.yml) for the default values.
 
-- `fetch_diagnostics`: Determines if Elastic Cloud Enterprise Support Diagnostics should be downloaded and executed
-- `ece_supportdiagnostics_version`: Version of [ece-support-diagnostics](https://github.com/elastic/ece-support-diagnostics) used to build the download URL and the extracted script path. 2.x+ requires the official `-dist` release (not the GitHub source archive).
+- `fetch_diagnostics`: Determines if Elastic Cloud Enterprise Support Diagnostics should be downloaded and executed. The v2.0.9 `-dist` helpers (`displaySrvCertExpiration` / `displayFileCertExpiration`) are x86-64 only; on arm64 hosts those JSON files in the bundle are empty and the play still succeeds.
+- `ece_supportdiagnostics_version`: Version of [ece-support-diagnostics](https://github.com/elastic/ece-support-diagnostics) used to build the default download URL and the local cache filename. 2.x+ requires the official `-dist` release (not the GitHub source archive). If you override `ece_supportdiagnostics_url` to a different release, set this to that same version.
     - Default: `2.0.9`
-- `ece_supportdiagnostics_url`: The location of the diagnostics tool. Can be a local file for offline installation.
+- `ece_supportdiagnostics_url`: The location of the diagnostics tool. Can be a local file for offline installation. The default URL is derived from `ece_supportdiagnostics_version`.
     - Default: `https://github.com/elastic/ece-support-diagnostics/releases/download/v{{ ece_supportdiagnostics_version }}/ece-support-diagnostics-v{{ ece_supportdiagnostics_version }}-dist.tar.gz`
 - `ece_supportdiagnostics_result_path`: The localtion where to store the diagnostic bundles on ansible host.
     - Default: `/tmp/ece-support-diagnostics`

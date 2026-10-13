@@ -1,3 +1,5 @@
 # Ansible 14 == ansible-core 2.21. Control node needs Python >= 3.12.
-# The meta-package also pulls ansible.posix (selinux, firewalld, pam_limits).
+# The meta-package pulls ansible.posix and community.general (pam_limits lives
+# in community.general). Collection pins for galaxy installs are in
+# meta/requirements.yml.
 ansible==14.4.0

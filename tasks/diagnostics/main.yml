@@ -1,48 +1,90 @@
 ---
 - name: Create local download path
   ansible.builtin.file:
-    path: /tmp/elastic/ece-support-diagnostics
+    path: /tmp/elastic
     state: directory
     mode: "0755"
   delegate_to: localhost
   become: false
+  run_once: true
 
 - name: Download ece support diagnostics
   ansible.builtin.get_url:
     url: "{{ ece_supportdiagnostics_url }}"
-    dest: /tmp/elastic/ece-support-diagnostics.tar.gz
-    mode: "0755"
+    dest: "/tmp/elastic/ece-support-diagnostics-v{{ ece_supportdiagnostics_version }}-dist.tar.gz"
+    mode: "0644"
   delegate_to: localhost
   become: false
-
-- name: Create remote extract path
-  ansible.builtin.file:
-    path: /tmp/elastic
-    state: directory
-    mode: "0755"
+  run_once: true
 
 # Extract on the managed host so GNU tar is used. Ansible's unarchive module
-# rejects BSD tar (macOS controllers) for .tar.gz.
-- name: Unzip downloaded ece support diagnostics
-  ansible.builtin.unarchive:
-    src: /tmp/elastic/ece-support-diagnostics.tar.gz
-    dest: /tmp/elastic/
+# rejects BSD tar (macOS controllers) for .tar.gz. Use /var/tmp so the script
+# and helper binaries remain executable when /tmp is noexec.
+- name: Collect ECE support diagnostics
+  block:
+    - name: Create remote diagnostics work dir
+      ansible.builtin.tempfile:
+        state: directory
+        path: /var/tmp
+        prefix: ece-support-diagnostics-
+      register: ece_diag_workdir
 
-- name: Run ece support diagnostics
-  ansible.builtin.command:
-    cmd: /tmp/elastic/ece-support-diagnostics-v{{ ece_supportdiagnostics_version }}/ece-diagnostics.sh -s -d
-    chdir: /tmp/elastic/ece-support-diagnostics-v{{ ece_supportdiagnostics_version }}
+    - name: Unzip downloaded ece support diagnostics
+      ansible.builtin.unarchive:
+        src: "/tmp/elastic/ece-support-diagnostics-v{{ ece_supportdiagnostics_version }}-dist.tar.gz"
+        dest: "{{ ece_diag_workdir.path }}"
+        extra_opts:
+          - --no-same-owner
+        owner: root
+        group: root
 
-- name: Find generated diagnostic bundles
-  ansible.builtin.find:
-    paths: /tmp
-    patterns: ece_diag*.tar.gz
-  register: ece_diag_bundles
+    - name: Locate diagnostics script
+      ansible.builtin.find:
+        paths: "{{ ece_diag_workdir.path }}"
+        patterns:
+          - ece-diagnostics.sh
+          - diagnostics.sh
+        recurse: true
+      register: ece_diag_script
 
-- name: Download diagnostic bundles to ansible host and save under {{ ece_supportdiagnostics_result_path }}
-  ansible.builtin.fetch:
-    src: "{{ item.path }}"
-    dest: "{{ ece_supportdiagnostics_result_path }}"
-  loop: "{{ ece_diag_bundles.files }}"
-  loop_control:
-    label: "{{ item.path }}"
+    - name: Fail if diagnostics script is missing
+      ansible.builtin.fail:
+        msg: "ece-diagnostics.sh not found under {{ ece_diag_workdir.path }}"
+      when: ece_diag_script.matched | int == 0
+
+    - name: Run ece support diagnostics
+      ansible.builtin.command:
+        argv:
+          - "{{ ece_diag_script.files[0].path }}"
+          - -s
+          - -d
+          - -sp
+          - "{{ data_dir }}/elastic"
+          - -o
+          - "{{ ece_diag_workdir.path }}"
+        chdir: "{{ ece_diag_script.files[0].path | dirname }}"
+
+    - name: Find generated diagnostic bundles
+      ansible.builtin.find:
+        paths: "{{ ece_diag_workdir.path }}"
+        patterns: ece_diag*.tar.gz
+      register: ece_diag_bundles
+
+    - name: Fail if no diagnostic bundle was produced
+      ansible.builtin.fail:
+        msg: "ece-diagnostics.sh produced no ece_diag*.tar.gz under {{ ece_diag_workdir.path }}"
+      when: ece_diag_bundles.matched | int == 0
+
+    - name: Download diagnostic bundles to ansible host and save under {{ ece_supportdiagnostics_result_path }}
+      ansible.builtin.fetch:
+        src: "{{ item.path }}"
+        dest: "{{ ece_supportdiagnostics_result_path }}"
+      loop: "{{ ece_diag_bundles.files }}"
+      loop_control:
+        label: "{{ item.path }}"
+  always:
+    - name: Remove remote diagnostics work dir
+      ansible.builtin.file:
+        path: "{{ ece_diag_workdir.path }}"
+        state: absent
+      when: ece_diag_workdir is defined and ece_diag_workdir.path is defined

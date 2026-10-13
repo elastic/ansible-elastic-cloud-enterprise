@@ -7,6 +7,7 @@
 # PR comment using ECE_TESTS_OS and ECE_TESTS_CONTAINER_ENGINE:
 #   run ece ECE_TESTS_OS=ubuntu_24.04 ECE_TESTS_CONTAINER_ENGINE=docker_29
 # ECE_TESTS_CONTAINER_ENGINE is remapped to ECE_TESTS_DOCKER for the matcher.
+# OS tokens containing arm64 also set ECE_TESTS_ENV=ce-aws-arm.
 #
 # GitHub Checks: post against this commit so the ansible-ece PR shows a running
 # job. Do not forward BUILDKITE_PULL_REQUEST to the matcher (wrong repo's PR #).
