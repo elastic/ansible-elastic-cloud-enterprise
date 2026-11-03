@@ -5,7 +5,7 @@
     state: touch
 
 - name: Modify pam limits
-  pam_limits:
+  community.general.pam_limits:
     domain: "{{ item.domain }}"
     limit_type: "{{ item.limit_type }}"
     limit_item: "{{ item.limit_item }}"
